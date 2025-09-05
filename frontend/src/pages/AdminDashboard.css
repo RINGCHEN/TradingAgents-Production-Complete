@@ -1,0 +1,296 @@
+/* AdminDashboard.css - 管理後台樣式 */
+
+.admin-dashboard {
+  min-height: 100vh;
+  background: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.admin-header {
+  background: white;
+  border-bottom: 1px solid #e1e8ed;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #7f8c8d;
+}
+
+.admin-content {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e1e8ed;
+}
+
+.stat-title {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.stat-change {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stat-change.positive {
+  color: #27ae60;
+}
+
+.stat-change.negative {
+  color: #e74c3c;
+}
+
+.admin-section {
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 1px solid #e1e8ed;
+  overflow: hidden;
+}
+
+.section-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e1e8ed;
+  background: #f8f9fa;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.section-content {
+  padding: 24px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.data-table th {
+  font-weight: 600;
+  color: #2c3e50;
+  background: #f8f9fa;
+}
+
+.data-table td {
+  color: #7f8c8d;
+}
+
+.action-button {
+  padding: 6px 12px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-button:hover {
+  background: #2980b9;
+}
+
+.action-button.danger {
+  background: #e74c3c;
+}
+
+.action-button.danger:hover {
+  background: #c0392b;
+}
+
+.admin-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.control-button {
+  padding: 10px 20px;
+  background: white;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  color: #2c3e50;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.control-button:hover {
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.control-button.active {
+  background: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+.search-box {
+  padding: 10px 16px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 14px;
+  min-width: 200px;
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .admin-content {
+    padding: 16px;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-controls {
+    flex-direction: column;
+  }
+
+  .data-table {
+    font-size: 14px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 8px;
+  }
+}
+
+/* 載入動畫 */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e1e8ed;
+  border-radius: 50%;
+  border-top-color: #3498db;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 狀態指示器 */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background: #d5e8d4;
+  color: #27ae60;
+}
+
+.status-badge.inactive {
+  background: #fadbd8;
+  color: #e74c3c;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #f39c12;
+}
+
+/* 圖表容器 */
+.chart-container {
+  height: 300px;
+  margin: 20px 0;
+}
+
+/* 通知樣式 */
+.notification {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notification.success {
+  background: #d5e8d4;
+  color: #27ae60;
+  border-left: 4px solid #27ae60;
+}
+
+.notification.error {
+  background: #fadbd8;
+  color: #e74c3c;
+  border-left: 4px solid #e74c3c;
+}
+
+.notification.warning {
+  background: #fff3cd;
+  color: #f39c12;
+  border-left: 4px solid #f39c12;
+}

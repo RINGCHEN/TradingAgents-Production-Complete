@@ -1,0 +1,1 @@
+export const DialogueAnalysisPage = () => <div>對話分析頁面</div>;

@@ -1,0 +1,38 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圓形 -->
+  <circle cx="32" cy="32" r="32" fill="#fff7e6"/>
+  
+  <!-- 新聞分析師圖標 -->
+  <g transform="translate(10, 10)">
+    <!-- 報紙背景 -->
+    <rect x="4" y="6" width="36" height="32" rx="2" fill="white" stroke="#fa8c16" stroke-width="1"/>
+    
+    <!-- 報紙標題 -->
+    <rect x="8" y="10" width="28" height="3" fill="#fa8c16"/>
+    
+    <!-- 新聞欄位 -->
+    <rect x="8" y="16" width="12" height="2" fill="#666"/>
+    <rect x="8" y="19" width="10" height="1" fill="#999"/>
+    <rect x="8" y="21" width="11" height="1" fill="#999"/>
+    <rect x="8" y="23" width="9" height="1" fill="#999"/>
+    
+    <rect x="24" y="16" width="12" height="2" fill="#666"/>
+    <rect x="24" y="19" width="10" height="1" fill="#999"/>
+    <rect x="24" y="21" width="11" height="1" fill="#999"/>
+    <rect x="24" y="23" width="8" height="1" fill="#999"/>
+    
+    <!-- 圖片區域 -->
+    <rect x="8" y="27" width="8" height="6" fill="#f0f0f0" stroke="#d9d9d9"/>
+    <rect x="24" y="27" width="8" height="6" fill="#f0f0f0" stroke="#d9d9d9"/>
+    
+    <!-- 新聞圖標 -->
+    <circle cx="12" cy="30" r="1" fill="#fa8c16"/>
+    <circle cx="28" cy="30" r="1" fill="#fa8c16"/>
+    
+    <!-- 折疊效果 -->
+    <path d="M36 6 L40 10 L36 10 Z" fill="#e6e6e6"/>
+  </g>
+  
+  <!-- 邊框 -->
+  <circle cx="32" cy="32" r="31" stroke="#fa8c16" stroke-width="2" fill="none"/>
+</svg>

@@ -1,0 +1,421 @@
+/**
+ * VoicePlayer 組件樣式
+ * 企業級設計，支援深色/淺色主題
+ */
+
+.voice-player {
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  
+  --background-color: #ffffff;
+  --surface-color: #f8f9fa;
+  --border-color: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #8e8e93;
+  
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --border-radius: 8px;
+  --border-radius-sm: 4px;
+  
+  --transition: all 0.2s ease-in-out;
+  --animation-duration: 0.3s;
+}
+
+/* 深色主題變數 */
+.voice-player--dark {
+  --background-color: #1a1a1a;
+  --surface-color: #2d2d2d;
+  --border-color: #404040;
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #8e8e93;
+}
+
+/* 淺色主題變數 */
+.voice-player--light {
+  --background-color: #ffffff;
+  --surface-color: #f8f9fa;
+  --border-color: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #8e8e93;
+}
+
+/* 主容器 */
+.voice-player {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.voice-player:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--primary-color);
+}
+
+.voice-player:focus-within {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* 控制項容器 */
+.voice-player__controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* 主要播放控制 */
+.voice-player__main-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.voice-player__play-btn,
+.voice-player__stop-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.voice-player__play-btn:hover,
+.voice-player__stop-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+
+.voice-player__play-btn:active,
+.voice-player__stop-btn:active {
+  transform: translateY(0);
+}
+
+.voice-player__play-btn:disabled,
+.voice-player__stop-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.voice-player__play-btn--playing {
+  background: var(--warning-color);
+}
+
+/* 載入動畫 */
+.voice-player__loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 進度條容器 */
+.voice-player__progress-container {
+  flex: 1;
+  min-width: 200px;
+  margin: 0 0.5rem;
+}
+
+.voice-player__progress-bar {
+  position: relative;
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.voice-player__progress-bar:hover {
+  height: 12px;
+  transform: scaleY(1.5);
+}
+
+.voice-player__progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color), var(--info-color));
+  border-radius: 4px;
+  transition: width 0.1s ease;
+}
+
+.voice-player__progress-handle {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  border: 2px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+
+.voice-player__progress-bar:hover .voice-player__progress-handle {
+  opacity: 1;
+}
+
+/* 時間顯示 */
+.voice-player__time {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  min-width: 80px;
+}
+
+.voice-player__current-time {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.voice-player__time-separator {
+  opacity: 0.5;
+}
+
+.voice-player__duration {
+  opacity: 0.8;
+}
+
+/* 音量控制 */
+.voice-player__volume-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 100px;
+}
+
+.voice-player__volume-icon {
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.voice-player__volume-slider {
+  flex: 1;
+  height: 4px;
+  background: var(--border-color);
+  border: none;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.voice-player__volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.voice-player__volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: var(--shadow);
+}
+
+.voice-player__volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+/* 速度控制 */
+.voice-player__speed-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.voice-player__speed-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.voice-player__speed-select {
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.voice-player__speed-select:hover {
+  border-color: var(--primary-color);
+}
+
+.voice-player__speed-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* 錯誤狀態 */
+.voice-player--error {
+  border-color: var(--danger-color);
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.voice-player__error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--danger-color);
+  font-size: 0.875rem;
+}
+
+.voice-player__error-icon {
+  font-size: 16px;
+}
+
+.voice-player__error-text {
+  flex: 1;
+}
+
+.voice-player__retry-btn {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: var(--transition);
+}
+
+.voice-player__retry-btn:hover {
+  background: #c82333;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .voice-player__controls {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .voice-player__progress-container {
+    order: -1;
+    width: 100%;
+    margin: 0;
+  }
+  
+  .voice-player__main-controls {
+    justify-content: center;
+  }
+  
+  .voice-player__time,
+  .voice-player__volume-container,
+  .voice-player__speed-container {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .voice-player {
+    padding: 0.75rem;
+  }
+  
+  .voice-player__play-btn,
+  .voice-player__stop-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+}
+
+/* 可訪問性增強 */
+@media (prefers-reduced-motion: reduce) {
+  .voice-player,
+  .voice-player__play-btn,
+  .voice-player__stop-btn,
+  .voice-player__progress-bar,
+  .voice-player__progress-fill,
+  .voice-player__progress-handle,
+  .voice-player__volume-slider::-webkit-slider-thumb,
+  .voice-player__speed-select,
+  .voice-player__retry-btn {
+    transition: none;
+  }
+  
+  .voice-player__loading-spinner {
+    animation: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .voice-player {
+    border-width: 2px;
+  }
+  
+  .voice-player__play-btn,
+  .voice-player__stop-btn {
+    border: 2px solid currentColor;
+  }
+  
+  .voice-player__progress-bar {
+    border: 1px solid var(--text-primary);
+  }
+}
+
+/* 焦點指示器 */
+.voice-player__play-btn:focus,
+.voice-player__stop-btn:focus,
+.voice-player__progress-bar:focus,
+.voice-player__volume-slider:focus,
+.voice-player__speed-select:focus,
+.voice-player__retry-btn:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* 打印樣式 */
+@media print {
+  .voice-player {
+    display: none;
+  }
+}

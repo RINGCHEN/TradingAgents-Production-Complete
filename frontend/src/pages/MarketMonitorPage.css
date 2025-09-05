@@ -1,0 +1,1218 @@
+/* MarketMonitorPage.css - 市場監控頁面樣式 */
+/* Phase 2.5 - 實時監控和通知 */
+
+.market-monitor-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* 載入狀態 */
+.market-monitor-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e1e8ed;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 頁面標題 */
+.page-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 60px 0 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>') repeat;
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.header-main {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.page-subtitle {
+  font-size: 18px;
+  opacity: 0.9;
+  line-height: 1.6;
+}/*
+ 連接狀態 */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.connected .status-dot {
+  background: #27ae60;
+}
+
+.status-indicator.disconnected .status-dot {
+  background: #e74c3c;
+}
+
+.status-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.notification-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.notification-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* 監控容器 */
+.monitor-container {
+  max-width: 1400px;
+  margin: -20px auto 0;
+  padding: 0 20px 40px;
+  position: relative;
+  z-index: 10;
+}
+
+/* 市場指數 */
+.market-indices {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.indices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.index-card {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.index-card:hover {
+  background: #e8f4f8;
+  transform: translateY(-2px);
+}
+
+.index-name {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.index-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.index-change {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.index-time {
+  font-size: 12px;
+  color: #95a5a6;
+}
+
+/* 視圖切換 */
+.view-tabs {
+  display: flex;
+  background: white;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+  gap: 8px;
+}
+
+.view-tab {
+  flex: 1;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: #7f8c8d;
+  text-align: center;
+}
+
+.view-tab:hover {
+  background: #f8f9fa;
+  color: #2c3e50;
+}
+
+.view-tab.active {
+  background: #3498db;
+  color: white;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+/* 內容區域 */
+.view-content {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 概覽內容 */
+.overview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.content-section {
+  border-bottom: 1px solid #e1e8ed;
+  padding-bottom: 30px;
+}
+
+.content-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.add-stock-btn,
+.create-alert-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.add-stock-btn:hover,
+.create-alert-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+/* 關注列表預覽 */
+.watchlist-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stock-preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.stock-preview-item:hover {
+  background: #e8f4f8;
+}
+
+.stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stock-symbol {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.stock-name {
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.stock-price {
+  text-align: right;
+}
+
+.current-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.price-change {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* 空狀態 */
+.empty-watchlist,
+.empty-alerts,
+.empty-watchlist-table,
+.empty-alerts-list,
+.empty-events-list {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-watchlist p,
+.empty-alerts p {
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+.add-first-stock-btn,
+.create-first-alert-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.add-first-stock-btn:hover,
+.create-first-alert-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+/* 預警預覽 */
+.active-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alert-preview-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #fef9e7;
+  border: 1px solid #f39c12;
+  border-radius: 8px;
+}
+
+.alert-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alert-symbol {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.alert-message {
+  font-size: 13px;
+  color: #7f8c8d;
+}
+
+.alert-condition {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f39c12;
+}
+
+/* 市場事件預覽 */
+.recent-events {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.event-impact {
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.event-content {
+  flex: 1;
+}
+
+.event-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.event-time {
+  font-size: 12px;
+  color: #95a5a6;
+}/* 關注列表內容
+ */
+.watchlist-content,
+.alerts-content,
+.events-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.content-header h4 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* 關注列表表格 */
+.watchlist-table {
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #f8f9fa;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 16px;
+  padding: 20px;
+  border-bottom: 1px solid #f8f9fa;
+  transition: all 0.3s ease;
+  align-items: center;
+}
+
+.table-row:hover {
+  background: #f8f9fa;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.col-stock .stock-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stock-market {
+  font-size: 11px;
+  background: #e8f4f8;
+  color: #2980b9;
+  padding: 2px 6px;
+  border-radius: 3px;
+  width: fit-content;
+}
+
+.previous-close {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.change-amount,
+.change-percent {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.range-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.col-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e1e8ed;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.action-btn:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.action-btn.remove:hover {
+  border-color: #e74c3c;
+  background: #fdf2f2;
+}
+
+/* 預警列表 */
+.alerts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alert-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.alert-item:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.alert-main {
+  flex: 1;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.alert-symbol {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.alert-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.alert-status.active {
+  background: #eafaf1;
+  color: #27ae60;
+}
+
+.alert-status.inactive {
+  background: #f8f9fa;
+  color: #95a5a6;
+}
+
+.alert-triggered {
+  padding: 4px 8px;
+  background: #fdf2f2;
+  color: #e74c3c;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.alert-message {
+  font-size: 14px;
+  color: #2c3e50;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.alert-condition {
+  font-size: 13px;
+  color: #7f8c8d;
+  margin-bottom: 8px;
+}
+
+.alert-time {
+  font-size: 12px;
+  color: #95a5a6;
+}
+
+.alert-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toggle-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.toggle-btn.active {
+  background: #27ae60;
+  color: white;
+}
+
+.toggle-btn.inactive {
+  background: #95a5a6;
+  color: white;
+}
+
+.delete-btn {
+  padding: 8px 16px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.delete-btn:hover {
+  background: #c0392b;
+}
+
+/* 市場事件 */
+.event-filters {
+  display: flex;
+  gap: 12px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #e1e8ed;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event-item {
+  padding: 20px;
+  border: 1px solid #e1e8ed;
+  border-radius: 12px;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.event-item:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.event-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.event-impact-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.event-type {
+  padding: 4px 8px;
+  background: #f8f9fa;
+  color: #7f8c8d;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.event-time {
+  font-size: 12px;
+  color: #95a5a6;
+  margin-left: auto;
+}
+
+.event-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.event-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.event-description {
+  font-size: 14px;
+  color: #7f8c8d;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.affected-symbols {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.symbols-label {
+  font-size: 12px;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.symbol-tag {
+  font-size: 12px;
+  color: #3498db;
+  font-weight: 600;
+}
+
+.event-source {
+  font-size: 12px;
+  color: #95a5a6;
+  font-style: italic;
+}
+
+/* 空狀態圖標 */
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-watchlist-table h3,
+.empty-alerts-list h3,
+.empty-events-list h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.empty-watchlist-table p,
+.empty-alerts-list p,
+.empty-events-list p {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 20px;
+}
+
+/* 模態框 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.add-stock-modal,
+.create-alert-modal {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 30px;
+  border-bottom: 1px solid #e1e8ed;
+  background: #f8f9fa;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #e1e8ed;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #7f8c8d;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #d1d9e0;
+  color: #2c3e50;
+}
+
+.modal-content {
+  padding: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  padding: 24px 30px;
+  border-top: 1px solid #e1e8ed;
+  background: #f8f9fa;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-btn.secondary {
+  background: #e1e8ed;
+  color: #2c3e50;
+}
+
+.modal-btn.secondary:hover {
+  background: #d1d9e0;
+}
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.modal-btn.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 響應式設計 */
+@media (max-width: 1200px) {
+  .monitor-container {
+    padding: 0 15px 30px;
+  }
+  
+  .indices-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 40px 0 30px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+  
+  .page-title {
+    font-size: 28px;
+  }
+  
+  .page-subtitle {
+    font-size: 16px;
+  }
+  
+  .connection-status {
+    justify-content: center;
+  }
+  
+  .view-tabs {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .view-content {
+    padding: 20px;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .table-header {
+    display: none;
+  }
+  
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+  
+  .table-row > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .col-actions {
+    justify-content: flex-end;
+  }
+  
+  .alert-item {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .alert-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+  
+  .event-header {
+    flex-wrap: wrap;
+  }
+  
+  .modal-overlay {
+    padding: 10px;
+  }
+  
+  .modal-content {
+    padding: 20px;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .monitor-container {
+    margin-top: -10px;
+    padding: 0 10px 20px;
+  }
+  
+  .market-indices {
+    padding: 20px;
+  }
+  
+  .indices-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .view-content {
+    padding: 15px;
+  }
+  
+  .stock-preview-item,
+  .alert-preview-item,
+  .event-preview-item {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .modal-header,
+  .modal-content,
+  .modal-actions {
+    padding: 15px;
+  }
+}
+
+/* 深色模式支援 */
+@media (prefers-color-scheme: dark) {
+  .market-monitor-page {
+    background: #1a1a1a;
+    color: white;
+  }
+  
+  .market-indices,
+  .view-content,
+  .index-card,
+  .stock-preview-item,
+  .alert-preview-item,
+  .event-preview-item,
+  .alert-item,
+  .event-item {
+    background: #2c3e50;
+  }
+  
+  .index-card:hover,
+  .stock-preview-item:hover,
+  .table-row:hover,
+  .alert-item:hover,
+  .event-item:hover {
+    background: #34495e;
+  }
+  
+  .table-header {
+    background: #34495e;
+  }
+  
+  .form-input,
+  .form-select,
+  .filter-select {
+    background: #34495e;
+    border-color: #4a5f7a;
+    color: white;
+  }
+  
+  .action-btn {
+    background: #34495e;
+    border-color: #4a5f7a;
+    color: white;
+  }
+  
+  .action-btn:hover {
+    background: #4a5f7a;
+  }
+  
+  .add-stock-modal,
+  .create-alert-modal {
+    background: #2c3e50;
+  }
+  
+  .modal-header,
+  .modal-actions {
+    background: #34495e;
+  }
+}
+
+/* 可訪問性 */
+.view-tab:focus-visible,
+.add-stock-btn:focus-visible,
+.create-alert-btn:focus-visible,
+.action-btn:focus-visible,
+.toggle-btn:focus-visible,
+.delete-btn:focus-visible,
+.modal-btn:focus-visible,
+.close-btn:focus-visible,
+.form-input:focus-visible,
+.form-select:focus-visible,
+.filter-select:focus-visible {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+/* 減少動畫偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+  }
+  
+  .status-dot {
+    animation: none;
+  }
+  
+  .index-card:hover,
+  .add-stock-btn:hover,
+  .create-alert-btn:hover,
+  .modal-btn.primary:hover {
+    transform: none;
+  }
+  
+  * {
+    transition: none !important;
+  }
+}

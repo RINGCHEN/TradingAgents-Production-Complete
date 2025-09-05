@@ -1,0 +1,599 @@
+/* 增強型數據表格樣式 */
+/* 基於 functional_admin.html 的 DataTables 優秀設計，提供企業級視覺效果 */
+
+.enhanced-data-table {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+/* 工具欄樣式 */
+.table-toolbar {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.table-title {
+  color: #495057;
+  font-weight: 600;
+  margin: 0;
+}
+
+.table-search input[type="search"] {
+  border-radius: 20px;
+  border: 1px solid #ced4da;
+  padding: 6px 16px;
+  transition: all 0.3s ease;
+}
+
+.table-search input[type="search"]:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* 表格容器 */
+.table-container {
+  position: relative;
+}
+
+.table-responsive {
+  border-radius: 0;
+}
+
+/* 表格基礎樣式 */
+.enhanced-data-table .table {
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.enhanced-data-table .table th,
+.enhanced-data-table .table td {
+  vertical-align: middle;
+  border-color: #e9ecef;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+/* 表頭樣式 */
+.enhanced-data-table .table thead th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-header-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 可排序表頭 */
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease;
+}
+
+.sortable-header:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.sortable-header i {
+  transition: all 0.2s ease;
+}
+
+/* 篩選器樣式 */
+.filter-container {
+  min-width: 120px;
+}
+
+.filter-container .form-control,
+.filter-container .form-select {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 4px 8px;
+  color: #495057;
+}
+
+.filter-container .form-control:focus,
+.filter-container .form-select:focus {
+  background: #fff;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* 表格行樣式 */
+.enhanced-data-table .table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.enhanced-data-table .table tbody tr:hover {
+  background-color: #f8f9fa;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.enhanced-data-table .table tbody tr.table-active {
+  background-color: #e3f2fd;
+  border-left: 3px solid #2196f3;
+}
+
+/* 選擇框樣式 */
+.form-check-input {
+  border-radius: 3px;
+  border: 2px solid #ced4da;
+  transition: all 0.2s ease;
+}
+
+.form-check-input:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.form-check-input:focus {
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* 展開行樣式 */
+.expanded-row-content {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin: 8px 0;
+}
+
+/* 空數據狀態 */
+.enhanced-data-table .table tbody td {
+  text-align: center;
+}
+
+.enhanced-data-table .table tbody tr td:has(.fa-inbox) {
+  padding: 40px 16px;
+}
+
+/* 載入狀態 */
+.spinner-border {
+  margin: 0 auto;
+}
+
+/* 分頁樣式 */
+.table-pagination {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+.pagination-info {
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.pagination {
+  margin: 0;
+}
+
+.page-link {
+  color: #495057;
+  border-color: #dee2e6;
+  padding: 6px 12px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.page-link:hover {
+  color: #007bff;
+  background-color: #e9ecef;
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+}
+
+.page-item.active .page-link {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.page-item.disabled .page-link {
+  color: #6c757d;
+  background-color: transparent;
+  border-color: #dee2e6;
+  cursor: not-allowed;
+}
+
+/* 按鈕樣式增強 */
+.enhanced-data-table .btn {
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.enhanced-data-table .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.enhanced-data-table .btn-sm {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+/* 下拉菜單樣式 */
+.dropdown-menu {
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  margin-top: 4px;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #495057;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+  color: #007bff;
+  transform: translateX(4px);
+}
+
+.dropdown-item i {
+  width: 16px;
+  font-size: 12px;
+}
+
+/* 警告框樣式 */
+.alert {
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+  color: #0c5460;
+}
+
+/* 表格尺寸 */
+.table-sm th,
+.table-sm td {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.table-lg th,
+.table-lg td {
+  padding: 16px 20px;
+  font-size: 15px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .table-toolbar {
+    padding: 12px 16px;
+  }
+  
+  .table-toolbar .row {
+    gap: 12px;
+  }
+  
+  .table-search input[type="search"] {
+    width: 100% !important;
+  }
+  
+  .enhanced-data-table .table th,
+  .enhanced-data-table .table td {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .table-header-cell {
+    gap: 4px;
+  }
+  
+  .filter-container {
+    min-width: 100px;
+  }
+  
+  .pagination-info {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .table-pagination .row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .pagination {
+    justify-content: center;
+  }
+  
+  .page-link {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .enhanced-data-table {
+    margin: 0 -16px 24px;
+    border-radius: 0;
+  }
+  
+  .table-toolbar,
+  .table-pagination {
+    padding: 12px 16px;
+  }
+  
+  .enhanced-data-table .table {
+    font-size: 12px;
+  }
+  
+  .enhanced-data-table .table th,
+  .enhanced-data-table .table td {
+    padding: 6px 8px;
+  }
+  
+  .filter-container .form-control,
+  .filter-container .form-select {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+}
+
+/* 深色主題支援 */
+@media (prefers-color-scheme: dark) {
+  .enhanced-data-table {
+    background: #2d3748;
+    color: #e2e8f0;
+  }
+  
+  .table-toolbar,
+  .table-pagination {
+    background: #4a5568;
+    border-color: #718096;
+  }
+  
+  .enhanced-data-table .table th,
+  .enhanced-data-table .table td {
+    border-color: #718096;
+    color: #e2e8f0;
+  }
+  
+  .enhanced-data-table .table thead th {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  }
+  
+  .enhanced-data-table .table tbody tr:hover {
+    background-color: #4a5568;
+  }
+  
+  .enhanced-data-table .table tbody tr.table-active {
+    background-color: #2c5aa0;
+    border-left-color: #60a5fa;
+  }
+  
+  .filter-container .form-control,
+  .filter-container .form-select {
+    background: #4a5568;
+    border-color: #718096;
+    color: #e2e8f0;
+  }
+  
+  .expanded-row-content {
+    background: #4a5568;
+  }
+  
+  .page-link {
+    color: #e2e8f0;
+    background-color: #4a5568;
+    border-color: #718096;
+  }
+  
+  .page-item.active .page-link {
+    background: linear-gradient(135deg, #3182ce, #2c5aa0);
+  }
+  
+  .dropdown-menu {
+    background: #4a5568;
+    border: 1px solid #718096;
+  }
+  
+  .dropdown-item {
+    color: #e2e8f0;
+  }
+  
+  .dropdown-item:hover {
+    background: linear-gradient(135deg, #2c5aa0, #2a69ac);
+    color: #90cdf4;
+  }
+}
+
+/* 高對比度模式 */
+@media (prefers-contrast: high) {
+  .enhanced-data-table {
+    border: 2px solid #000;
+  }
+  
+  .enhanced-data-table .table th,
+  .enhanced-data-table .table td {
+    border: 1px solid #000;
+  }
+  
+  .sortable-header:hover {
+    text-decoration: underline;
+  }
+  
+  .enhanced-data-table .btn {
+    border: 2px solid currentColor;
+  }
+}
+
+/* 減少動畫偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .enhanced-data-table * {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* 打印樣式 */
+@media print {
+  .enhanced-data-table {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .table-toolbar,
+  .table-pagination {
+    display: none;
+  }
+  
+  .enhanced-data-table .table {
+    font-size: 12px;
+  }
+  
+  .enhanced-data-table .table th,
+  .enhanced-data-table .table td {
+    padding: 4px 8px;
+    border: 1px solid #000;
+  }
+  
+  .enhanced-data-table .table thead th {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+  }
+  
+  .enhanced-data-table .table tbody tr:nth-child(even) {
+    background: #f9f9f9 !important;
+  }
+}
+
+/* 無障礙設計 */
+.enhanced-data-table:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.sortable-header:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* 數據類型特殊樣式 */
+.table-cell-number {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.table-cell-currency {
+  text-align: right;
+  color: #28a745;
+  font-weight: 600;
+}
+
+.table-cell-currency.negative {
+  color: #dc3545;
+}
+
+.table-cell-date {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.table-cell-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.table-cell-status.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.table-cell-status.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.table-cell-status.danger {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.table-cell-status.info {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+/* 表格操作按鈕 */
+.table-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.table-actions .btn {
+  padding: 2px 8px;
+  font-size: 11px;
+  min-width: 60px;
+}
+
+/* 表格標籤樣式 */
+.table-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #e9ecef;
+  color: #495057;
+  border-radius: 3px;
+  font-size: 11px;
+  margin: 1px 2px;
+}
+
+.table-tag.primary {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.table-tag.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.table-tag.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.table-tag.danger {
+  background: #f8d7da;
+  color: #721c24;
+}

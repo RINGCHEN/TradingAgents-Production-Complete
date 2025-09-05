@@ -1,0 +1,483 @@
+/* 測試問題頁面樣式 */
+
+.test-question-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 問題標題和進度 */
+.question-header {
+  margin-bottom: 2rem;
+}
+
+.header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.back-button,
+.exit-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  color: #475569;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.back-button:hover:not(:disabled),
+.exit-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.back-button:disabled,
+.exit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.exit-button {
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.exit-button:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.5);
+}
+
+.back-icon,
+.exit-icon {
+  font-size: 1.1rem;
+}
+
+/* 進度區域 */
+.progress-section {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.progress-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.progress-percentage {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* 問題內容 */
+.question-content {
+  margin-bottom: 2rem;
+}
+
+.question-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 情境區域 */
+.scenario-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid rgba(59, 130, 246, 0.1);
+}
+
+.scenario-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.scenario-icon {
+  font-size: 1.5rem;
+}
+
+.scenario-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.scenario-text {
+  font-size: 1.1rem;
+  color: #475569;
+  line-height: 1.7;
+  background: rgba(59, 130, 246, 0.05);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+}
+
+/* 問題區域 */
+.question-section {
+  margin-bottom: 1rem;
+}
+
+.question-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1.5rem;
+  line-height: 1.4;
+}
+
+/* 選項容器 */
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.option-button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  position: relative;
+  min-height: 70px;
+}
+
+.option-button:hover:not(:disabled) {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.02);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.option-button.selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.option-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  font-weight: 700;
+  color: #475569;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.option-button.selected .option-letter {
+  background: #3b82f6;
+  color: white;
+}
+
+.option-text {
+  flex: 1;
+  font-size: 1rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.option-check {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: #10b981;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* 提交區域 */
+.submit-section {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.submit-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: #9ca3af;
+}
+
+.button-icon {
+  font-size: 1.2rem;
+}
+
+/* 測試提示 */
+.test-hints {
+  margin-bottom: 1rem;
+}
+
+.hints-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.hints-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hints-icon {
+  font-size: 1.2rem;
+}
+
+.hints-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.hints-list li {
+  padding: 0.5rem 0;
+  color: #475569;
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.hints-list li::before {
+  content: "💡";
+  position: absolute;
+  left: 0;
+  font-size: 0.9rem;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .header-controls {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .back-button,
+  .exit-button {
+    justify-content: center;
+  }
+  
+  .progress-section {
+    padding: 1.25rem;
+  }
+  
+  .question-card {
+    padding: 1.5rem;
+  }
+  
+  .scenario-text {
+    padding: 1.25rem;
+  }
+  
+  .option-button {
+    padding: 1rem 1.25rem;
+    min-height: 60px;
+  }
+  
+  .option-letter {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+  }
+  
+  .option-text {
+    font-size: 0.95rem;
+  }
+  
+  .submit-button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding: 1rem 0.5rem;
+  }
+  
+  .section-container {
+    padding: 1.5rem;
+  }
+  
+  .progress-section {
+    padding: 1rem;
+  }
+  
+  .question-card {
+    padding: 1.25rem;
+  }
+  
+  .scenario-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  .scenario-title {
+    font-size: 1.2rem;
+  }
+  
+  .scenario-text {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+  
+  .question-title {
+    font-size: 1.2rem;
+  }
+  
+  .option-button {
+    padding: 0.875rem 1rem;
+    min-height: 55px;
+  }
+  
+  .hints-card {
+    padding: 1.25rem;
+  }
+}
+
+/* 動畫效果 */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.question-card {
+  animation: fadeInScale 0.5s ease-out;
+}
+
+.option-button {
+  animation: fadeInScale 0.3s ease-out;
+}
+
+.option-button:nth-child(1) { animation-delay: 0.1s; }
+.option-button:nth-child(2) { animation-delay: 0.2s; }
+.option-button:nth-child(3) { animation-delay: 0.3s; }
+.option-button:nth-child(4) { animation-delay: 0.4s; }
+
+/* 無障礙設計 */
+@media (prefers-reduced-motion: reduce) {
+  .question-card,
+  .option-button {
+    animation: none;
+  }
+  
+  .option-button:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .submit-button:hover:not(:disabled) {
+    transform: none;
+  }
+  
+  .progress-fill {
+    transition: none;
+  }
+}
+
+/* 高對比度模式 */
+@media (prefers-contrast: high) {
+  .question-card,
+  .progress-section,
+  .hints-card {
+    border: 2px solid #333;
+  }
+  
+  .option-button {
+    border: 2px solid #333;
+  }
+  
+  .option-button.selected {
+    border: 2px solid #0066cc;
+    background: rgba(0, 102, 204, 0.1);
+  }
+}

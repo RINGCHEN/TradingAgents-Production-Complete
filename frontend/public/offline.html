@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradingAgents - 離線模式</title>
+    <meta name="description" content="TradingAgents 離線模式">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+                         'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 500px;
+            padding: 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 1rem;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        h1 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .retry-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 1rem 0.5rem 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .retry-btn:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+        }
+        
+        .offline-btn {
+            background: #f5f5f5;
+            color: #666;
+            border: 2px solid #ddd;
+            padding: 10px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 1rem 0 0 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .offline-btn:hover {
+            background: #eeeeee;
+            border-color: #bbb;
+        }
+        
+        .features {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        
+        .features h3 {
+            color: #1976d2;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .features li {
+            padding: 0.5rem 0;
+            color: #666;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+        
+        .status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .status p {
+            margin: 0;
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .icon {
+                font-size: 3rem;
+            }
+            
+            .retry-btn, .offline-btn {
+                display: block;
+                width: 100%;
+                margin: 0.5rem 0;
+            }
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1976d2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="icon">🔌</span>
+        <h1>離線模式</h1>
+        <p>您目前處於離線狀態，無法連接到 TradingAgents 服務器。</p>
+        <p>請檢查您的網路連接，然後重試。</p>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>重新連接中...</p>
+        </div>
+        
+        <button class="retry-btn" onclick="retryConnection()">重新連接</button>
+        <button class="offline-btn" onclick="showOfflineFeatures()">離線功能</button>
+        
+        <div class="features" id="offlineFeatures" style="display: none;">
+            <h3>可用的離線功能：</h3>
+            <ul>
+                <li>查看已快取的股票資料</li>
+                <li>瀏覽歷史分析報告</li>
+                <li>離線模式下的基本圖表檢視</li>
+                <li>本地資料搜尋功能</li>
+            </ul>
+        </div>
+        
+        <div class="status">
+            <p>💡 TradingAgents 支援 PWA 技術，部分功能可在離線狀態下使用</p>
+        </div>
+    </div>
+
+    <script>
+        // 檢查網路狀態
+        function checkOnlineStatus() {
+            return navigator.onLine;
+        }
+        
+        // 重試連接
+        async function retryConnection() {
+            const loadingEl = document.getElementById('loading');
+            loadingEl.style.display = 'block';
+            
+            try {
+                // 嘗試連接主頁
+                const response = await fetch('/', { 
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+                
+                if (response.ok) {
+                    window.location.href = '/';
+                } else {
+                    throw new Error('Connection failed');
+                }
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                alert('仍無法連接到服務器，請稍後再試。');
+            }
+        }
+        
+        // 顯示離線功能
+        function showOfflineFeatures() {
+            const featuresEl = document.getElementById('offlineFeatures');
+            if (featuresEl.style.display === 'none') {
+                featuresEl.style.display = 'block';
+            } else {
+                featuresEl.style.display = 'none';
+            }
+        }
+        
+        // 監聽網路狀態變化
+        window.addEventListener('online', () => {
+            console.log('網路已連接');
+            // 自動重新載入頁面
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1000);
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('網路已斷開');
+        });
+        
+        // 頁面載入時檢查網路狀態
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkOnlineStatus()) {
+                // 如果網路已連接，嘗試返回主頁
+                retryConnection();
+            }
+        });
+        
+        // 註冊Service Worker (如果尚未註冊)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker registration failed'));
+        }
+    </script>
+</body>
+</html>

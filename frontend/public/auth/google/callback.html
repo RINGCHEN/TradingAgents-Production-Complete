@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google 登入處理中 - TradingAgents</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .callback-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .loading-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: spin 2s linear infinite;
+        }
+        
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .message {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+        
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="callback-container">
+        <div class="loading-icon">🔄</div>
+        <h1 class="title">Google 登入處理中</h1>
+        <p class="message">正在處理您的登入請求，請稍候...</p>
+        <div class="spinner"></div>
+        <div id="error-message" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        (function() {
+            // 獲取 URL 參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const error = urlParams.get('error');
+            
+            // 檢查是否有錯誤
+            if (error) {
+                showError('Google 授權失敗: ' + error);
+                return;
+            }
+            
+            // 檢查必要參數
+            if (!code || !state) {
+                showError('缺少必要的授權參數');
+                return;
+            }
+            
+            // 驗證 state 參數
+            const storedState = sessionStorage.getItem('google_oauth_state');
+            if (!storedState || storedState !== state) {
+                showError('授權狀態驗證失敗，可能存在安全風險');
+                return;
+            }
+            
+            // 清除儲存的 state
+            sessionStorage.removeItem('google_oauth_state');
+            
+            // 調用後端 API 處理 OAuth 回調
+            handleGoogleCallback(code, state);
+        })();
+        
+        async function handleGoogleCallback(code, state) {
+            try {
+                // 開發環境使用本地 API
+                const apiBaseUrl = 'http://localhost:8000';
+                
+                const response = await fetch(`${apiBaseUrl}/api/auth/google/callback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code, state })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || errorData.message || 'Google 登入失敗');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    // 登入成功，儲存 token 和用戶資訊
+                    localStorage.setItem('token', data.data.access_token);
+                    localStorage.setItem('user', JSON.stringify(data.data.user));
+                    
+                    // 重定向到主應用
+                    window.location.href = 'http://localhost:3000/#/dashboard';
+                } else {
+                    throw new Error('登入回應格式錯誤');
+                }
+                
+            } catch (error) {
+                console.error('Google OAuth 回調處理失敗:', error);
+                showError(error.message || 'Google 登入處理失敗，請重試');
+                
+                // 3秒後重定向到登入頁面
+                setTimeout(() => {
+                    window.location.href = 'http://localhost:3000/#/login';
+                }, 3000);
+            }
+        }
+        
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            const titleElement = document.querySelector('.title');
+            const messageElement = document.querySelector('.message');
+            const spinner = document.querySelector('.spinner');
+            
+            titleElement.textContent = '登入失敗';
+            messageElement.textContent = '3秒後將自動返回登入頁面';
+            spinner.style.display = 'none';
+            
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            // 3秒後重定向
+            setTimeout(() => {
+                window.location.href = 'http://localhost:3000/#/login';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

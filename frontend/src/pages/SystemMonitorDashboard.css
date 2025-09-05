@@ -1,0 +1,739 @@
+/* System Monitor Dashboard Styles */
+/* 天工 (TianGong) - 專業級系統監控界面樣式 */
+
+.system-monitor-dashboard {
+  padding: 24px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* 深色模式支援 */
+@media (prefers-color-scheme: dark) {
+  .system-monitor-dashboard {
+    background-color: #1a1d23;
+    color: #e1e4e8;
+  }
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dashboard-header {
+    background: #2d3748;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.header-left h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+@media (prefers-color-scheme: dark) {
+  .header-left h1 {
+    color: #e1e4e8;
+  }
+}
+
+.last-update {
+  margin: 4px 0 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.header-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.auto-refresh-toggle {
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.auto-refresh-toggle[data-active="true"] {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.refresh-button {
+  padding: 8px 16px;
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.refresh-button:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 錯誤橫幅 */
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-banner button {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 載入狀態 */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.loading-spinner.large {
+  width: 60px;
+  height: 60px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 指標卡片網格 */
+.metrics-overview {
+  margin-bottom: 32px;
+}
+
+.metric-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.metric-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .metric-card {
+    background: #2d3748;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.metric-card.healthy {
+  border-left: 4px solid #10b981;
+}
+
+.metric-card.warning {
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .metric-card.warning {
+    background: #451a03;
+  }
+}
+
+.metric-card.critical {
+  border-left: 4px solid #ef4444;
+  background: #fef2f2;
+}
+
+@media (prefers-color-scheme: dark) {
+  .metric-card.critical {
+    background: #450a0a;
+  }
+}
+
+.metric-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.metric-icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.metric-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+}
+
+@media (prefers-color-scheme: dark) {
+  .metric-header h3 {
+    color: #e1e4e8;
+  }
+}
+
+.metric-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+.metric-value.small {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .metric-value {
+    color: #f9fafb;
+  }
+}
+
+.metric-bar {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.metric-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #f59e0b 70%, #ef4444 90%);
+  transition: width 0.5s ease;
+  border-radius: 3px;
+}
+
+.metric-trend {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 性能指標區域 */
+.performance-section {
+  margin-bottom: 32px;
+}
+
+.performance-section h2 {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  .performance-section h2 {
+    color: #f9fafb;
+  }
+}
+
+.performance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.performance-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .performance-card {
+    background: #2d3748;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.performance-card h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  .performance-card h3 {
+    color: #e1e4e8;
+  }
+}
+
+.performance-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stat-item {
+    border-bottom-color: #4a5568;
+  }
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.stat-value {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stat-value {
+    color: #e1e4e8;
+  }
+}
+
+.stat-value.success {
+  color: #10b981;
+}
+
+.stat-value.error {
+  color: #ef4444;
+}
+
+/* 告警系統 */
+.alerts-section {
+  margin-bottom: 32px;
+}
+
+.alerts-section h2 {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alerts-section h2 {
+    color: #f9fafb;
+  }
+}
+
+.alerts-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alerts-container {
+    background: #2d3748;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.no-alerts {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+}
+
+.no-alerts .alert-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.alerts-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.alert-item {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  transition: all 0.2s;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert-item {
+    border-bottom-color: #4a5568;
+  }
+}
+
+.alert-item:last-child {
+  border-bottom: none;
+}
+
+.alert-item.acknowledged {
+  opacity: 0.6;
+  background: #f9fafb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert-item.acknowledged {
+    background: #1a202c;
+  }
+}
+
+.alert-item.critical {
+  border-left: 4px solid #ef4444;
+  background: #fef2f2;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert-item.critical {
+    background: #450a0a;
+  }
+}
+
+.alert-item.warning {
+  border-left: 4px solid #f59e0b;
+  background: #fffbeb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert-item.warning {
+    background: #451a03;
+  }
+}
+
+.alert-item.info {
+  border-left: 4px solid #3b82f6;
+  background: #eff6ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert-item.info {
+    background: #1e3a8a;
+  }
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.alert-level-icon {
+  font-size: 20px;
+}
+
+.alert-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  flex: 1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert-header h4 {
+    color: #e1e4e8;
+  }
+}
+
+.alert-source {
+  font-size: 12px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert-source {
+    background: #4a5568;
+    color: #cbd5e0;
+  }
+}
+
+.alert-description {
+  color: #4b5563;
+  font-size: 14px;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .alert-description {
+    color: #a0aec0;
+  }
+}
+
+.alert-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.alert-timestamp {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.acknowledge-button {
+  padding: 4px 12px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.acknowledge-button:hover {
+  background: #2563eb;
+}
+
+/* 趨勢圖表 */
+.trends-section h2 {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  .trends-section h2 {
+    color: #f9fafb;
+  }
+}
+
+.trends-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .trends-container {
+    background: #2d3748;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.trend-chart h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+@media (prefers-color-scheme: dark) {
+  .trend-chart h3 {
+    color: #e1e4e8;
+  }
+}
+
+.simple-chart {
+  display: flex;
+  align-items: end;
+  height: 200px;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  .simple-chart {
+    border-bottom-color: #4a5568;
+  }
+}
+
+.chart-bar {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  justify-content: end;
+  gap: 1px;
+}
+
+.chart-bar-cpu {
+  background: linear-gradient(to top, #3b82f6, #60a5fa);
+  min-height: 2px;
+  border-radius: 2px 2px 0 0;
+  transition: height 0.5s ease;
+}
+
+.chart-bar-memory {
+  background: linear-gradient(to top, #10b981, #34d399);
+  min-height: 2px;
+  border-radius: 0 0 2px 2px;
+  transition: height 0.5s ease;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 20px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.legend-color.cpu {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+}
+
+.legend-color.memory {
+  background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .system-monitor-dashboard {
+    padding: 16px;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .metric-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .performance-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .alert-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .alert-footer {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+}
+
+/* 動畫效果 */
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.performance-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* 可訪問性 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* 高對比度支援 */
+@media (prefers-contrast: high) {
+  .metric-card {
+    border: 2px solid #1f2937;
+  }
+  
+  .performance-card {
+    border: 2px solid #1f2937;
+  }
+  
+  .alerts-container {
+    border: 2px solid #1f2937;
+  }
+}

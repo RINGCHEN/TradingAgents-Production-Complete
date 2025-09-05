@@ -1,0 +1,148 @@
+# ART系統GPU訓練環境Dockerfile
+# 基於NVIDIA CUDA 12.1和PyTorch 2.1優化的訓練容器
+
+FROM nvidia/cuda:12.1-devel-ubuntu22.04
+
+# 設置工作目錄
+WORKDIR /workspace
+
+# 設置環境變數
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=$CUDA_HOME/bin:$PATH
+ENV LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+ENV TORCH_CUDA_ARCH_LIST="8.6"  # RTX 4070 架構
+ENV FORCE_CUDA=1
+
+# 安裝系統依賴
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3.11-dev \
+    python3-pip \
+    git \
+    wget \
+    curl \
+    vim \
+    htop \
+    nvtop \
+    build-essential \
+    cmake \
+    libssl-dev \
+    libffi-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libfreetype6-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# 創建Python軟連結
+RUN ln -s /usr/bin/python3.11 /usr/bin/python
+
+# 升級pip
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# 安裝PyTorch和相關深度學習庫（RTX 4070優化版本）
+RUN pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu121
+
+# 安裝機器學習核心庫
+RUN pip install \
+    transformers==4.35.0 \
+    datasets==2.14.6 \
+    accelerate==0.24.1 \
+    bitsandbytes==0.41.2 \
+    peft==0.6.0 \
+    trl==0.7.4 \
+    wandb==0.16.0 \
+    tensorboard==2.15.1 \
+    mlflow==2.8.1 \
+    huggingface-hub==0.19.4
+
+# 安裝數據處理庫
+RUN pip install \
+    pandas==2.1.3 \
+    numpy==1.24.4 \
+    scikit-learn==1.3.2 \
+    matplotlib==3.8.2 \
+    seaborn==0.13.0 \
+    plotly==5.17.0 \
+    jupyter==1.0.0 \
+    jupyterlab==4.0.8
+
+# 安裝金融數據處理庫
+RUN pip install \
+    yfinance==0.2.22 \
+    ta==0.10.2 \
+    quantlib==1.32 \
+    fredapi==0.5.1 \
+    alpha-vantage==2.3.1
+
+# 安裝異步和網路庫
+RUN pip install \
+    aiohttp==3.9.1 \
+    asyncio==3.4.3 \
+    websockets==12.0 \
+    requests==2.31.0 \
+    httpx==0.25.2
+
+# 安裝監控和日誌庫
+RUN pip install \
+    prometheus-client==0.19.0 \
+    psutil==5.9.6 \
+    GPUtil==1.4.0 \
+    py3nvml==0.2.7
+
+# 創建必要目錄
+RUN mkdir -p /workspace/{models,datasets,logs,configs,notebooks,scripts}
+
+# 複製訓練腳本和配置文件
+COPY scripts/training/ /workspace/scripts/
+COPY configs/ /workspace/configs/
+COPY requirements-gpu.txt /workspace/
+
+# 安裝專案特定依賴
+RUN pip install -r requirements-gpu.txt
+
+# 設置CUDA環境檢查腳本
+RUN echo '#!/bin/bash\n\
+echo "=== CUDA環境檢查 ==="\n\
+nvidia-smi\n\
+echo "\n=== Python CUDA支援檢查 ==="\n\
+python -c "import torch; print(f'\''PyTorch版本: {torch.__version__}'\''); print(f'\''CUDA可用: {torch.cuda.is_available()}'\''); print(f'\''CUDA版本: {torch.version.cuda}'\''); print(f'\''GPU數量: {torch.cuda.device_count()}'\''); print(f'\''GPU名稱: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"N/A\"}'\'')"\n\
+echo "\n=== GPU記憶體狀態 ==="\n\
+python -c "import torch; print(f'\''GPU記憶體: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f}GB'\'') if torch.cuda.is_available() else print('\''CUDA不可用'\'')"' > /usr/local/bin/check-cuda.sh
+
+RUN chmod +x /usr/local/bin/check-cuda.sh
+
+# 設置模型緩存目錄
+ENV HF_HOME=/workspace/.cache/huggingface
+ENV WANDB_CACHE_DIR=/workspace/.cache/wandb
+ENV TORCH_HOME=/workspace/.cache/torch
+
+# 設置用戶權限
+RUN useradd -m -s /bin/bash artuser && \
+    chown -R artuser:artuser /workspace
+
+# 暴露端口
+EXPOSE 8888 5000 6379
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | head -1
+
+# 設置啟動腳本
+RUN echo '#!/bin/bash\n\
+echo "啟動ART GPU訓練環境..."\n\
+check-cuda.sh\n\
+echo "=== 系統資源狀態 ==="\n\
+echo "CPU核心數: $(nproc)"\n\
+echo "記憶體: $(free -h | grep Mem | awk '\''{print $2}'\'')" \n\
+echo "磁碟空間: $(df -h /workspace | tail -1 | awk '\''{print $4}'\'')" \n\
+echo "\n啟動完成，準備開始訓練！"\n\
+exec "$@"' > /workspace/entrypoint.sh
+
+RUN chmod +x /workspace/entrypoint.sh
+
+USER artuser
+ENTRYPOINT ["/workspace/entrypoint.sh"]
+CMD ["bash"]

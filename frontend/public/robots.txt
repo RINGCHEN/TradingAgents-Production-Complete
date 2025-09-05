@@ -1,0 +1,13 @@
+# 不老傳說 Robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://03king.com/sitemap.xml
+
+# 限制管理後台
+Disallow: /admin/
+Disallow: /api/admin/
+
+# 允許靜態資源
+Allow: /static/
+Allow: /assets/

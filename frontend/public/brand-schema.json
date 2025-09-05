@@ -1,0 +1,13 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "不老傳說",
+  "url": "https://03king.com",
+  "description": "專業的AI驅動投資分析平台",
+  "areaServed": "台灣",
+  "serviceType": [
+    "投資分析",
+    "AI分析",
+    "股市預測"
+  ]
+}

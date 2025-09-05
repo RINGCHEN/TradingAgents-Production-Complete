@@ -1,0 +1,24 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圓形 -->
+  <circle cx="32" cy="32" r="32" fill="#f0f0f0"/>
+  
+  <!-- 分析師圖標 -->
+  <g transform="translate(16, 16)">
+    <!-- 頭部 -->
+    <circle cx="16" cy="12" r="6" fill="#666"/>
+    
+    <!-- 身體 -->
+    <path d="M8 20c0-4.4 3.6-8 8-8s8 3.6 8 8v12H8V20z" fill="#666"/>
+    
+    <!-- 圖表元素 -->
+    <g transform="translate(20, 8)">
+      <rect x="0" y="4" width="2" height="8" fill="#1890ff"/>
+      <rect x="3" y="2" width="2" height="10" fill="#1890ff"/>
+      <rect x="6" y="6" width="2" height="6" fill="#1890ff"/>
+      <rect x="9" y="1" width="2" height="11" fill="#1890ff"/>
+    </g>
+  </g>
+  
+  <!-- 邊框 -->
+  <circle cx="32" cy="32" r="31" stroke="#d9d9d9" stroke-width="2" fill="none"/>
+</svg>

@@ -1,0 +1,376 @@
+/* 社交分享按鈕組件樣式 */
+
+.social-share-buttons {
+  width: 100%;
+}
+
+.share-buttons-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 佈局變體 */
+.social-share-buttons.horizontal .share-buttons-container {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.social-share-buttons.vertical .share-buttons-container {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.social-share-buttons.grid .share-buttons-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+/* 分享按鈕基礎樣式 */
+.share-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--platform-color, #6b7280);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  min-width: 44px; /* 無障礙觸控目標最小尺寸 */
+  min-height: 44px;
+  overflow: hidden;
+}
+
+.share-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.1);
+}
+
+.share-button:active {
+  transform: translateY(0);
+}
+
+.share-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 按鈕尺寸變體 */
+.social-share-buttons.small .share-button {
+  padding: 8px 12px;
+  font-size: 12px;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.social-share-buttons.medium .share-button {
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.social-share-buttons.large .share-button {
+  padding: 16px 24px;
+  font-size: 16px;
+  min-width: 52px;
+  min-height: 52px;
+}
+
+/* 按鈕圖標 */
+.button-icon {
+  font-size: 1.2em;
+  flex-shrink: 0;
+}
+
+.social-share-buttons.small .button-icon {
+  font-size: 1em;
+}
+
+.social-share-buttons.large .button-icon {
+  font-size: 1.4em;
+}
+
+/* 按鈕標籤 */
+.button-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 載入動畫 */
+.sharing-spinner {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.share-button.sharing {
+  pointer-events: none;
+}
+
+.share-button.sharing .button-label {
+  opacity: 0.7;
+}
+
+/* 分享計數 */
+.share-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* 平台特定樣式 */
+.share-button.facebook {
+  background: #1877f2;
+}
+
+.share-button.twitter {
+  background: #1da1f2;
+}
+
+.share-button.linkedin {
+  background: #0077b5;
+}
+
+.share-button.line {
+  background: #00c300;
+}
+
+.share-button.copy {
+  background: #6b7280;
+}
+
+.share-button.download {
+  background: #059669;
+}
+
+/* 懸停效果 */
+.share-button.facebook:hover {
+  background: #166fe5;
+}
+
+.share-button.twitter:hover {
+  background: #1a91da;
+}
+
+.share-button.linkedin:hover {
+  background: #006ba1;
+}
+
+.share-button.line:hover {
+  background: #00b300;
+}
+
+.share-button.copy:hover {
+  background: #5b6470;
+}
+
+.share-button.download:hover {
+  background: #047857;
+}
+
+/* 分享統計 */
+.share-stats {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.stats-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .social-share-buttons.horizontal .share-buttons-container {
+    justify-content: center;
+  }
+  
+  .social-share-buttons.grid .share-buttons-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .share-button {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .button-label {
+    display: none;
+  }
+  
+  .social-share-buttons.vertical .button-label {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .share-buttons-container {
+    gap: 0.5rem;
+  }
+  
+  .social-share-buttons.grid .share-buttons-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .share-button {
+    padding: 10px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  
+  .button-icon {
+    font-size: 1.1em;
+  }
+}
+
+/* 垂直佈局特殊樣式 */
+.social-share-buttons.vertical .share-button {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.social-share-buttons.vertical .button-icon {
+  margin-right: 0.75rem;
+}
+
+/* 動畫 */
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+/* 深色模式支援 */
+@media (prefers-color-scheme: dark) {
+  .stats-label {
+    color: #9ca3af;
+  }
+}
+
+/* 無障礙設計 */
+@media (prefers-reduced-motion: reduce) {
+  .share-button {
+    transition: none;
+  }
+  
+  .share-button:hover {
+    transform: none;
+  }
+  
+  .sharing-spinner {
+    animation: none;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* 高對比度模式 */
+@media (prefers-contrast: high) {
+  .share-button {
+    border: 2px solid white;
+  }
+  
+  .share-count {
+    border: 1px solid white;
+  }
+}
+
+/* 打印樣式 */
+@media print {
+  .social-share-buttons {
+    display: none;
+  }
+}
+
+/* 焦點樣式（鍵盤導航） */
+.share-button:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.share-button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* 觸控設備優化 */
+@media (hover: none) and (pointer: coarse) {
+  .share-button:hover {
+    transform: none;
+    filter: none;
+  }
+  
+  .share-button:active {
+    transform: scale(0.95);
+  }
+}
+
+/* 特殊狀態指示 */
+.share-button.success {
+  background: #22c55e !important;
+  animation: successPulse 0.6s ease-out;
+}
+
+.share-button.error {
+  background: #ef4444 !important;
+  animation: errorShake 0.6s ease-out;
+}
+
+@keyframes successPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}

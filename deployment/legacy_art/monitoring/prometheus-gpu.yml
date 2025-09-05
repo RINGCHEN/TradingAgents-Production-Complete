@@ -1,0 +1,64 @@
+# ART GPU訓練環境 Prometheus配置
+# DevOps Engineer 墨子 - GPU性能監控配置
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'art-gpu-training'
+    environment: 'local'
+
+rule_files:
+  - "alert_rules_gpu.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # GPU監控
+  - job_name: 'nvidia-gpu'
+    static_configs:
+      - targets: ['nvidia-exporter:9445']
+    scrape_interval: 5s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+
+  # 系統監控
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # 訓練容器監控
+  - job_name: 'training-container'
+    static_configs:
+      - targets: ['art-gpu-trainer:8000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Redis監控
+  - job_name: 'redis-training'
+    static_configs:
+      - targets: ['redis-training:6379']
+    scrape_interval: 15s
+
+  # MLFlow監控
+  - job_name: 'mlflow'
+    static_configs:
+      - targets: ['mlflow-server:5000']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Jupyter Lab監控
+  - job_name: 'jupyter'
+    static_configs:
+      - targets: ['jupyter-lab:8888']
+    scrape_interval: 60s
+
+  # Prometheus自監控
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

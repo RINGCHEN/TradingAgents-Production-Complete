@@ -1,0 +1,300 @@
+/* 現代化管理後台頭部樣式 */
+/* 基於 admin_complete.html 的優秀設計，提供企業級視覺效果 */
+
+.admin-header.modern-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  border-bottom: none;
+  padding: 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1040;
+}
+
+/* 頁面標題區段 */
+.page-title-section h1 {
+  color: #fff !important;
+  font-weight: 700;
+  margin-bottom: 4px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.page-title-section small {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 頭部操作區域 */
+.header-actions .btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.header-actions .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 通知按鈕樣式 */
+.header-actions .btn-outline-primary {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.8);
+  color: #667eea;
+  padding: 8px 12px;
+}
+
+.header-actions .btn-outline-primary:hover {
+  background-color: #fff;
+  border-color: #fff;
+  color: #667eea;
+}
+
+.header-actions .btn-outline-primary i {
+  font-size: 16px;
+}
+
+/* 用戶菜單按鈕 */
+.header-actions .btn-primary {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  border: none;
+  border-radius: 25px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.header-actions .btn-primary:hover {
+  background: linear-gradient(135deg, #45a049, #4CAF50);
+}
+
+/* 頭像圓圈 */
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.avatar-circle i {
+  font-size: 14px;
+}
+
+/* 下拉菜單樣式 */
+.dropdown-menu {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  margin-top: 8px;
+  min-width: 200px;
+}
+
+.dropdown-header {
+  color: #667eea !important;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 16px;
+  margin-bottom: 4px;
+}
+
+.dropdown-item {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #495057;
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+  color: #667eea;
+  transform: translateX(4px);
+}
+
+.dropdown-item i {
+  width: 16px;
+  font-size: 14px;
+}
+
+.dropdown-item.text-danger:hover {
+  background: linear-gradient(135deg, #ffebee, #fce4ec);
+  color: #d32f2f;
+}
+
+/* 通知徽章 */
+.badge.bg-danger {
+  background: linear-gradient(135deg, #ff5722, #f44336) !important;
+  font-size: 10px;
+  font-weight: 600;
+  animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 全局搜尋區域樣式增強 */
+.modern-header .global-search-container .form-control {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 25px;
+  padding: 10px 20px;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.modern-header .global-search-container .form-control:focus {
+  background: #fff;
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modern-header .global-search-container .input-group-text {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-right: none;
+  border-radius: 25px 0 0 25px;
+}
+
+.modern-header .global-search-container .btn-outline-secondary {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-left: none;
+  border-radius: 0 25px 25px 0;
+  color: #6c757d;
+}
+
+/* 響應式設計 */
+@media (max-width: 992px) {
+  .modern-header .container-fluid .row {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .modern-header .col-md-3,
+  .modern-header .col-md-6 {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .page-title-section {
+    text-align: center;
+  }
+  
+  .header-actions {
+    justify-content: center !important;
+  }
+  
+  .modern-header {
+    padding: 12px 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title-section h1 {
+    font-size: 1.25rem;
+  }
+  
+  .header-actions .btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .avatar-circle {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .modern-header .global-search-container {
+    margin: 8px 0;
+  }
+}
+
+/* 深色主題支援 */
+@media (prefers-color-scheme: dark) {
+  .admin-header.modern-header {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  }
+  
+  .dropdown-menu {
+    background-color: #2d3748;
+    border: 1px solid #4a5568;
+  }
+  
+  .dropdown-item {
+    color: #e2e8f0;
+  }
+  
+  .dropdown-item:hover {
+    background: linear-gradient(135deg, #4a5568, #2d3748);
+    color: #90cdf4;
+  }
+  
+  .dropdown-header {
+    color: #90cdf4 !important;
+  }
+}
+
+/* 載入動畫效果 */
+.modern-header {
+  animation: header-slide-down 0.5s ease-out;
+}
+
+@keyframes header-slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 玻璃擬態效果 */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* 漸變邊框效果 */
+.gradient-border {
+  position: relative;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border-radius: 8px;
+  padding: 1px;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  background: white;
+  border-radius: 7px;
+  z-index: -1;
+}
+
+/* 懸停效果增強 */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}

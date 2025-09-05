@@ -1,0 +1,151 @@
+groups:
+  - name: tradingagents-system
+    rules:
+      # 系統健康度告警
+      - alert: TradingAgentsDown
+        expr: up{job="tradingagents-app"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: tradingagents
+        annotations:
+          summary: "TradingAgents 系統離線"
+          description: "TradingAgents 主應用程式已離線超過 30 秒"
+
+      - alert: HighErrorRate
+        expr: rate(tradingagents_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: tradingagents
+        annotations:
+          summary: "錯誤率過高"
+          description: "過去 5 分鐘內錯誤率為 {{ $value }} errors/sec，超過閾值"
+
+      # 效能告警
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(tradingagents_request_duration_seconds_bucket[5m])) > 2
+        for: 2m
+        labels:
+          severity: warning
+          service: tradingagents
+        annotations:
+          summary: "API 延遲過高"
+          description: "95% 請求延遲為 {{ $value }} 秒，超過 2 秒閾值"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "記憶體使用率過高"
+          description: "系統記憶體使用率為 {{ $value | humanizePercentage }}，超過 90%"
+
+      - alert: HighCPUUsage
+        expr: (100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "CPU 使用率過高"
+          description: "系統 CPU 使用率為 {{ $value }}%，超過 80%"
+
+      # 資料庫告警
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "PostgreSQL 資料庫離線"
+          description: "PostgreSQL 資料庫已離線超過 1 分鐘"
+
+      - alert: DatabaseConnectionsHigh
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 2m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "資料庫連接數過高"
+          description: "資料庫連接使用率為 {{ $value | humanizePercentage }}，超過 80%"
+
+      # Redis 告警
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: "Redis 伺服器離線"
+          description: "Redis 伺服器已離線超過 1 分鐘"
+
+      - alert: RedisMemoryHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 2m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis 記憶體使用率過高"
+          description: "Redis 記憶體使用率為 {{ $value | humanizePercentage }}，超過 90%"
+
+  - name: tradingagents-business
+    rules:
+      # 分析師相關告警
+      - alert: AnalysisFailureRate
+        expr: rate(tradingagents_analysis_failures_total[5m]) / rate(tradingagents_analysis_requests_total[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          service: analysis
+        annotations:
+          summary: "分析失敗率過高"
+          description: "分析失敗率為 {{ $value | humanizePercentage }}，超過 10%"
+
+      - alert: LongRunningAnalysis
+        expr: tradingagents_analysis_duration_seconds > 300
+        for: 1m
+        labels:
+          severity: warning
+          service: analysis
+        annotations:
+          summary: "分析執行時間過長"
+          description: "分析 {{ $labels.analysis_id }} 執行時間超過 5 分鐘"
+
+      # API 使用率告警
+      - alert: APIUsageSpike
+        expr: rate(tradingagents_api_requests_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "API 使用率異常高峰"
+          description: "API 請求率為 {{ $value }} req/sec，可能存在異常流量"
+
+      # 會員系統告警
+      - alert: PaymentSystemDown
+        expr: up{job="payment-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: payment
+        annotations:
+          summary: "支付系統離線"
+          description: "支付系統服務已離線超過 1 分鐘"
+
+      - alert: SubscriptionRenewalFailures
+        expr: increase(tradingagents_subscription_renewal_failures_total[1h]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: subscription
+        annotations:
+          summary: "訂閱續費失敗增加"
+          description: "過去 1 小時內有 {{ $value }} 次訂閱續費失敗"

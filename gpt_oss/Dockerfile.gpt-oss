@@ -1,0 +1,47 @@
+# GPT-OSS 本地推理服務 Dockerfile
+# 支援 CUDA 12.1 和 RTX 4070/4090
+# 使用穩定的PyTorch基礎映像替代棄用的NVIDIA映像
+
+FROM pytorch/pytorch:2.1.0-cuda12.1-cudnn8-devel
+
+# 設置環境變數
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+
+# 安裝系統依賴
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# 創建工作目錄
+WORKDIR /app
+
+# 複製需求文件
+COPY gpt_oss/requirements-gpu.txt .
+
+# 安裝 Python 依賴
+RUN pip3 install --no-cache-dir --upgrade pip
+RUN pip3 install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+RUN pip3 install --no-cache-dir -r requirements-gpu.txt
+
+# 複製應用程式代碼
+COPY gpt_oss/ .
+
+# 設置權限
+RUN chmod +x server.py
+
+# 暴露端口
+EXPOSE 8080
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# 啟動命令
+CMD ["python3", "server.py", "--host", "0.0.0.0", "--port", "8080", "--device", "auto"]

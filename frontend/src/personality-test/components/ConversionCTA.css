@@ -1,0 +1,600 @@
+/* 轉換CTA組件樣式 */
+
+.conversion-cta {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.conversion-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 變體A樣式 */
+.conversion-cta.variant-A {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.conversion-cta.variant-A::before {
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+}
+
+/* 變體B樣式 */
+.conversion-cta.variant-B {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.conversion-cta.variant-B::before {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* 標題區域 */
+.cta-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.personality-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.badge-icon {
+  font-size: 3rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+}
+
+.badge-text {
+  text-align: left;
+}
+
+.cta-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.cta-subtitle {
+  font-size: 1.1rem;
+  color: #64748b;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.highlight {
+  color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 900;
+}
+
+/* 好處網格 */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.benefit-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.benefit-icon {
+  font-size: 2rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 12px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.benefit-content {
+  flex: 1;
+}
+
+.benefit-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.benefit-description {
+  font-size: 0.95rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* 社會證明 */
+.social-proof {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.proof-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 2rem;
+  text-align: center;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #667eea;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* 成功展示（變體B） */
+.success-showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.showcase-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.showcase-icon {
+  font-size: 2.5rem;
+  background: rgba(245, 158, 11, 0.2);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.showcase-content h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 0.25rem;
+}
+
+.showcase-content p {
+  font-size: 0.9rem;
+  color: #a16207;
+  line-height: 1.4;
+}
+
+/* 好處列表（變體B） */
+.benefits-list {
+  margin-bottom: 2.5rem;
+}
+
+.benefits-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.benefits-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.benefits-items .benefit-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #22c55e;
+}
+
+.benefit-check {
+  font-size: 1.2rem;
+  color: #22c55e;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.benefit-text {
+  font-size: 0.95rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+/* CTA按鈕 */
+.cta-actions {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.primary-cta {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1.25rem 3rem;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 auto 1rem;
+  min-width: 280px;
+}
+
+.primary-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.primary-cta:hover::before {
+  left: 100%;
+}
+
+.primary-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+}
+
+.cta-text {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.cta-subtext {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+.secondary-cta {
+  background: transparent;
+  color: #667eea;
+  border: 2px solid #667eea;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondary-cta:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* 保證標誌 */
+.guarantee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #22c55e;
+  font-weight: 500;
+}
+
+.guarantee-icon {
+  font-size: 1.1rem;
+}
+
+/* 緊迫感元素 */
+.urgency-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  color: #92400e;
+}
+
+.timer-icon {
+  font-size: 1.2rem;
+  animation: pulse 2s infinite;
+}
+
+.urgency-banner {
+  position: absolute;
+  top: 20px;
+  right: -40px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.5rem 3rem;
+  transform: rotate(45deg);
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+
+.urgency-icon {
+  margin-right: 0.25rem;
+}
+
+/* 信任指標 */
+.trust-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  flex-wrap: wrap;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.trust-icon {
+  font-size: 1.1rem;
+  color: #22c55e;
+}
+
+/* 動畫 */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .conversion-cta {
+    padding: 2rem;
+  }
+  
+  .personality-badge {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .badge-text {
+    text-align: center;
+  }
+  
+  .cta-title {
+    font-size: 1.5rem;
+  }
+  
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .benefit-item {
+    padding: 1rem;
+  }
+  
+  .proof-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .success-showcase {
+    grid-template-columns: 1fr;
+  }
+  
+  .primary-cta {
+    min-width: auto;
+    width: 100%;
+    padding: 1rem 2rem;
+  }
+  
+  .trust-indicators {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .conversion-cta {
+    padding: 1.5rem;
+  }
+  
+  .cta-title {
+    font-size: 1.3rem;
+  }
+  
+  .cta-subtitle {
+    font-size: 1rem;
+  }
+  
+  .badge-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+  
+  .benefit-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .proof-stats {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .trust-indicators {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+}
+
+/* 深色模式支援 */
+@media (prefers-color-scheme: dark) {
+  .conversion-cta {
+    background: linear-gradient(135deg, rgba(45, 55, 72, 0.95) 0%, rgba(55, 65, 81, 0.95) 100%);
+  }
+  
+  .cta-title {
+    color: #e2e8f0;
+  }
+  
+  .cta-subtitle {
+    color: #cbd5e0;
+  }
+  
+  .benefit-item {
+    background: rgba(55, 65, 81, 0.8);
+  }
+  
+  .benefit-title {
+    color: #e2e8f0;
+  }
+  
+  .benefit-description {
+    color: #a0aec0;
+  }
+  
+  .social-proof {
+    background: linear-gradient(135deg, rgba(55, 65, 81, 0.8) 0%, rgba(45, 55, 72, 0.8) 100%);
+  }
+  
+  .stat-label {
+    color: #a0aec0;
+  }
+}
+
+/* 無障礙設計 */
+@media (prefers-reduced-motion: reduce) {
+  .benefit-item {
+    transition: none;
+  }
+  
+  .benefit-item:hover {
+    transform: none;
+  }
+  
+  .primary-cta {
+    transition: none;
+  }
+  
+  .primary-cta:hover {
+    transform: none;
+  }
+  
+  .timer-icon {
+    animation: none;
+  }
+  
+  .primary-cta::before {
+    display: none;
+  }
+}
+
+/* 高對比度模式 */
+@media (prefers-contrast: high) {
+  .conversion-cta {
+    border: 3px solid #000;
+  }
+  
+  .benefit-item {
+    border: 2px solid #000;
+  }
+  
+  .primary-cta {
+    border: 2px solid #000;
+  }
+  
+  .secondary-cta {
+    border-width: 3px;
+  }
+}

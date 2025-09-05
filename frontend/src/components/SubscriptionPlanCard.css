@@ -1,0 +1,254 @@
+.subscription-plan-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  border: 2px solid transparent;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.subscription-plan-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.subscription-plan-card.popular {
+  border-color: #007bff;
+  transform: scale(1.02);
+}
+
+.subscription-plan-card.current {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.subscription-plan-card.disabled {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.plan-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.plan-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.free-price {
+  font-size: 32px;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.currency {
+  font-size: 18px;
+  color: #666;
+}
+
+.amount {
+  font-size: 36px;
+  font-weight: 700;
+  color: #333;
+}
+
+.period {
+  font-size: 16px;
+  color: #666;
+}
+
+.plan-features {
+  flex: 1;
+  margin-bottom: 24px;
+}
+
+.features-list {
+  margin-bottom: 16px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+}
+
+.feature-icon {
+  width: 20px;
+  height: 20px;
+  background: #28a745;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.limitations-list {
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.limitation-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.limitation-icon {
+  width: 20px;
+  height: 20px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.limitation-text {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.plan-action {
+  margin-bottom: 16px;
+}
+
+.plan-button {
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #f8f9fa;
+  color: #333;
+  border: 2px solid #dee2e6;
+}
+
+.btn-secondary:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.btn-current {
+  background: #28a745;
+  color: white;
+  cursor: not-allowed;
+}
+
+.plan-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.plan-footer {
+  text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.payment-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #666;
+  font-size: 13px;
+}
+
+.payment-icon {
+  font-size: 14px;
+}
+
+.payment-text {
+  font-weight: 500;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .subscription-plan-card {
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  
+  .plan-name {
+    font-size: 20px;
+  }
+  
+  .amount {
+    font-size: 28px;
+  }
+  
+  .feature-text {
+    font-size: 13px;
+  }
+  
+  .plan-button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}

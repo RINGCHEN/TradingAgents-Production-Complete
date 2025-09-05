@@ -1,0 +1,25 @@
+{
+  "projects": {
+    "default": "tradingagents-main"
+  },
+  "targets": {
+    "tradingagents-main": {
+      "hosting": {
+        "admin": [
+          "tradingagents-main"
+        ],
+        "main-site": [
+          "03king"
+        ]
+      }
+    },
+    "twstock-admin-466914": {
+      "hosting": {
+        "03king": [
+          "twstock-admin-466914"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

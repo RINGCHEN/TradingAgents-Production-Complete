@@ -1,0 +1,1 @@
+export const DialogueContainer = () => <div>對話容器</div>;

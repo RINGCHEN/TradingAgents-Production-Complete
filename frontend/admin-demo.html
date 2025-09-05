@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不老傳說 統一管理後台 - 演示版</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* 基於統一架構的樣式 */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .admin-sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-header h4 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .sidebar-header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 15px 25px;
+            border: none;
+            background: none;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-item i {
+            width: 20px;
+            margin-right: 15px;
+        }
+
+        .admin-main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-page-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .border-left-primary {
+            border-left: 4px solid #667eea !important;
+        }
+
+        .border-left-success {
+            border-left: 4px solid #28a745 !important;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #17a2b8 !important;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #ffc107 !important;
+        }
+
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .notification {
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .demo-badge {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10000;
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 演示標識 -->
+    <div class="demo-badge">
+        <i class="fas fa-flask me-1"></i>
+        統一管理後台架構演示版
+    </div>
+
+    <!-- 通知容器 -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <div class="admin-container">
+        <!-- 側邊欄 -->
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <h4>不老傳說</h4>
+                <p>統一管理後台</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" onclick="showPage('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>儀表板</span>
+                </button>
+                <button class="nav-item" onclick="showPage('users')">
+                    <i class="fas fa-users"></i>
+                    <span>用戶管理</span>
+                </button>
+                <button class="nav-item" onclick="showPage('analytics')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>數據分析</span>
+                </button>
+                <button class="nav-item" onclick="showPage('content')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>內容管理</span>
+                </button>
+                <button class="nav-item" onclick="showPage('financial')">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>財務管理</span>
+                </button>
+                <button class="nav-item" onclick="showPage('system')">
+                    <i class="fas fa-cog"></i>
+                    <span>系統設置</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- 主內容區域 -->
+        <div class="admin-main-content">
+            <!-- 頭部 -->
+            <header class="admin-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="h4 mb-0" id="page-title">儀表板</h1>
+                    <div class="header-actions">
+                        <span class="me-3 text-muted" id="current-date"></span>
+                        <button class="btn btn-outline-primary btn-sm me-2" onclick="refreshData()">
+                            <i class="fas fa-sync-alt me-1"></i>
+                            刷新
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-user me-1"></i>
+                            管理員
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 頁面內容 -->
+            <div class="admin-page-content">
+                <!-- 儀表板頁面 -->
+                <div id="dashboard-page" class="page-content">
+                    <!-- 統計卡片 -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                總用戶數
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-users">
+                                                1,250
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                活躍用戶
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="active-users">
+                                                892
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                總收入 (NT$)
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-revenue">
+                                                $45,600
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                月增長率
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="growth-rate">
+                                                12.5%
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系統狀態 -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">系統狀態</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <strong>系統狀態:</strong>
+                                                <span class="ms-2 badge bg-success">健康</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <strong>運行時間:</strong>
+                                                <span class="ms-2" id="uptime">72 小時</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <strong>版本:</strong>
+                                                <span class="ms-2">v2.0.0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API調用統計 -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">API調用統計</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <strong>今日API調用:</strong>
+                                                <span class="ms-2 h5 text-primary" id="api-calls">15,420</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <strong>系統健康度:</strong>
+                                                <span class="ms-2 badge bg-success">良好</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他頁面 -->
+                <div id="users-page" class="page-content" style="display: none;">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">用戶管理</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>用戶管理功能正在開發中...</p>
+                            <p>基於統一架構的用戶管理組件將包含：</p>
+                            <ul>
+                                <li>完整的用戶CRUD操作</li>
+                                <li>基於真實API的數據載入</li>
+                                <li>高級搜索和篩選功能</li>
+                                <li>批量操作支援</li>
+                                <li>用戶角色和權限管理</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="analytics-page" class="page-content" style="display: none;">
+                    <!-- 用戶活動統計 -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                活躍用戶
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                1,250
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                新用戶
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                45
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                回訪用戶
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                892
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                流失率
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                2.5%
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 圖表和系統資源 -->
+                    <div class="row mb-4">
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">用戶增長趨勢</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="analyticsChart" width="100%" height="40"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-5">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">系統資源使用</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>CPU使用率</span>
+                                            <span>45.2%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" style="width: 45.2%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>記憶體使用率</span>
+                                            <span>68.1%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 68.1%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>磁碟使用率</span>
+                                            <span>35.7%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-info" style="width: 35.7%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>網路流量</span>
+                                            <span>82.3%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-warning" style="width: 82.3%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 報告生成 -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                    <h6 class="m-0 font-weight-bold text-primary">分析報告</h6>
+                                    <button class="btn btn-success btn-sm" onclick="generateReport()">
+                                        <i class="fas fa-file-export me-1"></i>
+                                        生成報告
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <p>數據分析功能已激活，包含用戶增長分析、系統性能監控和自動報告生成。</p>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <i class="fas fa-chart-bar fa-3x text-primary mb-2"></i>
+                                                <h6>實時數據分析</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <i class="fas fa-server fa-3x text-success mb-2"></i>
+                                                <h6>系統性能監控</h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="text-center">
+                                                <i class="fas fa-file-pdf fa-3x text-danger mb-2"></i>
+                                                <h6>自動報告生成</h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-page" class="page-content" style="display: none;">
+                    <!-- 內容統計 -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">50</h5>
+                                    <p class="card-text">總內容數</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-success">35</h5>
+                                    <p class="card-text">已發布</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-warning">12</h5>
+                                    <p class="card-text">草稿</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h5 class="card-title text-info">25,430</h5>
+                                    <p class="card-text">總瀏覽量</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 內容管理表格 -->
+                    <div class="card shadow">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">內容列表</h6>
+                            <button class="btn btn-success btn-sm">
+                                <i class="fas fa-plus me-1"></i>
+                                新增內容
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>標題</th>
+                                            <th>類型</th>
+                                            <th>狀態</th>
+                                            <th>作者</th>
+                                            <th>瀏覽量</th>
+                                            <th>更新時間</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">投資基礎教學指南</div>
+                                                <small class="text-muted">投資教學 • 1,250 次瀏覽</small>
+                                            </td>
+                                            <td><span class="badge bg-primary">文章</span></td>
+                                            <td><span class="badge bg-success">已發布</span></td>
+                                            <td>張經理</td>
+                                            <td>1,250</td>
+                                            <td>2024-08-15</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" title="編輯">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" title="刪除">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">市場分析報告</div>
+                                                <small class="text-muted">市場分析 • 890 次瀏覽</small>
+                                            </td>
+                                            <td><span class="badge bg-info">頁面</span></td>
+                                            <td><span class="badge bg-success">已發布</span></td>
+                                            <td>李分析師</td>
+                                            <td>890</td>
+                                            <td>2024-08-14</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" title="編輯">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" title="刪除">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="fw-bold">系統維護公告</div>
+                                                <small class="text-muted">公司公告 • 2,150 次瀏覽</small>
+                                            </td>
+                                            <td><span class="badge bg-warning">公告</span></td>
+                                            <td><span class="badge bg-secondary">草稿</span></td>
+                                            <td>王編輯</td>
+                                            <td>2,150</td>
+                                            <td>2024-08-13</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-success" title="發布">
+                                                        <i class="fas fa-paper-plane"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-primary" title="編輯">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger" title="刪除">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="financial-page" class="page-content" style="display: none;">
+                    <!-- 財務指標卡片 -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                總收入
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                NT$ 2,450,000
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                淨利潤
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                NT$ 650,000
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                利潤率
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                26.5%
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                增長率
+                                            </div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                                15.2%
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-arrow-up fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 收入圖表 -->
+                    <div class="row mb-4">
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">月收入趨勢</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="revenueChart" width="100%" height="40"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 col-lg-5">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">收入分類</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>會員費</span>
+                                            <span>45%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-primary" style="width: 45%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>交易手續費</span>
+                                            <span>30%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 30%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>諮詢服務</span>
+                                            <span>15%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-info" style="width: 15%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>其他</span>
+                                            <span>10%</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-warning" style="width: 10%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 最近交易 -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card shadow">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">最近交易</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>日期</th>
+                                                    <th>類型</th>
+                                                    <th>分類</th>
+                                                    <th>描述</th>
+                                                    <th>金額</th>
+                                                    <th>狀態</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>2024-08-19</td>
+                                                    <td><span class="badge bg-success">收入</span></td>
+                                                    <td>會員費</td>
+                                                    <td>月度會員費收入</td>
+                                                    <td class="text-success">+NT$ 25,000</td>
+                                                    <td><span class="badge bg-success">已完成</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2024-08-18</td>
+                                                    <td><span class="badge bg-danger">支出</span></td>
+                                                    <td>辦公費用</td>
+                                                    <td>辦公室租金</td>
+                                                    <td class="text-danger">-NT$ 15,000</td>
+                                                    <td><span class="badge bg-success">已完成</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>2024-08-17</td>
+                                                    <td><span class="badge bg-success">收入</span></td>
+                                                    <td>交易手續費</td>
+                                                    <td>交易手續費收入</td>
+                                                    <td class="text-success">+NT$ 8,500</td>
+                                                    <td><span class="badge bg-warning">處理中</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="system-page" class="page-content" style="display: none;">
+                    <div class="card shadow">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">系統設置</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>系統設置功能正在開發中...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 頁面切換功能
+        function showPage(pageId) {
+            // 隱藏所有頁面
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // 移除所有導航項的active狀態
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 顯示選中的頁面
+            document.getElementById(pageId + '-page').style.display = 'block';
+            
+            // 添加active狀態到選中的導航項
+            event.target.closest('.nav-item').classList.add('active');
+            
+            // 更新頁面標題
+            const titles = {
+                'dashboard': '儀表板',
+                'users': '用戶管理',
+                'analytics': '數據分析',
+                'content': '內容管理',
+                'financial': '財務管理',
+                'system': '系統設置'
+            };
+            document.getElementById('page-title').textContent = titles[pageId];
+            
+            // 顯示通知
+            showNotification('頁面切換', `已切換到${titles[pageId]}`, 'info');
+        }
+
+        // 刷新數據功能
+        function refreshData() {
+            showNotification('數據刷新', '正在刷新數據...', 'info');
+            
+            // 模擬數據更新
+            setTimeout(() => {
+                // 更新統計數據
+                document.getElementById('total-users').textContent = (1250 + Math.floor(Math.random() * 50)).toLocaleString();
+                document.getElementById('active-users').textContent = (892 + Math.floor(Math.random() * 30)).toLocaleString();
+                document.getElementById('total-revenue').textContent = '$' + (45600 + Math.floor(Math.random() * 1000)).toLocaleString();
+                document.getElementById('growth-rate').textContent = (12.5 + Math.random() * 2).toFixed(1) + '%';
+                document.getElementById('api-calls').textContent = (15420 + Math.floor(Math.random() * 500)).toLocaleString();
+                
+                showNotification('數據刷新', '數據已成功更新', 'success');
+            }, 1000);
+        }
+
+        // 通知系統
+        function showNotification(title, message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            
+            const typeClasses = {
+                'success': 'alert-success',
+                'error': 'alert-danger',
+                'warning': 'alert-warning',
+                'info': 'alert-info'
+            };
+            
+            notification.className = `notification alert ${typeClasses[type]} alert-dismissible`;
+            notification.innerHTML = `
+                <strong>${title}</strong> ${message}
+                <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // 自動移除通知
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        // 報告生成功能
+        function generateReport() {
+            showNotification('報告生成', '正在生成分析報告...', 'info');
+            setTimeout(() => {
+                showNotification('報告完成', 'PDF分析報告已生成並發送到您的郵箱', 'success');
+            }, 2000);
+        }
+
+        // 初始化圖表
+        function initializeCharts() {
+            if (typeof Chart !== 'undefined') {
+                // 分析頁面圖表
+                const analyticsCtx = document.getElementById('analyticsChart');
+                if (analyticsCtx) {
+                    new Chart(analyticsCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                            datasets: [{
+                                label: '用戶增長',
+                                data: [120, 190, 300, 500, 200, 300, 450, 600, 750, 890, 1200, 1450],
+                                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                                borderColor: 'rgba(102, 126, 234, 1)',
+                                borderWidth: 2,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: '用戶數量'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // 儀表板收入圖表
+                const revenueCtx = document.getElementById('revenueChart');
+                if (revenueCtx) {
+                    new Chart(revenueCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                            datasets: [{
+                                label: '月收入 (NT$)',
+                                data: [65000, 59000, 80000, 81000, 56000, 95000],
+                                backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                                borderColor: 'rgba(40, 167, 69, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: '收入 (NT$)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 設置當前日期
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString();
+            
+            // 顯示歡迎通知
+            setTimeout(() => {
+                showNotification('歡迎', '歡迎使用不老傳說統一管理後台！', 'success');
+            }, 500);
+            
+            // 初始化圖表
+            setTimeout(() => {
+                initializeCharts();
+            }, 1000);
+            
+            // 模擬實時數據更新
+            setInterval(() => {
+                const apiCalls = document.getElementById('api-calls');
+                const currentValue = parseInt(apiCalls.textContent.replace(/,/g, ''));
+                apiCalls.textContent = (currentValue + Math.floor(Math.random() * 10)).toLocaleString();
+            }, 10000);
+        });
+    </script>
+</body>
+</html>

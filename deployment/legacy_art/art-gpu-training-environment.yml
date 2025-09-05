@@ -1,0 +1,200 @@
+# ART系統本地GPU訓練環境 Docker Compose配置
+# DevOps Engineer 墨子 - RTX 4070訓練環境標準化
+
+version: '3.8'
+
+services:
+  # GPU訓練主服務
+  art-gpu-trainer:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu-training
+    container_name: art-gpu-trainer
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - CUDA_VERSION=12.1
+      - PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+      - PYTHONPATH=/workspace
+      - WANDB_MODE=${WANDB_MODE:-online}
+      - WANDB_PROJECT=art-trading-agents
+      - WANDB_API_KEY=${WANDB_API_KEY}
+      - HF_TOKEN=${HF_TOKEN}
+    volumes:
+      - ./models:/workspace/models
+      - ./datasets:/workspace/datasets
+      - ./logs:/workspace/logs
+      - ./configs:/workspace/configs
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - model_cache:/root/.cache/huggingface
+      - wandb_cache:/root/.cache/wandb
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - art-training-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # GPU監控服務
+  nvidia-exporter:
+    image: mindprince/nvidia_gpu_prometheus_exporter:0.1
+    container_name: art-nvidia-exporter
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    ports:
+      - "9445:9445"
+    networks:
+      - art-training-network
+    restart: unless-stopped
+
+  # 模型版本管理服務
+  mlflow-server:
+    image: python:3.11-slim
+    container_name: art-mlflow-server
+    command: >
+      bash -c "
+        pip install mlflow psycopg2-binary &&
+        mlflow server 
+          --backend-store-uri postgresql://mlflow:mlflow@postgres-mlflow:5432/mlflow
+          --default-artifact-root s3://art-model-artifacts/
+          --host 0.0.0.0
+          --port 5000
+      "
+    ports:
+      - "5000:5000"
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=ap-southeast-1
+    depends_on:
+      - postgres-mlflow
+    networks:
+      - art-training-network
+    restart: unless-stopped
+
+  # MLFlow PostgreSQL後端
+  postgres-mlflow:
+    image: postgres:15-alpine
+    container_name: art-postgres-mlflow
+    environment:
+      POSTGRES_DB: mlflow
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow_password
+    volumes:
+      - mlflow_db:/var/lib/postgresql/data
+    networks:
+      - art-training-network
+    restart: unless-stopped
+
+  # Jupyter Lab開發環境
+  jupyter-lab:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyter-gpu
+    container_name: art-jupyter-lab
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-art-research}
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/workspace/notebooks
+      - ./models:/workspace/models
+      - ./datasets:/workspace/datasets
+      - jupyter_workspace:/workspace/.jupyter
+    networks:
+      - art-training-network
+    restart: unless-stopped
+
+  # Redis for training job queue
+  redis-training:
+    image: redis:7-alpine
+    container_name: art-redis-training
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_training_data:/data
+    networks:
+      - art-training-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 2gb
+
+  # Prometheus監控
+  prometheus-training:
+    image: prom/prometheus:latest
+    container_name: art-prometheus-training
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus-gpu.yml:/etc/prometheus/prometheus.yml
+      - prometheus_training_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention.time=30d'
+    networks:
+      - art-training-network
+    restart: unless-stopped
+
+  # Grafana可視化
+  grafana-training:
+    image: grafana/grafana:latest
+    container_name: art-grafana-training
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=art_admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=${SMTP_HOST}
+      - GF_SMTP_USER=${SMTP_USER}
+      - GF_SMTP_PASSWORD=${SMTP_PASSWORD}
+    volumes:
+      - grafana_training_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards-gpu:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources-gpu:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus-training
+    networks:
+      - art-training-network
+    restart: unless-stopped
+
+volumes:
+  model_cache:
+    driver: local
+  wandb_cache:
+    driver: local
+  mlflow_db:
+    driver: local
+  jupyter_workspace:
+    driver: local
+  redis_training_data:
+    driver: local
+  prometheus_training_data:
+    driver: local
+  grafana_training_data:
+    driver: local
+
+networks:
+  art-training-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

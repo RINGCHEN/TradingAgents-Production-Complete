@@ -1,0 +1,189 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "TradingAgents AI Phase 2 - GPT-OSS 綜合監控面板",
+    "description": "GPT-OSS 推理服務的實時性能監控、GPU 資源監控和業務指標追蹤",
+    "tags": ["gpt-oss", "performance", "ai", "trading", "phase2"],
+    "timezone": "browser",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "5s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "🚀 GPT-OSS 服務狀態",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"gpt-oss\"}",
+            "legendFormat": "服務運行狀態",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "mappings": [
+              {"options": {"0": {"text": "❌ 離線", "color": "red"}}, "type": "value"},
+              {"options": {"1": {"text": "✅ 在線", "color": "green"}}, "type": "value"}
+            ],
+            "unit": "none",
+            "displayName": "服務狀態"
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "orientation": "auto",
+          "textMode": "auto",
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "auto"
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "⚡ 平均推理時間",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "rate(gpt_oss_inference_duration_seconds_sum[5m]) / rate(gpt_oss_inference_duration_seconds_count[5m])",
+            "legendFormat": "平均推理時間",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 5},
+                {"color": "red", "value": 10}
+              ]
+            },
+            "unit": "s",
+            "displayName": "推理時間"
+          }
+        },
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"],
+            "fields": ""
+          },
+          "orientation": "auto",
+          "textMode": "auto",
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "auto"
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "🔥 GPU 溫度",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "gpu_temperature_celsius",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "C"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 80}
+              ]
+            },
+            "unit": "celsius",
+            "displayName": "GPU 溫度"
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "💾 GPU 記憶體使用率",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(gpu_memory_used_bytes / gpu_memory_total_bytes) * 100",
+            "legendFormat": "GPU {{gpu_id}}",
+            "refId": "D"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 90}
+              ]
+            },
+            "unit": "percent",
+            "displayName": "記憶體使用率",
+            "max": 100
+          }
+        },
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "http_request_duration_seconds{job=\"gpt-oss\"}",
+            "legendFormat": "Response Time"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "GPU Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "nvidia_ml_py_memory_used_bytes / nvidia_ml_py_memory_total_bytes * 100",
+            "legendFormat": "GPU Memory %"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "5s"
+  }
+}

@@ -1,0 +1,55 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景圓形 -->
+  <circle cx="32" cy="32" r="32" fill="#f9f0ff"/>
+  
+  <!-- 社群媒體分析師圖標 -->
+  <g transform="translate(10, 10)">
+    <!-- 主要對話泡泡 -->
+    <ellipse cx="18" cy="16" rx="12" ry="8" fill="white" stroke="#722ed1" stroke-width="1"/>
+    <path d="M12 22 L8 26 L14 24 Z" fill="white" stroke="#722ed1" stroke-width="1"/>
+    
+    <!-- 對話內容 -->
+    <circle cx="14" cy="16" r="1" fill="#722ed1"/>
+    <circle cx="18" cy="16" r="1" fill="#722ed1"/>
+    <circle cx="22" cy="16" r="1" fill="#722ed1"/>
+    
+    <!-- 次要對話泡泡 -->
+    <ellipse cx="30" cy="12" rx="8" ry="5" fill="#e6f7ff" stroke="#1890ff" stroke-width="1"/>
+    <circle cx="28" cy="12" r="0.5" fill="#1890ff"/>
+    <circle cx="30" cy="12" r="0.5" fill="#1890ff"/>
+    <circle cx="32" cy="12" r="0.5" fill="#1890ff"/>
+    
+    <!-- 第三個對話泡泡 -->
+    <ellipse cx="26" cy="28" rx="6" ry="4" fill="#f6ffed" stroke="#52c41a" stroke-width="1"/>
+    <circle cx="25" cy="28" r="0.5" fill="#52c41a"/>
+    <circle cx="27" cy="28" r="0.5" fill="#52c41a"/>
+    
+    <!-- 連接線表示互動 -->
+    <line x1="24" y1="20" x2="28" y2="24" stroke="#d9d9d9" stroke-width="1" stroke-dasharray="2,2"/>
+    <line x1="30" y1="18" x2="28" y2="24" stroke="#d9d9d9" stroke-width="1" stroke-dasharray="2,2"/>
+    
+    <!-- 情緒指標 -->
+    <g transform="translate(32, 20)">
+      <!-- 正面情緒 -->
+      <circle cx="2" cy="2" r="2" fill="#52c41a"/>
+      <path d="M1 1.5 Q2 2.5 3 1.5" stroke="white" stroke-width="0.5" fill="none"/>
+      <circle cx="1.5" cy="1.5" r="0.2" fill="white"/>
+      <circle cx="2.5" cy="1.5" r="0.2" fill="white"/>
+      
+      <!-- 中性情緒 -->
+      <circle cx="2" cy="6" r="2" fill="#fadb14"/>
+      <line x1="1.5" y1="6" x2="2.5" y2="6" stroke="white" stroke-width="0.5"/>
+      <circle cx="1.5" cy="5.5" r="0.2" fill="white"/>
+      <circle cx="2.5" cy="5.5" r="0.2" fill="white"/>
+      
+      <!-- 負面情緒 -->
+      <circle cx="2" cy="10" r="2" fill="#f5222d"/>
+      <path d="M1 10.5 Q2 9.5 3 10.5" stroke="white" stroke-width="0.5" fill="none"/>
+      <circle cx="1.5" cy="9.5" r="0.2" fill="white"/>
+      <circle cx="2.5" cy="9.5" r="0.2" fill="white"/>
+    </g>
+  </g>
+  
+  <!-- 邊框 -->
+  <circle cx="32" cy="32" r="31" stroke="#722ed1" stroke-width="2" fill="none"/>
+</svg>

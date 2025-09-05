@@ -1,0 +1,403 @@
+/* Toast通知系統樣式 */
+/* 基於 functional_admin.html 的優秀通知設計，提供專業級視覺效果 */
+
+.toast-container {
+  position: fixed;
+  z-index: 1060;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+  width: auto;
+}
+
+/* 位置定位 */
+.toast-position-top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.toast-position-top-left {
+  top: 20px;
+  left: 20px;
+}
+
+.toast-position-bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
+
+.toast-position-bottom-left {
+  bottom: 20px;
+  left: 20px;
+}
+
+.toast-position-top-center {
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toast-position-bottom-center {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Toast通知基礎樣式 */
+.toast-notification {
+  pointer-events: all;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e0e0e0;
+  overflow: hidden;
+  min-width: 300px;
+  max-width: 400px;
+  position: relative;
+  backdrop-filter: blur(20px);
+  transform-origin: center;
+}
+
+/* 動畫效果 */
+.toast-animating-in {
+  animation: toast-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast-animating-out {
+  animation: toast-slide-out 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* Toast類型樣式 */
+.toast-success {
+  border-left: 4px solid #4caf50;
+}
+
+.toast-success .toast-icon {
+  color: #4caf50;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+}
+
+.toast-error {
+  border-left: 4px solid #f44336;
+}
+
+.toast-error .toast-icon {
+  color: #f44336;
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1), rgba(244, 67, 54, 0.05));
+}
+
+.toast-warning {
+  border-left: 4px solid #ff9800;
+}
+
+.toast-warning .toast-icon {
+  color: #ff9800;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 152, 0, 0.05));
+}
+
+.toast-info {
+  border-left: 4px solid #2196f3;
+}
+
+.toast-info .toast-icon {
+  color: #2196f3;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.05));
+}
+
+/* Toast頭部 */
+.toast-header {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  gap: 12px;
+}
+
+/* Toast圖標 */
+.toast-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Toast內容 */
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #212529;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.toast-message {
+  font-size: 13px;
+  color: #6c757d;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+/* Toast操作按鈕 */
+.toast-actions {
+  margin-top: 8px;
+}
+
+.toast-action-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.toast-action-btn:hover {
+  color: #0056b3;
+}
+
+/* Toast關閉按鈕 */
+.toast-close-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #495057;
+}
+
+/* Toast進度條 */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.toast-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  animation: toast-progress-countdown linear;
+  transform-origin: left;
+}
+
+@keyframes toast-progress-countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* 成功類型進度條 */
+.toast-success .toast-progress-bar {
+  background: linear-gradient(90deg, #4caf50, #45a049);
+}
+
+/* 錯誤類型進度條 */
+.toast-error .toast-progress-bar {
+  background: linear-gradient(90deg, #f44336, #d32f2f);
+}
+
+/* 警告類型進度條 */
+.toast-warning .toast-progress-bar {
+  background: linear-gradient(90deg, #ff9800, #f57c00);
+}
+
+/* 信息類型進度條 */
+.toast-info .toast-progress-bar {
+  background: linear-gradient(90deg, #2196f3, #1976d2);
+}
+
+/* 響應式設計 */
+@media (max-width: 480px) {
+  .toast-container {
+    max-width: calc(100vw - 32px);
+    left: 16px !important;
+    right: 16px !important;
+    transform: none !important;
+  }
+  
+  .toast-notification {
+    min-width: unset;
+    width: 100%;
+  }
+  
+  .toast-header {
+    padding: 12px;
+  }
+  
+  .toast-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+  
+  .toast-title {
+    font-size: 13px;
+  }
+  
+  .toast-message {
+    font-size: 12px;
+  }
+}
+
+/* 深色主題支援 */
+@media (prefers-color-scheme: dark) {
+  .toast-notification {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+  }
+  
+  .toast-title {
+    color: #f7fafc;
+  }
+  
+  .toast-message {
+    color: #cbd5e0;
+  }
+  
+  .toast-close-btn {
+    color: #a0aec0;
+  }
+  
+  .toast-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+  }
+  
+  .toast-progress {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 高對比度模式 */
+@media (prefers-contrast: high) {
+  .toast-notification {
+    border-width: 2px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  .toast-title {
+    font-weight: 700;
+  }
+  
+  .toast-close-btn {
+    border: 1px solid currentColor;
+  }
+}
+
+/* 減少動畫偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .toast-animating-in,
+  .toast-animating-out {
+    animation: none;
+  }
+  
+  .toast-progress-bar {
+    animation: none;
+    transition: transform linear;
+  }
+  
+  .toast-notification {
+    transition: none;
+  }
+}
+
+/* 懸停效果 */
+.toast-notification:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toast-notification:hover .toast-progress-bar {
+  animation-play-state: paused;
+}
+
+/* 堆疊效果 */
+.toast-container .toast-notification:nth-child(n+2) {
+  margin-top: -4px;
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.toast-container .toast-notification:nth-child(n+3) {
+  transform: scale(0.96);
+  opacity: 0.8;
+}
+
+.toast-container .toast-notification:nth-child(n+4) {
+  transform: scale(0.94);
+  opacity: 0.7;
+}
+
+/* 焦點可訪問性 */
+.toast-notification:focus-within {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.toast-close-btn:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+/* 打印樣式 */
+@media print {
+  .toast-container {
+    display: none;
+  }
+}

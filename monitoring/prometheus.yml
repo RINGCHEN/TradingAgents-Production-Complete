@@ -1,0 +1,47 @@
+# Prometheus 配置文件 - GPT-OSS 監控
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # GPT-OSS 服務監控
+  - job_name: 'gpt-oss'
+    static_configs:
+      - targets: ['gpt-oss:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+  # 系統監控 (如果有 node_exporter)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['localhost:9100']
+    scrape_interval: 15s
+
+  # GPU 監控 (如果有 nvidia_gpu_exporter)
+  - job_name: 'gpu'
+    static_configs:
+      - targets: ['localhost:9445']
+    scrape_interval: 10s
+
+  # Docker 容器監控 (如果有 cadvisor)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['localhost:8081']
+    scrape_interval: 15s
+
+# 告警規則 (可選)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# 規則文件 (可選)
+# rule_files:
+#   - "alert_rules.yml"

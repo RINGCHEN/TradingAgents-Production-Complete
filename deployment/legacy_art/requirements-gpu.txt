@@ -1,0 +1,100 @@
+# ART GPU訓練環境特定依賴包
+# DevOps Engineer 墨子 - GPU訓練環境依賴清單
+
+# 深度學習框架核心（已在Dockerfile中安裝）
+# torch==2.1.0
+# torchvision==0.16.0
+# torchaudio==2.1.0
+
+# 自然語言處理和模型庫
+transformers==4.35.0
+tokenizers==0.14.1
+sentencepiece==0.1.99
+sacremoses==0.1.1
+
+# 模型優化和量化
+bitsandbytes==0.41.2
+peft==0.6.0
+accelerate==0.24.1
+optimum==1.14.1
+
+# 強化學習和訓練優化
+trl==0.7.4
+torch-optimizer==0.3.0
+lion-pytorch==0.1.2
+
+# 實驗追蹤和版本控制
+mlflow==2.8.1
+wandb==0.16.0
+tensorboard==2.15.1
+aim==3.17.5
+
+# 數據處理和分析
+pandas==2.1.3
+numpy==1.24.4
+polars==0.19.19
+dask[complete]==2023.11.0
+
+# 財務和市場數據
+yfinance==0.2.22
+ta-lib==0.4.28
+quantlib==1.32
+fredapi==0.5.1
+alpha-vantage==2.3.1
+ccxt==4.1.48
+
+# 網路和API客戶端
+aiohttp==3.9.1
+websockets==12.0
+httpx==0.25.2
+requests==2.31.0
+
+# 資料庫連接
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+redis[hiredis]==5.0.1
+motor==3.3.2
+
+# 序列化和配置
+pydantic==2.5.0
+omegaconf==2.3.0
+hydra-core==1.3.2
+yaml==0.2.5
+
+# 監控和日誌
+prometheus-client==0.19.0
+psutil==5.9.6
+GPUtil==1.4.0
+py3nvml==0.2.7
+loguru==0.7.2
+
+# 數據可視化
+matplotlib==3.8.2
+seaborn==0.13.0
+plotly==5.17.0
+bokeh==3.3.2
+
+# 開發和測試工具
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+
+# Jupyter環境
+jupyter==1.0.0
+jupyterlab==4.0.8
+ipywidgets==8.1.1
+notebook==7.0.6
+
+# 安全和認證
+cryptography==41.0.7
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+
+# 工具和實用程序
+click==8.1.7
+rich==13.7.0
+typer==0.9.0
+tqdm==4.66.1

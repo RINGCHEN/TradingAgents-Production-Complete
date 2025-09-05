@@ -1,0 +1,399 @@
+# ART系統混合部署 Cloud Build CI/CD配置
+# DevOps Engineer 墨子 - 本地到雲端完整自動化管線
+
+steps:
+  # 步驟 1: 環境檢查和準備
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🚀 ART系統混合部署管線啟動"
+        echo "構建ID: $BUILD_ID"
+        echo "提交SHA: $COMMIT_SHA"
+        echo "分支: $BRANCH_NAME"
+        echo "項目ID: $PROJECT_ID"
+        
+        # 檢查必要的API是否啟用
+        gcloud services list --enabled --format="value(config.name)" | grep -E "(run|container|artifactregistry)" || {
+          echo "❌ 必要的GCP服務未啟用"
+          exit 1
+        }
+        
+        echo "✅ 環境檢查完成"
+    id: 'environment-check'
+
+  # 步驟 2: 代碼品質和安全掃描
+  - name: 'python:3.11-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🔍 執行代碼品質檢查..."
+        pip install flake8 black isort bandit safety
+        
+        # 代碼格式檢查
+        flake8 tradingagents/ --max-line-length=100 --ignore=E203,W503
+        black --check tradingagents/
+        isort --check-only tradingagents/
+        
+        # 安全掃描
+        bandit -r tradingagents/ -f json -o bandit-report.json || true
+        safety check -r requirements.txt || true
+        
+        echo "✅ 代碼品質檢查完成"
+    id: 'code-quality-scan'
+
+  # 步驟 3: 構建GPU訓練映像
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'deployment/Dockerfile.gpu-training'
+      - '-t'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-gpu-training:$COMMIT_SHA'
+      - '-t'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-gpu-training:latest'
+      - '.'
+    id: 'build-gpu-training-image'
+
+  # 步驟 4: 構建推理服務映像
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'deployment/Dockerfile.inference'
+      - '-t'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-inference:$COMMIT_SHA'
+      - '-t'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-inference:latest'
+      - '.'
+    id: 'build-inference-image'
+
+  # 步驟 5: 容器安全掃描
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🔒 執行容器安全掃描..."
+        
+        # 掃描GPU訓練映像
+        gcloud container images scan \
+          asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-gpu-training:$COMMIT_SHA \
+          --format='table(response.vulnerabilities.vulnerability.severity.count():label=COUNT,response.vulnerabilities.vulnerability.severity.name():label=SEVERITY)' || true
+        
+        # 掃描推理映像
+        gcloud container images scan \
+          asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-inference:$COMMIT_SHA \
+          --format='table(response.vulnerabilities.vulnerability.severity.count():label=COUNT,response.vulnerabilities.vulnerability.severity.name():label=SEVERITY)' || true
+        
+        echo "✅ 容器安全掃描完成"
+    id: 'container-security-scan'
+
+  # 步驟 6: 推送映像到 Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-gpu-training:$COMMIT_SHA'
+    id: 'push-gpu-training-image'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-inference:$COMMIT_SHA'
+    id: 'push-inference-image'
+
+  # 步驟 7: 推送latest標籤
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-gpu-training:latest'
+    id: 'push-gpu-training-latest'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-inference:latest'
+    id: 'push-inference-latest'
+
+  # 步驟 8: 部署到GKE Staging環境
+  - name: 'gcr.io/cloud-builders/kubectl'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🚀 部署到GKE Staging環境..."
+        
+        # 獲取GKE憑證
+        gcloud container clusters get-credentials art-gpu-cluster --region=asia-east1
+        
+        # 更新Kubernetes部署文件中的映像標籤
+        sed -i "s|IMAGE_TAG|$COMMIT_SHA|g" deployment/k8s/art-staging.yaml
+        
+        # 部署到Kubernetes
+        kubectl apply -f deployment/k8s/art-staging.yaml
+        
+        # 等待部署就緒
+        kubectl rollout status deployment/art-gpu-training-staging -n art-staging --timeout=300s
+        kubectl rollout status deployment/art-inference-staging -n art-staging --timeout=300s
+        
+        echo "✅ GKE Staging部署完成"
+    id: 'deploy-gke-staging'
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=asia-east1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=art-gpu-cluster'
+
+  # 步驟 9: 模型同步檢查
+  - name: 'python:3.11-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🔄 檢查模型同步狀態..."
+        pip install google-cloud-storage mlflow requests
+        
+        python3 << 'EOF'
+        import os
+        from google.cloud import storage
+        import requests
+        import json
+        
+        # 檢查模型存儲桶
+        client = storage.Client()
+        bucket = client.bucket(f"{os.environ['PROJECT_ID']}-art-models")
+        blobs = list(bucket.list_blobs(prefix="models/"))
+        
+        print(f"模型存儲桶中發現 {len(blobs)} 個模型文件")
+        
+        # 檢查MLFlow服務狀態
+        staging_url = "http://art-mlflow-staging.art-staging.svc.cluster.local:5000"
+        try:
+            response = requests.get(f"{staging_url}/api/2.0/mlflow/experiments/list", timeout=10)
+            if response.status_code == 200:
+                print("✅ MLFlow服務正常運行")
+            else:
+                print(f"⚠️ MLFlow服務異常: {response.status_code}")
+        except Exception as e:
+            print(f"⚠️ 無法連接MLFlow服務: {e}")
+        EOF
+        
+        echo "✅ 模型同步檢查完成"
+    id: 'model-sync-check'
+
+  # 步驟 10: 集成測試
+  - name: 'python:3.11-slim'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🧪 執行集成測試..."
+        pip install pytest requests kubernetes
+        
+        # 獲取Staging服務端點
+        gcloud container clusters get-credentials art-gpu-cluster --region=asia-east1
+        
+        # 運行集成測試
+        export STAGING_NAMESPACE=art-staging
+        export COMMIT_SHA=$COMMIT_SHA
+        pytest tests/integration/test_art_hybrid.py -v --tb=short
+        
+        echo "✅ 集成測試完成"
+    id: 'integration-tests'
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=asia-east1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=art-gpu-cluster'
+
+  # 步驟 11: 效能基準測試
+  - name: 'loadimpact/k6:latest'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "⚡ 執行效能基準測試..."
+        
+        # 獲取推理服務端點
+        kubectl get service art-inference-staging -n art-staging -o jsonpath='{.status.loadBalancer.ingress[0].ip}' > inference_ip.txt
+        INFERENCE_IP=$(cat inference_ip.txt)
+        
+        cat > performance-test.js << 'EOF'
+        import http from 'k6/http';
+        import { check, sleep } from 'k6';
+        
+        export let options = {
+          stages: [
+            { duration: '2m', target: 10 },   // 緩慢增加到10個用戶
+            { duration: '5m', target: 10 },   // 維持10個用戶
+            { duration: '2m', target: 20 },   // 增加到20個用戶
+            { duration: '5m', target: 20 },   // 維持20個用戶
+            { duration: '2m', target: 0 },    // 緩慢降到0個用戶
+          ],
+        };
+        
+        export default function() {
+          // 健康檢查
+          let healthResponse = http.get(`http://${__ENV.INFERENCE_IP}:8080/health`);
+          check(healthResponse, {
+            'health check status is 200': (r) => r.status === 200,
+            'health check response time < 100ms': (r) => r.timings.duration < 100,
+          });
+          
+          // 推理API測試
+          let payload = JSON.stringify({
+            text: "AAPL股票今日上漲3%，市場對其新產品發布反應積極",
+            model: "art-sentiment-v1"
+          });
+          
+          let inferenceResponse = http.post(`http://${__ENV.INFERENCE_IP}:8080/predict`, payload, {
+            headers: { 'Content-Type': 'application/json' }
+          });
+          
+          check(inferenceResponse, {
+            'inference status is 200': (r) => r.status === 200,
+            'inference response time < 2s': (r) => r.timings.duration < 2000,
+            'inference has result': (r) => JSON.parse(r.body).prediction !== undefined,
+          });
+          
+          sleep(1);
+        }
+        EOF
+        
+        k6 run --env INFERENCE_IP="$INFERENCE_IP" performance-test.js || true
+        
+        echo "✅ 效能基準測試完成"
+    id: 'performance-benchmark'
+
+  # 步驟 12: 生產環境部署（僅限main分支）
+  - name: 'gcr.io/cloud-builders/kubectl'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "$BRANCH_NAME" = "main" ]; then
+          echo "🚀 部署到生產環境..."
+          
+          # 更新生產環境部署文件
+          sed -i "s|IMAGE_TAG|$COMMIT_SHA|g" deployment/k8s/art-production.yaml
+          
+          # 部署到生產環境
+          kubectl apply -f deployment/k8s/art-production.yaml
+          
+          # 等待部署就緒
+          kubectl rollout status deployment/art-gpu-training-prod -n art-production --timeout=600s
+          kubectl rollout status deployment/art-inference-prod -n art-production --timeout=600s
+          
+          # 更新Cloud Run推理服務
+          gcloud run deploy art-inference-service \
+            --image=asia-east1-docker.pkg.dev/$PROJECT_ID/art-docker-repo/art-inference:$COMMIT_SHA \
+            --platform=managed \
+            --region=asia-east1 \
+            --port=8080 \
+            --memory=8Gi \
+            --cpu=4 \
+            --timeout=300s \
+            --concurrency=100 \
+            --max-instances=10 \
+            --min-instances=1 \
+            --set-env-vars="ENVIRONMENT=production" \
+            --quiet
+          
+          echo "✅ 生產環境部署完成"
+        else
+          echo "ℹ️ 非main分支，跳過生產部署"
+        fi
+    id: 'deploy-production'
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=asia-east1'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=art-gpu-cluster'
+
+  # 步驟 13: 生產環境健康檢查
+  - name: 'curlimages/curl:latest'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        if [ "$BRANCH_NAME" = "main" ]; then
+          echo "🔍 執行生產環境健康檢查..."
+          
+          # 檢查Cloud Run服務
+          PROD_URL=$(gcloud run services describe art-inference-service --region=asia-east1 --format="value(status.url)")
+          echo "生產推理服務URL: $PROD_URL"
+          
+          # 等待服務啟動
+          sleep 60
+          
+          # 健康檢查
+          curl -f "$PROD_URL/health" --connect-timeout 10 --max-time 30
+          echo "✅ 生產環境健康檢查通過"
+          
+          # 快速推理測試
+          curl -X POST "$PROD_URL/predict" \
+            -H "Content-Type: application/json" \
+            -d '{"text":"測試推理服務","model":"art-sentiment-v1"}' \
+            --connect-timeout 10 --max-time 30
+          echo "✅ 生產推理服務正常"
+        else
+          echo "ℹ️ 非main分支，跳過生產健康檢查"
+        fi
+    id: 'production-health-check'
+
+  # 步驟 14: 部署通知和監控設置
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "📊 設置監控和告警..."
+        
+        # 創建自定義指標
+        gcloud logging metrics create art_training_errors \
+          --description="ART訓練錯誤計數" \
+          --log-filter='resource.type="k8s_container" AND resource.labels.namespace_name="art-production" AND severity="ERROR"' || true
+        
+        gcloud logging metrics create art_inference_latency \
+          --description="ART推理延遲" \
+          --log-filter='resource.type="cloud_run_revision" AND resource.labels.service_name="art-inference-service"' || true
+        
+        echo "📧 發送部署通知..."
+        if [ "$BRANCH_NAME" = "main" ]; then
+          PROD_URL=$(gcloud run services describe art-inference-service --region=asia-east1 --format="value(status.url)")
+          echo "✅ ART系統生產部署成功"
+          echo "🔗 推理服務URL: $PROD_URL"
+          echo "📊 版本: $COMMIT_SHA"
+          echo "🌿 分支: $BRANCH_NAME"
+          echo "🏗️ 構建ID: $BUILD_ID"
+        else
+          echo "✅ ART系統Staging部署成功"
+          echo "📊 版本: $COMMIT_SHA"
+          echo "🌿 分支: $BRANCH_NAME"
+          echo "🏗️ 構建ID: $BUILD_ID"
+        fi
+        
+        echo "✅ 監控設置完成"
+    id: 'monitoring-and-notification'
+
+# 構建選項
+options:
+  machineType: 'E2_HIGHCPU_32'  # 使用高配置機器
+  timeout: '3600s'              # 1小時超時
+  logging: 'CLOUD_LOGGING_ONLY'
+  
+  # 並行構建優化
+  env:
+    - 'DOCKER_BUILDKIT=1'
+    - 'BUILDKIT_PROGRESS=plain'
+
+# 觸發器配置說明:
+# - 推送到任何分支觸發完整CI/CD管線
+# - main分支自動部署到生產環境
+# - 其他分支僅部署到staging環境
+# - 支援手動觸發和定時構建
+
+# 必要的IAM權限：
+# - Kubernetes Engine Admin
+# - Cloud Run Admin
+# - Storage Admin
+# - Secret Manager Admin
+# - Container Analysis Admin
+# - Monitoring Admin
+# - Logging Admin

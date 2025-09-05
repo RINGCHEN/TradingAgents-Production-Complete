@@ -1,0 +1,71 @@
+# GPT-OSS 本地推理服務 Docker配置 (CPU版本)
+# TradingAgents集成版 - 開發測試用
+
+FROM python:3.9-slim as builder
+
+# 設置環境變量
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# 安裝系統依賴
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    build-essential \
+    cmake \
+    && rm -rf /var/lib/apt/lists/*
+
+# 創建工作目錄
+WORKDIR /app
+
+# 安裝Python依賴 (CPU版本)
+COPY gpt_oss/requirements-gpt-oss-cpu.txt .
+RUN pip install --no-cache-dir -r requirements-gpt-oss-cpu.txt
+
+# 複製GPT-OSS配置文件
+COPY gpt_oss/ /app/gpt_oss/
+
+# 創建模型存儲目錄
+RUN mkdir -p /app/models /app/cache /app/logs
+
+# 生產階段
+FROM python:3.9-slim as runtime
+
+# 安裝運行時依賴
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 創建非特權用戶
+RUN groupadd -r gptoss && useradd -r -g gptoss gptoss
+
+# 設置工作目錄
+WORKDIR /app
+
+# 從builder階段複製文件
+COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=builder /app /app
+
+# 設置權限
+RUN chown -R gptoss:gptoss /app
+
+# 切換到非特權用戶
+USER gptoss
+
+# 設置環境變量
+ENV PYTHONPATH=/app
+ENV MODEL_PATH=/app/models
+ENV CACHE_DIR=/app/cache
+ENV LOG_DIR=/app/logs
+ENV DEVICE=cpu
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# 暴露端口
+EXPOSE 8080
+
+# 啟動命令
+CMD ["python3", "gpt_oss/server.py", "--host", "0.0.0.0", "--port", "8080", "--device", "cpu"]

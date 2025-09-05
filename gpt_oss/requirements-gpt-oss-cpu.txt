@@ -1,0 +1,37 @@
+# GPT-OSS CPU版本依賴
+# 用於開發和測試環境
+
+# 核心依賴
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+httpx==0.25.2
+
+# AI/ML 依賴 (CPU版本)
+torch==2.1.0
+transformers==4.35.2
+tokenizers==0.15.0
+accelerate==0.24.1
+
+# 模型和推理
+sentence-transformers==2.2.2
+huggingface-hub==0.19.4
+
+# 工具依賴
+numpy==1.24.3
+pandas==2.0.3
+requests==2.31.0
+aiofiles==23.2.1
+python-multipart==0.0.6
+
+# 日誌和監控
+loguru==0.7.2
+prometheus-client==0.19.0
+
+# 配置管理
+pyyaml==6.0.1
+python-dotenv==1.0.0
+
+# 開發工具
+pytest==7.4.3
+pytest-asyncio==0.21.1

@@ -1,0 +1,481 @@
+/* 現代化側邊欄樣式 */
+/* 基於 admin_complete.html 的優秀設計，提供企業級視覺效果 */
+
+.admin-sidebar.modern-sidebar {
+  width: 280px;
+  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  color: #ecf0f1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.15);
+  border-right: 1px solid #34495e;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 側邊欄頭部 */
+.modern-sidebar .sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(236, 240, 241, 0.1);
+  background: rgba(52, 73, 94, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.brand-text h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ecf0f1;
+  letter-spacing: -0.5px;
+}
+
+.brand-text p {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(236, 240, 241, 0.7);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.sidebar-version {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sidebar-version .badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* 導航區域 */
+.modern-sidebar .sidebar-nav {
+  flex: 1;
+  padding: 20px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.modern-sidebar .sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modern-sidebar .sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modern-sidebar .sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(236, 240, 241, 0.2);
+  border-radius: 2px;
+}
+
+.modern-sidebar .sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(236, 240, 241, 0.3);
+}
+
+/* 導航區段 */
+.nav-section {
+  margin-bottom: 24px;
+}
+
+.nav-section:last-child {
+  margin-bottom: 0;
+}
+
+.nav-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(236, 240, 241, 0.5);
+  padding: 0 20px 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(236, 240, 241, 0.1);
+}
+
+/* 導航項目 */
+.modern-sidebar .nav-item {
+  position: relative;
+  width: 100%;
+  background: none;
+  border: none;
+  color: rgba(236, 240, 241, 0.8);
+  text-align: left;
+  padding: 12px 20px;
+  margin: 0 12px 4px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.modern-sidebar .nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0 4px 4px 0;
+}
+
+.modern-sidebar .nav-item:hover {
+  color: #ecf0f1;
+  background: rgba(52, 152, 219, 0.1);
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modern-sidebar .nav-item:hover::before {
+  width: 3px;
+}
+
+.modern-sidebar .nav-item.active {
+  color: #ecf0f1;
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(41, 128, 185, 0.1));
+  transform: translateX(8px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+}
+
+.modern-sidebar .nav-item.active::before {
+  width: 4px;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.modern-sidebar .nav-item.active .nav-icon {
+  color: #3498db;
+  transform: scale(1.1);
+}
+
+.nav-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-indicator {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: #3498db;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+  animation: pulse-indicator 2s infinite;
+}
+
+@keyframes pulse-indicator {
+  0%, 100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(-50%) scale(1.2);
+  }
+}
+
+/* 側邊欄底部 */
+.modern-sidebar .sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid rgba(236, 240, 241, 0.1);
+  background: rgba(44, 62, 80, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+/* 用戶資料 */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(52, 73, 94, 0.3);
+  border-radius: 8px;
+  border: 1px solid rgba(236, 240, 241, 0.1);
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #27ae60, #229954);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ecf0f1;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 11px;
+  color: rgba(236, 240, 241, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 底部操作 */
+.footer-actions {
+  margin-bottom: 12px;
+}
+
+.footer-actions .btn {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(236, 240, 241, 0.2);
+  background: rgba(52, 73, 94, 0.3);
+  color: rgba(236, 240, 241, 0.9);
+}
+
+.footer-actions .btn:hover {
+  background: rgba(231, 76, 60, 0.1);
+  border-color: rgba(231, 76, 60, 0.3);
+  color: #e74c3c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+}
+
+/* 底部信息 */
+.footer-info {
+  text-align: center;
+  font-size: 10px;
+  color: rgba(236, 240, 241, 0.4);
+}
+
+/* 響應式設計 */
+@media (max-width: 1200px) {
+  .admin-sidebar.modern-sidebar {
+    width: 260px;
+  }
+}
+
+@media (max-width: 992px) {
+  .admin-sidebar.modern-sidebar {
+    width: 240px;
+  }
+  
+  .modern-sidebar .nav-item {
+    padding: 10px 16px;
+    margin: 0 8px 2px;
+    font-size: 13px;
+  }
+  
+  .brand-text h4 {
+    font-size: 16px;
+  }
+  
+  .brand-text p {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-sidebar.modern-sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    box-shadow: none;
+  }
+  
+  .modern-sidebar .sidebar-header {
+    padding: 16px;
+  }
+  
+  .modern-sidebar .sidebar-nav {
+    padding: 16px 0;
+    max-height: none;
+    overflow: visible;
+  }
+  
+  .nav-section {
+    margin-bottom: 16px;
+  }
+  
+  .modern-sidebar .nav-item {
+    margin: 0 8px 2px;
+    padding: 8px 16px;
+  }
+  
+  .modern-sidebar .sidebar-footer {
+    padding: 16px;
+  }
+  
+  .user-profile {
+    margin-bottom: 12px;
+    padding: 8px;
+  }
+  
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  
+  .user-name {
+    font-size: 12px;
+  }
+  
+  .user-role {
+    font-size: 10px;
+  }
+}
+
+/* 收起狀態 */
+.admin-sidebar.modern-sidebar.collapsed {
+  width: 80px;
+}
+
+.admin-sidebar.modern-sidebar.collapsed .brand-text,
+.admin-sidebar.modern-sidebar.collapsed .nav-label,
+.admin-sidebar.modern-sidebar.collapsed .nav-section-title,
+.admin-sidebar.modern-sidebar.collapsed .user-info,
+.admin-sidebar.modern-sidebar.collapsed .footer-info {
+  display: none;
+}
+
+.admin-sidebar.modern-sidebar.collapsed .nav-item {
+  justify-content: center;
+  margin: 0 8px 4px;
+  padding: 12px;
+}
+
+.admin-sidebar.modern-sidebar.collapsed .user-profile {
+  justify-content: center;
+}
+
+.admin-sidebar.modern-sidebar.collapsed .footer-actions .btn {
+  padding: 8px;
+}
+
+.admin-sidebar.modern-sidebar.collapsed .footer-actions .btn span {
+  display: none;
+}
+
+/* 深色主題支援 */
+@media (prefers-color-scheme: dark) {
+  .admin-sidebar.modern-sidebar {
+    background: linear-gradient(180deg, #1a1a1a 0%, #2d2d2d 100%);
+    border-right-color: #404040;
+  }
+  
+  .modern-sidebar .sidebar-header {
+    background: rgba(45, 45, 45, 0.5);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .modern-sidebar .sidebar-footer {
+    background: rgba(26, 26, 26, 0.5);
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .user-profile {
+    background: rgba(45, 45, 45, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .nav-section-title {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 高對比度模式 */
+@media (prefers-contrast: high) {
+  .admin-sidebar.modern-sidebar {
+    border-right: 2px solid #000;
+  }
+  
+  .modern-sidebar .nav-item {
+    border: 1px solid transparent;
+  }
+  
+  .modern-sidebar .nav-item:hover,
+  .modern-sidebar .nav-item.active {
+    border-color: #fff;
+  }
+  
+  .nav-indicator {
+    box-shadow: none;
+    border: 2px solid #fff;
+  }
+}
+
+/* 減少動畫偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .admin-sidebar.modern-sidebar,
+  .modern-sidebar .nav-item,
+  .nav-icon,
+  .footer-actions .btn {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+  
+  .nav-indicator {
+    animation: none !important;
+  }
+}

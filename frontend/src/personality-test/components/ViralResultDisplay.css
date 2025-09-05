@@ -1,0 +1,466 @@
+/* 病毒式結果展示組件樣式 */
+.viral-result-display {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-family: 'Arial', sans-serif;
+  overflow-x: hidden;
+}
+
+/* 震撼標題區域 */
+.shock-header {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  margin-bottom: 30px;
+  transform: translateY(50px);
+  opacity: 0;
+  transition: all 0.8s ease-out;
+}
+
+.shock-header.revealed {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.personality-icon-large {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.viral-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: 20px 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.percentile-shock {
+  margin-top: 20px;
+}
+
+.percentile-number {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #feca57;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
+  display: block;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.percentile-text {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  display: block;
+}
+
+/* 極端特質展示 */
+.extreme-traits-section {
+  margin: 40px 0;
+}
+
+.extreme-traits-section h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.extreme-traits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.extreme-trait-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.extreme-trait-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.extreme-trait-card.risk {
+  border-left: 4px solid #ff6b6b;
+}
+
+.extreme-trait-card.emotion {
+  border-left: 4px solid #4ecdc4;
+}
+
+.extreme-trait-card.analysis {
+  border-left: 4px solid #45b7d1;
+}
+
+.trait-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.trait-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.trait-level {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #feca57;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.trait-description {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* 名人比較區域 */
+.celebrity-comparison {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  padding: 30px;
+  margin: 30px 0;
+  text-align: center;
+}
+
+.celebrity-comparison h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.celebrity-match {
+  margin-bottom: 15px;
+}
+
+.celebrity-text {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.extreme-trait-highlight {
+  font-size: 1rem;
+  color: #feca57;
+  font-weight: bold;
+}
+
+/* 雷達圖區域 */
+.radar-chart-section {
+  margin: 40px 0;
+  text-align: center;
+}
+
+.radar-chart-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+/* 震撼描述 */
+.shock-description {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+  padding: 30px;
+  margin: 30px 0;
+}
+
+.shock-description h3 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.description-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* 病毒式分享區域 */
+.viral-share-section {
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  border-radius: 20px;
+  padding: 40px;
+  margin: 40px 0;
+  text-align: center;
+  color: white;
+}
+
+.viral-share-section h3 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.rotating-hook {
+  margin: 20px 0;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.share-hook {
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  animation: fadeInOut 3s infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+.challenge-text {
+  margin: 20px 0;
+  font-size: 1.1rem;
+  font-style: italic;
+}
+
+.viral-share-buttons {
+  margin-top: 30px;
+}
+
+/* 強力CTA區域 */
+.viral-cta-section {
+  margin: 40px 0;
+}
+
+.cta-card {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.cta-card h3 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.cta-description {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.cta-benefits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin: 30px 0;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  font-size: 1rem;
+}
+
+.benefit-icon {
+  font-size: 1.5rem;
+}
+
+.viral-cta-button {
+  background: linear-gradient(45deg, #ff6b6b, #feca57);
+  color: white;
+  border: none;
+  padding: 20px 40px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  margin: 20px 0;
+  animation: ctaPulse 3s infinite;
+}
+
+@keyframes ctaPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.viral-cta-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.cta-urgency {
+  font-size: 0.9rem;
+  color: #feca57;
+  font-weight: bold;
+  margin-top: 15px;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.7;
+  }
+}
+
+/* 社交證明 */
+.social-proof {
+  margin: 40px 0;
+  text-align: center;
+}
+
+.proof-stats {
+  display: flex;
+  justify-content: space-around;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 15px;
+  padding: 30px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #feca57;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 5px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .viral-result-display {
+    padding: 15px;
+  }
+  
+  .viral-title {
+    font-size: 2rem;
+  }
+  
+  .percentile-number {
+    font-size: 3rem;
+  }
+  
+  .extreme-traits-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cta-benefits {
+    grid-template-columns: 1fr;
+  }
+  
+  .proof-stats {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .viral-cta-button {
+    padding: 15px 30px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .personality-icon-large {
+    font-size: 60px;
+  }
+  
+  .viral-title {
+    font-size: 1.8rem;
+  }
+  
+  .percentile-number {
+    font-size: 2.5rem;
+  }
+  
+  .shock-header {
+    padding: 30px 15px;
+  }
+  
+  .cta-card {
+    padding: 30px 20px;
+  }
+}

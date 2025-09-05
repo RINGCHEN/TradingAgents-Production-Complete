@@ -1,0 +1,90 @@
+groups:
+  - name: gpt_oss_alerts
+    rules:
+      # GPT-OSS 服務狀態告警
+      - alert: GPTOSSServiceDown
+        expr: up{job="gpt-oss"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: gpt-oss
+        annotations:
+          summary: "GPT-OSS 推理服務不可用"
+          description: "GPT-OSS 服務已停止運行超過 30 秒"
+
+      # 推理響應時間告警
+      - alert: GPTOSSHighResponseTime
+        expr: increase(http_request_duration_seconds{job="gpt-oss",quantile="0.95"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: gpt-oss
+        annotations:
+          summary: "GPT-OSS 推理響應時間過長"
+          description: "95% 響應時間超過 10 秒，當前值: {{ $value }}s"
+
+      # GPU 記憶體使用率告警
+      - alert: GPUMemoryHighUsage
+        expr: nvidia_ml_py_memory_used_bytes / nvidia_ml_py_memory_total_bytes * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          service: gpu
+        annotations:
+          summary: "GPU 記憶體使用率過高"
+          description: "GPU 記憶體使用率 {{ $value }}%，接近極限"
+
+      # GPU 溫度告警
+      - alert: GPUHighTemperature
+        expr: nvidia_ml_py_temperature_celsius > 80
+        for: 3m
+        labels:
+          severity: critical
+          service: gpu
+        annotations:
+          summary: "GPU 溫度過高"
+          description: "GPU 溫度 {{ $value }}°C，可能影響性能"
+
+      # 推理請求積壓告警
+      - alert: GPTOSSRequestQueueHigh
+        expr: gpt_oss_pending_requests > 10
+        for: 1m
+        labels:
+          severity: warning
+          service: gpt-oss
+        annotations:
+          summary: "GPT-OSS 請求積壓"
+          description: "待處理請求數量: {{ $value }}，可能需要擴容"
+
+      # 模型載入失敗告警
+      - alert: GPTOSSModelLoadFailure
+        expr: increase(gpt_oss_model_load_errors_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: critical
+          service: gpt-oss
+        annotations:
+          summary: "GPT-OSS 模型載入失敗"
+          description: "模型載入失敗次數: {{ $value }}"
+
+      # 記憶體洩漏檢測
+      - alert: GPTOSSMemoryLeak
+        expr: increase(process_resident_memory_bytes{job="gpt-oss"}[10m]) > 1073741824  # 1GB
+        for: 10m
+        labels:
+          severity: warning
+          service: gpt-oss
+        annotations:
+          summary: "GPT-OSS 可能存在記憶體洩漏"
+          description: "記憶體使用量持續增長 {{ $value | humanizeBytes }}"
+
+      # 推理成功率告警
+      - alert: GPTOSSLowSuccessRate
+        expr: (rate(gpt_oss_requests_total{status="success"}[5m]) / rate(gpt_oss_requests_total[5m]) * 100) < 95
+        for: 3m
+        labels:
+          severity: warning
+          service: gpt-oss
+        annotations:
+          summary: "GPT-OSS 推理成功率低"
+          description: "推理成功率 {{ $value }}%，低於 95% 標準"

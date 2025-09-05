@@ -1,0 +1,494 @@
+/**
+ * User Management Component Specific Styles
+ * Advanced styling for the user management interface
+ */
+
+.user-management {
+  // Component-specific custom properties
+  --user-avatar-size: 48px;
+  --user-avatar-size-sm: 40px;
+  --table-row-height: 80px;
+  --action-button-size: 32px;
+
+  // Layout
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  min-height: 100%;
+
+  // Enhanced hover effects for table rows
+  .user-table tr {
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  // Advanced user cell styling
+  .user-cell {
+    .user-avatar {
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: var(--radius-full);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        z-index: -1;
+        opacity: 0;
+        transition: opacity var(--transition-base);
+      }
+
+      &:hover::before {
+        opacity: 0.3;
+      }
+    }
+
+    .online-indicator {
+      &::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: var(--radius-full);
+        background: var(--success-color);
+        z-index: -1;
+        opacity: 0.3;
+        animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+      }
+    }
+  }
+
+  // Enhanced status indicators
+  .status-badge {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s;
+    }
+
+    &:hover::before {
+      left: 100%;
+    }
+  }
+
+  // Advanced membership tier styling
+  .tier-diamond {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg at 50% 50%, transparent, rgba(156, 39, 176, 0.1), transparent);
+      animation: rotate 3s linear infinite;
+    }
+  }
+
+  // Enhanced usage progress bars
+  .usage-bar {
+    position: relative;
+    overflow: hidden;
+
+    .usage-fill {
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        animation: shimmer 2s infinite;
+      }
+    }
+
+    &[data-usage="high"] .usage-fill {
+      background: linear-gradient(90deg, var(--warning-color), var(--error-color));
+    }
+
+    &[data-usage="medium"] .usage-fill {
+      background: linear-gradient(90deg, var(--info-color), var(--warning-color));
+    }
+
+    &[data-usage="low"] .usage-fill {
+      background: linear-gradient(90deg, var(--success-color), var(--info-color));
+    }
+  }
+
+  // Quick action menu styling
+  .actions-cell {
+    .quick-action-menu {
+      opacity: 0;
+      transform: translateX(10px);
+      transition: all var(--transition-fast);
+    }
+
+    tr:hover &,
+    &:focus-within {
+      .quick-action-menu {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+
+  // Enhanced search section
+  .search-section {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary-color), var(--primary-light), var(--primary-color));
+      border-radius: var(--radius-lg);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+
+    &:focus-within::before {
+      opacity: 1;
+    }
+  }
+
+  // Loading state animations
+  .loading-skeleton {
+    background: linear-gradient(90deg, var(--surface-variant) 25%, var(--border-light) 50%, var(--surface-variant) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: var(--radius-md);
+  }
+
+  // Bulk action bar enhancements
+  .bulk-action-bar {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      animation: slide-in 0.8s ease-out;
+    }
+  }
+
+  // Enhanced statistics cards
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at top right, rgba(25, 118, 210, 0.05), transparent);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+
+    &:hover::before {
+      opacity: 1;
+    }
+
+    .stat-icon {
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: var(--radius-xl);
+        background: inherit;
+        z-index: -1;
+        opacity: 0.2;
+        filter: blur(8px);
+        transition: all var(--transition-base);
+      }
+
+      .stat-card:hover &::after {
+        opacity: 0.4;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // Advanced empty state
+  .empty-state {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, var(--primary-color)20, transparent);
+      transform: translate(-50%, -50%);
+      opacity: 0.1;
+      border-radius: var(--radius-full);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .empty-state-icon {
+      position: relative;
+      z-index: 1;
+    }
+  }
+}
+
+// Dark theme specific enhancements
+.theme-dark {
+  .user-management {
+    .stat-card {
+      &::before {
+        background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent);
+      }
+    }
+
+    .tier-diamond::before {
+      background: conic-gradient(from 0deg at 50% 50%, transparent, rgba(99, 102, 241, 0.2), transparent);
+    }
+
+    .usage-bar .usage-fill::after {
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+      );
+    }
+  }
+}
+
+// Animations
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+// Responsive enhancements
+@media (max-width: 1200px) {
+  .user-management {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .user-table {
+      .analytics-cell,
+      .dates-cell {
+        display: none;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .user-management {
+    --user-avatar-size: 40px;
+    --table-row-height: 60px;
+    
+    gap: var(--spacing-4);
+
+    .page-header {
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-3);
+      }
+    }
+
+    .search-section {
+      .view-controls {
+        .view-mode-selector {
+          display: none;
+        }
+      }
+    }
+
+    .user-table {
+      .membership-cell,
+      .analytics-cell,
+      .dates-cell {
+        display: none;
+      }
+
+      .user-cell {
+        .user-meta {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .user-management {
+    --user-avatar-size: 36px;
+    
+    .bulk-action-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--spacing-3);
+      
+      .bulk-actions {
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+    }
+
+    .empty-state {
+      padding: var(--spacing-8);
+      
+      .empty-state-actions {
+        flex-direction: column;
+        width: 100%;
+        
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// Print styles
+@media print {
+  .user-management {
+    .header-actions,
+    .search-section,
+    .bulk-action-bar,
+    .actions-cell {
+      display: none !important;
+    }
+
+    .stat-card {
+      break-inside: avoid;
+      box-shadow: none !important;
+      border: 1px solid #ccc !important;
+    }
+
+    .user-table {
+      font-size: 12px;
+      
+      th, td {
+        padding: 8px 4px;
+      }
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .user-management {
+    .status-badge,
+    .membership-badge,
+    .badge {
+      border: 2px solid currentColor;
+    }
+
+    .usage-bar {
+      border: 1px solid currentColor;
+      
+      .usage-fill {
+        border: 1px solid currentColor;
+      }
+    }
+
+    .stat-icon {
+      border: 2px solid currentColor;
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .user-management {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+    
+    .user-table tr:hover {
+      transform: none;
+    }
+
+    .stat-card:hover {
+      transform: none;
+    }
+  }
+}

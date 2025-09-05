@@ -1,0 +1,523 @@
+/* 訂閱管理頁面樣式 */
+
+.subscription-management {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+/* 載入狀態 */
+.subscription-management.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 頁面標題 */
+.subscription-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.subscription-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.subscription-header p {
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+/* 當前訂閱狀態 */
+.current-subscription {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.subscription-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.subscription-info h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.tier-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.tier-badge.tier-free {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.tier-badge.tier-gold {
+  background: linear-gradient(135deg, #ffd700, #ffed4a);
+  color: #92400e;
+}
+
+.tier-badge.tier-diamond {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  color: white;
+}
+
+.subscription-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.price {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.next-billing,
+.status {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.status-active {
+  color: #059669;
+  font-weight: 600;
+}
+
+.status-inactive {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.subscription-actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* 使用量統計 */
+.usage-stats {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 24px;
+}
+
+.usage-stats h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 16px;
+}
+
+.usage-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.usage-item {
+  display: grid;
+  grid-template-columns: 120px 1fr 120px;
+  align-items: center;
+  gap: 16px;
+}
+
+.usage-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.usage-bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.usage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.usage-text {
+  font-size: 0.875rem;
+  color: #64748b;
+  text-align: right;
+}
+
+/* 訂閱方案 */
+.subscription-plans {
+  margin-bottom: 40px;
+}
+
+.plans-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.plans-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.plans-header p {
+  font-size: 1rem;
+  color: #64748b;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* 帳單歷史 */
+.billing-history {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.history-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.history-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 120px 120px 100px 140px 100px 80px;
+  gap: 16px;
+  padding: 12px 0;
+  align-items: center;
+}
+
+.table-header {
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 8px;
+}
+
+.table-row {
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge.status-paid {
+  background: #dcfce7;
+  color: #059669;
+}
+
+.status-badge.status-pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.status-failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.download-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.download-link:hover {
+  text-decoration: underline;
+}
+
+/* 按鈕樣式 */
+.btn-secondary {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* 取消訂閱彈窗 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.cancel-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+  background: #f1f5f9;
+  color: #374151;
+}
+
+.modal-content p {
+  font-size: 1rem;
+  color: #374151;
+  margin-bottom: 20px;
+}
+
+.cancel-consequences h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.cancel-consequences ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.cancel-consequences li {
+  padding: 4px 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.cancel-consequences li::before {
+  content: "•";
+  color: #dc2626;
+  margin-right: 8px;
+}
+
+.note {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.875rem;
+  color: #92400e;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.modal-actions button {
+  flex: 1;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .subscription-management {
+    padding: 16px;
+  }
+  
+  .subscription-card {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .subscription-actions {
+    align-self: flex-start;
+  }
+  
+  .usage-item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .usage-text {
+    text-align: left;
+  }
+  
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .history-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: #f8fafc;
+  }
+  
+  .table-header {
+    display: none;
+  }
+  
+  .table-row {
+    background: white;
+  }
+  
+  .table-row > div::before {
+    content: attr(data-label) ": ";
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .cancel-modal {
+    margin: 16px;
+    padding: 24px;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .subscription-header h1 {
+    font-size: 2rem;
+  }
+  
+  .plans-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .current-subscription,
+  .billing-history {
+    padding: 20px;
+  }
+}

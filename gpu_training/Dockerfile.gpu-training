@@ -1,0 +1,115 @@
+# TradingAgents GPU Training Infrastructure
+# Enterprise-grade Docker environment for RTX 4070 GPU training
+# Optimized for CUDA 12.1, PyTorch 2.1+, and TradingAgents architecture
+
+FROM nvidia/cuda:12.1-devel-ubuntu22.04
+
+# Environment variables for GPU optimization
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=${CUDA_HOME}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}
+
+# RTX 4070 specific optimizations
+ENV CUDA_ARCH_LIST="8.9"
+ENV TORCH_CUDA_ARCH_LIST="8.9"
+ENV CUDA_VISIBLE_DEVICES=0
+
+# Set GPU memory growth to avoid OOM errors
+ENV TF_FORCE_GPU_ALLOW_GROWTH=true
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+
+LABEL maintainer="devops-engineer-mozi"
+LABEL description="TradingAgents GPU Training Environment - RTX 4070 Optimized"
+LABEL version="1.0.0"
+LABEL cuda.version="12.1"
+LABEL pytorch.version="2.1+"
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.11 \
+    python3.11-dev \
+    python3.11-venv \
+    python3-pip \
+    git \
+    wget \
+    curl \
+    vim \
+    htop \
+    nvidia-utils-525 \
+    build-essential \
+    cmake \
+    pkg-config \
+    libssl-dev \
+    libffi-dev \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create symbolic links for Python
+RUN ln -sf /usr/bin/python3.11 /usr/bin/python3 && \
+    ln -sf /usr/bin/python3.11 /usr/bin/python
+
+# Upgrade pip and install basic tools
+RUN python3 -m pip install --upgrade pip setuptools wheel
+
+# Install PyTorch with CUDA 12.1 support (RTX 4070 compatible)
+RUN pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu121
+
+# Install additional GPU-optimized ML libraries
+RUN pip install \
+    transformers==4.36.2 \
+    accelerate==0.25.0 \
+    datasets==2.16.1 \
+    evaluate==0.4.1 \
+    tensorboard==2.15.1 \
+    wandb==0.16.1 \
+    peft==0.7.1 \
+    trl==0.7.7
+
+# Create training user with proper permissions
+RUN useradd --create-home --shell /bin/bash training && \
+    usermod -aG sudo training
+
+# Set working directory
+WORKDIR /app
+
+# Copy GPU-specific requirements
+COPY gpu_training/requirements-gpu.txt /app/requirements-gpu.txt
+
+# Install TradingAgents dependencies with GPU support
+RUN pip install -r requirements-gpu.txt
+
+# Copy TradingAgents source code
+COPY . /app/
+
+# Set proper permissions
+RUN chown -R training:training /app && \
+    chmod +x /app/gpu_training/training_entrypoint.py
+
+# Create directories for training artifacts
+RUN mkdir -p /app/data/models && \
+    mkdir -p /app/data/datasets && \
+    mkdir -p /app/logs/training && \
+    mkdir -p /app/checkpoints && \
+    chown -R training:training /app/data /app/logs /app/checkpoints
+
+# Switch to training user
+USER training
+
+# Environment fingerprinting for reproducibility
+RUN python3 -c "import torch; print(f'PyTorch Version: {torch.__version__}'); print(f'CUDA Available: {torch.cuda.is_available()}'); print(f'CUDA Version: {torch.version.cuda}'); print(f'Device Count: {torch.cuda.device_count()}'); import sys; print(f'Python Version: {sys.version}')" > /app/environment_fingerprint.txt
+
+# Health check for GPU availability
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python3 -c "import torch; assert torch.cuda.is_available(), 'CUDA not available'; print('GPU Training Environment: Healthy')"
+
+# Default command
+CMD ["python3", "/app/gpu_training/training_entrypoint.py"]
+
+# Expose ports for monitoring and tensorboard
+EXPOSE 6006 8888 8080

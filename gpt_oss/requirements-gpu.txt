@@ -1,0 +1,41 @@
+# GPT-OSS GPU 推理服務依賴
+# 針對 RTX 4070/4090 和 CUDA 12.1 優化
+
+# 核心框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+
+# AI/ML 核心庫
+transformers==4.36.0
+accelerate==0.25.0
+peft==0.7.1
+bitsandbytes==0.41.3
+datasets==2.15.0
+
+# GPU 優化
+nvidia-ml-py3==7.352.0
+gpustat==1.1.1
+
+# 工具庫
+numpy==1.24.3
+scipy==1.11.4
+scikit-learn==1.3.2
+
+# 網路和API
+httpx==0.25.2
+aiofiles==23.2.1
+python-multipart==0.0.6
+
+# 日誌和監控
+loguru==0.7.2
+psutil==5.9.6
+
+# 開發工具
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+flake8==6.1.0
+
+# 安全
+cryptography==41.0.7

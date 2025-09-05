@@ -1,0 +1,151 @@
+/* 投資人格雷達圖組件樣式 */
+
+.personality-radar-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem;
+}
+
+.radar-canvas {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.radar-canvas:hover {
+  transform: scale(1.02);
+}
+
+/* 圖例樣式 */
+.radar-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4a5568;
+  flex: 1;
+}
+
+.legend-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .personality-radar-chart {
+    gap: 1.5rem;
+  }
+  
+  .radar-legend {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .legend-item {
+    padding: 0.5rem;
+  }
+  
+  .legend-label,
+  .legend-value {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .personality-radar-chart {
+    padding: 0.5rem;
+    gap: 1rem;
+  }
+  
+  .legend-item {
+    padding: 0.5rem;
+  }
+}
+
+/* 深色模式支援 */
+@media (prefers-color-scheme: dark) {
+  .legend-item {
+    background: rgba(45, 55, 72, 0.8);
+  }
+  
+  .legend-item:hover {
+    background: rgba(45, 55, 72, 0.95);
+  }
+  
+  .legend-label {
+    color: #e2e8f0;
+  }
+}
+
+/* 無障礙設計 */
+@media (prefers-reduced-motion: reduce) {
+  .radar-canvas {
+    transition: none;
+  }
+  
+  .radar-canvas:hover {
+    transform: none;
+  }
+  
+  .legend-item {
+    transition: none;
+  }
+  
+  .legend-item:hover {
+    transform: none;
+  }
+}
+
+/* 高對比度模式 */
+@media (prefers-contrast: high) {
+  .legend-item {
+    border: 2px solid #000;
+  }
+  
+  .legend-color {
+    border: 1px solid #000;
+  }
+  
+  .legend-value {
+    border: 1px solid #667eea;
+  }
+}
