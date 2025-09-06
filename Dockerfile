@@ -24,5 +24,5 @@ ENV PORT=8080
 # Expose port
 EXPOSE 8080
 
-# Run the application - Using minimal app for testing
-CMD ["python", "-m", "uvicorn", "minimal_app:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run the application - Full TradingAgents app
+CMD ["python", "-m", "uvicorn", "tradingagents.app:app", "--host", "0.0.0.0", "--port", "8080"]
