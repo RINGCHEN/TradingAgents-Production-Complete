@@ -1,0 +1,106 @@
+# TradingAgents 統一依賴配置
+# 生產部署 + AI訓練系統整合
+# 架構重組後統一版本 v2.1
+
+# ============= 生產部署核心依賴 =============
+# Core FastAPI and web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+python-multipart==0.0.6
+
+# Image processing
+Pillow==10.0.1
+
+# Database
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.1
+asyncpg==0.29.0
+
+# Authentication and security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-oauth2==1.1.1
+PyJWT==2.8.0
+
+# HTTP client and async requests - 安全修復：更新urllib3到2.5.0以修復CVE漏洞
+httpx==0.25.2
+aiohttp==3.9.1
+requests==2.31.0
+urllib3>=2.5.0
+
+# Utilities
+python-dotenv==1.0.0
+email-validator==2.1.0
+
+# Date and time
+python-dateutil==2.8.2
+
+# AI and Machine Learning
+openai==1.12.0
+anthropic==0.18.1
+
+# Data processing and analysis
+numpy==1.24.3
+pandas==2.0.3
+scipy==1.11.1
+
+# Financial data
+yfinance==0.2.28
+
+# Redis for caching
+redis==5.0.1
+
+# WebSocket support
+websockets==12.0
+
+# Monitoring and Logging
+structlog==23.2.0
+prometheus-client==0.19.0
+psutil==5.9.8
+
+# Additional utilities for AI analysis
+aiofiles==23.2.1
+asyncio-throttle==1.0.2
+
+# Production deployment
+gunicorn==21.2.0
+
+# Development and Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+black==23.11.0
+flake8==6.1.0
+
+# Additional utilities
+click==8.1.7
+rich==13.7.0
+
+# ============= AI訓練和開發依賴 =============
+# (從根目錄requirements.txt合併)
+
+# Model Training Dependencies
+torch
+transformers
+datasets
+peft
+accelerate
+bitsandbytes
+mlflow
+
+# MLOps & Data Versioning
+dvc
+
+# Web Scraping Dependencies (Upgraded to Requests)
+beautifulsoup4
+
+# Hyperparameter Tuning
+optuna
+optuna-dashboard
+optuna-integration[mlflow]
+
+# Configuration
+PyYAML
