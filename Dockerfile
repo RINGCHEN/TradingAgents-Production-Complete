@@ -19,10 +19,10 @@ COPY . .
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8000
+ENV PORT=8080
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
-# Run the application - Updated to use full TradingAgents app with portfolio features
-CMD ["python", "-m", "uvicorn", "tradingagents.app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the application - Updated to use full TradingAgents app with portfolio features  
+CMD ["python", "-m", "uvicorn", "tradingagents.app:app", "--host", "0.0.0.0", "--port", "8080"]
