@@ -36,6 +36,20 @@ if not PAYUNI_CONFIG["merchant_id"] or not PAYUNI_CONFIG["hash_key"] or not PAYU
 
 logger.info(f"PayUni配置載入: 商店={PAYUNI_CONFIG['merchant_id']}, 環境={'沙盒' if PAYUNI_CONFIG['is_sandbox'] else '正式'}")
 
+# 專門的 OPTIONS 處理器解決 CORS 問題
+@router.options("/create-guest-payment")
+async def create_guest_payment_options():
+    """處理 PayUni 創建支付的 OPTIONS 預檢請求"""
+    from fastapi.responses import Response
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Max-Age": "86400"
+        }
+    )
 
 @router.post("/create-guest-payment")
 async def create_guest_payment(
