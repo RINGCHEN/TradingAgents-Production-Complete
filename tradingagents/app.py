@@ -374,6 +374,15 @@ async def root():
         "docs": "/docs"
     }
 
+@app.get("/simple-test", tags=["測試"])
+async def simple_test():
+    """簡單測試路由，用於診斷路由問題"""
+    return {
+        "message": "Simple test route working",
+        "timestamp": "2025-09-06",
+        "status": "OK"
+    }
+
 @app.get("/health", tags=["系統"])
 async def health_check():
     """健康檢查"""
