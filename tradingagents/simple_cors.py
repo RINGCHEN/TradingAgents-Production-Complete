@@ -33,18 +33,7 @@ def setup_simple_cors(app: FastAPI):
         
         return response
     
-    # 處理所有OPTIONS請求
-    @app.options("/{full_path:path}")
-    async def options_handler(request: Request):
-        return Response(
-            content="OK",
-            headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Credentials": "true",
-                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                "Access-Control-Allow-Headers": "*",
-                "Access-Control-Max-Age": "86400"
-            }
-        )
+    # 讓 FastAPI 自己處理 OPTIONS 請求
+    # 移除通用 OPTIONS 處理器以避免路由衝突
     
     print("[OK] 簡單CORS設置完成")
