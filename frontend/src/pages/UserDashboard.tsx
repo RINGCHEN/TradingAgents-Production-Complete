@@ -81,6 +81,7 @@ const UserDashboard: React.FC = () => {
   const [marketAlerts, setMarketAlerts] = useState<MarketAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPreferences, setShowPreferences] = useState(false);
+  const [showSubscriptionPrompt, setShowSubscriptionPrompt] = useState(true);
   // 擴展狀態管理
   const [portfolioStats, setPortfolioStats] = useState<any>(null);
   const [marketOpportunities, setMarketOpportunities] = useState<any[]>([]);
@@ -1117,29 +1118,53 @@ const UserDashboard: React.FC = () => {
         </div>
       )}
 
-      {/* 訂閱方案卡片（免費用戶） */}
-      {user.tier === 'free' && !isGuestMode && (
+      {/* 訂閱方案橫幅（免費用戶） */}
+      {user.tier === 'free' && !isGuestMode && showSubscriptionPrompt && (
         <div className="subscription-prompt">
-          <SubscriptionPlanCard
-            tier="gold"
-            name="黃金會員"
-            price={1999}
-            currency="NT$"
-            period="month"
-            features={[
-              "完整基本面分析",
-              "每日50次查詢",
-              "進階技術分析",
-              "個人化投資建議",
-              "AI智能學習",
-              "優先客服支援"
-            ]}
-            limitations={[]}
-            popular={true}
-            current={user?.tier === "gold"}
-            onSelect={handleUpgrade}
-            disabled={false}
-          />
+          <div className="container">
+            <div className="header">
+              <h3 className="title">升級到黃金會員 - 解鎖完整AI分析功能</h3>
+              <button 
+                className="close-btn"
+                onClick={() => setShowSubscriptionPrompt(false)}
+                aria-label="關閉"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="features-list">
+              <div className="feature-item">
+                <span>🚀</span>
+                完整基本面分析
+              </div>
+              <div className="feature-item">
+                <span>📊</span>
+                每日50次查詢
+              </div>
+              <div className="feature-item">
+                <span>📈</span>
+                進階技術分析
+              </div>
+              <div className="feature-item">
+                <span>💡</span>
+                個人化投資建議
+              </div>
+              <div className="feature-item">
+                <span>🤖</span>
+                AI智能學習
+              </div>
+              <div className="feature-item">
+                <span>💬</span>
+                優先客服支援
+              </div>
+            </div>
+            <button 
+              className="upgrade-btn"
+              onClick={handleUpgrade}
+            >
+              立即升級 NT$ 1,999/月
+            </button>
+          </div>
         </div>
       )}
     </div>
