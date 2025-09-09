@@ -45,6 +45,7 @@ from .api.user_endpoints import router as user_router
 from .api.subscription_endpoints import router as subscription_router
 from .api.payment_endpoints import router as payment_router
 from .api.payuni_endpoints import router as payuni_router
+from .api.replay_endpoints import router as replay_router # AI決策復盤API
 # from .api.membership_endpoints import router as membership_router
 from .api.ab_testing_endpoints import router as ab_testing_router
 from .api.pricing_strategy_endpoints import router as pricing_router
@@ -240,6 +241,7 @@ app.include_router(user_router, prefix="/api")
 app.include_router(subscription_router, prefix="/api")
 app.include_router(payment_router, prefix="/api")
 app.include_router(payuni_router, prefix="/api/v1")
+app.include_router(replay_router) # AI決策復盤API - prefix已在router中定義
 # app.include_router(membership_router, prefix="/api")
 app.include_router(ab_testing_router, prefix="/api")
 app.include_router(pricing_router, prefix="/api")
