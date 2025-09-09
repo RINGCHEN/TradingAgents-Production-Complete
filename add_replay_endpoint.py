@@ -1,12 +1,29 @@
 #!/usr/bin/env python3
 """
+為生產環境添加replay端點的腳本
+將我們的Emergency API邏輯整合到生產服務器中
+"""
+
+import os
+import sys
+from pathlib import Path
+
+# 生產環境路徑
+PRODUCTION_DIR = Path(__file__).parent
+TRADINGAGENTS_DIR = PRODUCTION_DIR / "tradingagents"
+
+def create_replay_endpoints():
+    """創建replay_endpoints.py文件"""
+    
+    replay_content = '''#!/usr/bin/env python3
+"""
 Replay Decision API端點 - 生產環境版本
 實現4層級用戶價值階梯系統
 """
 
-from fastapi import APIRouter, Request, HTTPException, Depends, Header
+from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 import json
 import base64
@@ -20,52 +37,26 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["replay"])
 
 class ReplayDecisionRequest(BaseModel):
-    stock_symbol: Optional[str] = None  # CLAUDE格式
-    stock_id: Optional[str] = None      # GEMINI格式
-    trade_price: Optional[float] = None
-    trade_date: Optional[str] = None
+    stock_symbol: str = Field(..., description="股票代碼，如：2330")
     
 class ReplayDecisionResponse(BaseModel):
-    model_config = ConfigDict(exclude_none=True)  # Pydantic v2語法
     user_tier: str = Field(..., description="用戶層級")
     trial_days_remaining: Optional[int] = Field(None, description="試用期剩餘天數")
     analysis: Dict[str, Any] = Field(..., description="股票分析結果")
     upgrade_prompt: Optional[str] = Field(None, description="升級提示")
 
-def decode_test_token(token: str) -> Dict[str, Any]:
-    """解碼測試token - 修復JWT解析"""
+def decode_test_token(authorization_header: str) -> Dict[str, Any]:
+    """解碼測試Token"""
     try:
-        # 從Bearer token中提取JWT token
-        if token.startswith('Bearer '):
-            token = token[7:]  # 移除 "Bearer " 前綴
+        if not authorization_header.startswith("Bearer "):
+            return {}
         
-        # JWT token格式: header.payload.signature
-        # 我們只需要payload部分
-        parts = token.split('.')
-        if len(parts) >= 2:
-            payload_part = parts[1]
-            # JWT使用URL安全的base64編碼，需要補充padding
-            payload_part += '=' * (4 - len(payload_part) % 4)
-            
-            # Base64解碼
-            decoded = base64.urlsafe_b64decode(payload_part).decode('utf-8')
-            payload = json.loads(decoded)
-            
-            # 提取關鍵信息
-            result = {
-                "tier": payload.get("tier", payload.get("user_role", "visitor")),
-                "user_id": payload.get("user_id", "anonymous"),
-                "registered_at": payload.get("registered_at", None)
-            }
-            return result
-        else:
-            # 如果不是JWT格式，嘗試直接Base64解碼
-            decoded = base64.b64decode(token).decode('utf-8')
-            payload = json.loads(decoded)
-            return payload
+        token = authorization_header[7:]  # Remove "Bearer "
+        decoded = base64.b64decode(token).decode()
+        return json.loads(decoded)
     except Exception as e:
-        logger.warning(f"Token decode error: {e}")  # 調試信息
-        return {"tier": "visitor"}
+        logger.warning(f"Token解碼失敗: {e}")
+        return {}
 
 def determine_user_tier(authorization_header: Optional[str]) -> tuple[str, Optional[int]]:
     """確定用戶層級和試用天數"""
@@ -81,7 +72,7 @@ def determine_user_tier(authorization_header: Optional[str]) -> tuple[str, Optio
     # 計算試用期剩餘天數
     trial_days_remaining = None
     if tier == "trial":
-        created_at_str = payload.get("registered_at")
+        created_at_str = payload.get("created_at")
         if created_at_str:
             try:
                 created_at = datetime.fromisoformat(created_at_str.replace('Z', '+00:00'))
@@ -96,7 +87,7 @@ def get_stock_analysis(stock_symbol: str, user_tier: str) -> Dict[str, Any]:
     """獲取股票分析（模擬數據）"""
     
     base_analysis = {
-        "technical_analysis": f"📈 {stock_symbol} 技術分析顯示目前處於上升趨勢，RSI指標為65，MACD呈現黃金交叉格局。",
+        "technical_analysis": f"📈 {stock_symbol} 技術分析顯示目前處於上升趋勢，RSI指標為65，MACD呈現黃金交叉格局。",
         "fundamental_analysis": f"💰 {stock_symbol} 基本面分析：本季EPS成長15%，ROE維持在20%以上，財務結構穩健。",
         "news_sentiment": f"📰 {stock_symbol} 近期新聞情感分析：市場對該股票保持樂觀態度，機構投資人增持。"
     }
@@ -123,23 +114,23 @@ def get_upgrade_prompt(user_tier: str) -> Optional[str]:
 @router.post("/replay/decision", response_model=ReplayDecisionResponse)
 async def get_replay_decision(
     request: ReplayDecisionRequest,
-    authorization: Optional[str] = Header(None)
+    http_request: Request
 ) -> ReplayDecisionResponse:
     """
     獲取股票決策復盤分析
     根據用戶層級返回不同詳細度的分析結果
     """
     try:
+        # 獲取Authorization header
+        authorization = http_request.headers.get("Authorization")
+        
         # 確定用戶層級
         user_tier, trial_days_remaining = determine_user_tier(authorization)
         
-        # 處理股票代號
-        stock_symbol = request.stock_symbol or request.stock_id or "2330"
-        
-        logger.info(f"處理 {stock_symbol} 的請求，用戶層級：{user_tier}")
+        logger.info(f"處理 {request.stock_symbol} 的請求，用戶層級：{user_tier}")
         
         # 獲取分析數據
-        analysis = get_stock_analysis(stock_symbol, user_tier)
+        analysis = get_stock_analysis(request.stock_symbol, user_tier)
         
         # 構建回應
         response_data = {
@@ -172,3 +163,93 @@ async def replay_health():
         "timestamp": datetime.now().isoformat(),
         "version": "1.0.0"
     }
+'''
+    
+    # 創建文件
+    replay_file = TRADINGAGENTS_DIR / "api" / "replay_endpoints.py"
+    
+    # 確保目錄存在
+    replay_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # 寫入文件
+    with open(replay_file, 'w', encoding='utf-8') as f:
+        f.write(replay_content)
+    
+    print(f"✅ 已創建: {replay_file}")
+    return replay_file
+
+def update_main_app():
+    """更新主應用以包含replay端點"""
+    
+    app_file = TRADINGAGENTS_DIR / "app.py"
+    
+    if not app_file.exists():
+        print(f"❌ 找不到主應用文件: {app_file}")
+        return False
+    
+    # 讀取現有內容
+    with open(app_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # 檢查是否已經包含replay_endpoints
+    if "replay_endpoints" in content:
+        print("✅ app.py 已包含replay_endpoints導入")
+        return True
+    
+    # 添加導入和註冊
+    replay_import = "from .api import replay_endpoints"
+    replay_register = 'app.include_router(replay_endpoints.router, prefix="", tags=["replay"])'
+    
+    # 查找合適的位置插入
+    lines = content.split('\n')
+    new_lines = []
+    import_added = False
+    router_added = False
+    
+    for line in lines:
+        new_lines.append(line)
+        
+        # 在其他API導入後添加replay導入
+        if not import_added and line.strip().startswith("from .api import") and "replay" not in line:
+            new_lines.append(replay_import)
+            import_added = True
+        
+        # 在其他router註冊後添加replay router
+        if not router_added and "app.include_router" in line and "replay" not in line:
+            new_lines.append(replay_register)
+            router_added = True
+    
+    # 如果沒找到合適位置，在文件末尾添加
+    if not import_added:
+        new_lines.insert(-5, replay_import)
+    if not router_added:
+        new_lines.append(replay_register)
+    
+    # 寫回文件
+    with open(app_file, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(new_lines))
+    
+    print(f"✅ 已更新: {app_file}")
+    return True
+
+def main():
+    """主函數"""
+    print("🔧 為生產環境添加Replay端點")
+    print("=" * 50)
+    
+    # 1. 創建replay_endpoints.py
+    replay_file = create_replay_endpoints()
+    
+    # 2. 更新主應用
+    if update_main_app():
+        print("\n✅ Replay端點添加完成")
+        print("🔄 請重啟生產服務器以載入新端點")
+        print(f"   python start_production_server_port_8004.py")
+        return True
+    else:
+        print("\n❌ 更新主應用失敗")
+        return False
+
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)

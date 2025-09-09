@@ -233,6 +233,16 @@ class PermissionManager:
         resource_id: Optional[str] = None
     ) -> bool:
         """計算用戶權限"""
+        # 檢查7天試用期
+        if user_context.membership_tier == TierType.FREE and \
+           (datetime.now() - user_context.created_at) < timedelta(days=7):
+            trial_role = self.roles.get("diamond_user")
+            if trial_role:
+                # 檢查試用期用戶是否擁有鑽石會員的權限
+                if self._check_role_permission(trial_role, resource, action) or \
+                   self._check_inherited_permissions(trial_role, resource, action):
+                    return True
+
         user_roles = self.get_user_roles(user_context)
         
         # 檢查每個角色的權限
@@ -421,7 +431,7 @@ class PermissionManager:
         try:
             self.roles[role.name] = role
             
-            security_logger.info(f"角色添加成功: {role.name}", extra={
+            security_logger.info(f"角色添加成功: {role.name}", extra=    {
                 'role_name': role.name,
                 'permissions_count': len(role.permissions),
                 'inherits_from': role.inherits_from

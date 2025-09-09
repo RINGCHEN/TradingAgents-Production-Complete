@@ -14,7 +14,7 @@ def setup_simple_cors(app: FastAPI):
     # 使用最基本的設置，明確指定域名
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*", "https://03king.com", "https://03king.web.app", "https://admin.03king.com"],  # 明確允許的來源
+        allow_origins=["https://03king.com", "https://03king.web.app", "https://admin.03king.com", "http://localhost:3000", "http://localhost:5173"],  # 明確允許的來源（不能使用通配符 * 當 credentials=True）
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # 明確允許的方法
         allow_headers=["*"],  # 允許所有頭部
@@ -24,13 +24,26 @@ def setup_simple_cors(app: FastAPI):
     # 添加強制性 CORS 中間件
     @app.middleware("http")
     async def simple_cors_middleware(request: Request, call_next):
+        # 獲取請求來源
+        origin = request.headers.get("origin", "")
+        allowed_origins = [
+            "https://03king.com", 
+            "https://03king.web.app", 
+            "https://admin.03king.com",
+            "http://localhost:3000",
+            "http://localhost:5173"
+        ]
+        
+        # 確定允許的來源
+        allow_origin = origin if origin in allowed_origins else "https://03king.com"
+        
         # 對於 OPTIONS 請求，直接返回 CORS 標頭
         if request.method == "OPTIONS":
             response = Response(
                 content="",
                 status_code=200,
                 headers={
-                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Origin": allow_origin,
                     "Access-Control-Allow-Credentials": "true", 
                     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
                     "Access-Control-Allow-Headers": "*",
@@ -43,7 +56,7 @@ def setup_simple_cors(app: FastAPI):
         response = await call_next(request)
         
         # 強制添加CORS頭部到所有響應
-        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Origin"] = allow_origin
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
         response.headers["Access-Control-Allow-Headers"] = "*"
