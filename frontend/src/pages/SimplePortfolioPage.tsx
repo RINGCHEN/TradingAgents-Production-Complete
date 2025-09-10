@@ -95,7 +95,8 @@ const SimplePortfolioPage: React.FC = () => {
       console.log('🔄 開始載入投資組合...');
       let data;
       try {
-        data = await simpleFetch('/api/simple-portfolios');
+        // 根據 Gemini 修復報告，使用正確的 API 端點
+        data = await simpleFetch('/api/v1/portfolios');
         console.log('✅ API呼叫成功，回應資料:', data);
       } catch (err) {
         console.log('⚠️ 主端點失敗，嘗試備用端點...', err);
@@ -164,8 +165,8 @@ const SimplePortfolioPage: React.FC = () => {
     try {
       let data;
       try {
-        // 首先嘗試新的API端點
-        data = await simpleFetch('/api/simple-portfolios', {
+        // 根據 Gemini 修復報告，使用正確的 API 端點
+        data = await simpleFetch('/api/v1/portfolio', {
           method: 'POST',
           body: JSON.stringify({
             name: newPortfolioName,
@@ -173,8 +174,8 @@ const SimplePortfolioPage: React.FC = () => {
           })
         });
       } catch (err) {
-        // 如果新端點失敗，嘗試舊端點
-        console.log('新端點失敗，嘗試舊端點...');
+        // 如果失敗，嘗試舊端點作為備用
+        console.log('新端點失敗，嘗試備用端點...');
         data = await simpleFetch('/api/portfolio', {
           method: 'POST',
           body: JSON.stringify({
@@ -236,7 +237,8 @@ const SimplePortfolioPage: React.FC = () => {
   // 測試API連接
   const testConnection = async () => {
     try {
-      const data = await simpleFetch('/api/simple-portfolios/health');
+      // 根據 Gemini 修復報告，測試正確的 API 端點
+      const data = await simpleFetch('/api/v1/portfolios');
       console.log('✅ 連接測試成功:', data);
       alert('API連接正常: ' + JSON.stringify(data));
     } catch (err) {
