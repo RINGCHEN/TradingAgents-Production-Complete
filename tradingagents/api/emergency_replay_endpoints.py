@@ -114,7 +114,7 @@ def generate_dynamic_technical_analysis(stock_symbol: str) -> str:
     analyses = [
         f"📈 {stock_symbol} 技術分析顯示目前處於{random.choice(trends)}，RSI指標為{rsi}，MACD呈現{random.choice(macd_signals)}格局。",
         f"📊 {stock_symbol} 技術指標：KD指標{random.randint(20,85)}%，布林通道{random.choice(['擴張', '收斂'])}，量價關係{random.choice(['健康', '背離', '同步'])}。",
-        f"⚡ {stock_symbol} 短期走勢：突破{random.randint(500,700)}元關鍵阻力，成交量{random.choice(['放大', '縮減', '溫和'])}，動能{random.choice(['強勁', '疲弱', '平穩'])}。"
+        f"⚡ {stock_symbol} 短期走勢：突破{random.randint(1150,1300)}元關鍵阻力，成交量{random.choice(['放大', '縮減', '溫和'])}，動能{random.choice(['強勁', '疲弱', '平穩'])}。"
     ]
     return random.choice(analyses)
 
@@ -142,10 +142,10 @@ def generate_investment_recommendation(stock_symbol: str, user_tier: str) -> Opt
     action = random.choices(actions, weights=action_weights)[0]
     confidence = random.randint(65, 95)
     
-    # 基於股票代號生成目標價位
+    # 基於股票代號生成目標價位 (2025年9月實際水準)
     base_price = {
-        "2330": 580, "2317": 95, "2454": 920, "2412": 125, "0050": 165
-    }.get(stock_symbol, 500)
+        "2330": 1225, "2317": 110, "2454": 1000, "2412": 125, "0050": 170
+    }.get(stock_symbol, 800)
     
     price_variation = random.randint(-50, 100)
     target_price = base_price + price_variation
