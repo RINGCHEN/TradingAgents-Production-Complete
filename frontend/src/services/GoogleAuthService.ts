@@ -386,9 +386,9 @@ class GoogleAuthService {
       if (currentHost.includes('localhost') || currentHost.includes('127.0.0.1')) {
         apiBaseUrl = 'http://localhost:8001';
       } else if (currentHost.includes('03king.com')) {
-        apiBaseUrl = 'https://tradingagents-main-351731559902.asia-east1.run.app';
+        apiBaseUrl = 'https://twshocks-app-79rsx.ondigitalocean.app';
       } else {
-        apiBaseUrl = 'https://tradingagents-main-351731559902.asia-east1.run.app';
+        apiBaseUrl = 'https://twshocks-app-79rsx.ondigitalocean.app';
       }
       
       // 設定超時機制

@@ -7,8 +7,8 @@ const SimplePortfolioPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [newPortfolioName, setNewPortfolioName] = useState('');
 
-  // API基礎URL
-  const API_BASE = 'https://tradingagents-main-351731559902.asia-east1.run.app';
+  // API基礎URL - 更新為 DigitalOcean
+  const API_BASE = 'https://twshocks-app-79rsx.ondigitalocean.app';
 
   // 簡單的fetch函數，強制使用CORS
   const simpleFetch = async (url: string, options: any = {}) => {

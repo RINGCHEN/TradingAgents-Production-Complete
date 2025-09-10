@@ -821,7 +821,7 @@ export const FinancialManagement: React.FC = () => {
                     <li>📡 載入中: {payuniLoading ? '✅ 是' : '❌ 否'}</li>
                     <li>📊 統計數據: {payuniStats ? '✅ 已載入' : '❌ 無數據'}</li>
                     <li>📋 交易記錄: {payuniTransactions.length > 0 ? `✅ ${payuniTransactions.length}筆` : '❌ 無記錄'}</li>
-                    <li>🌐 API Base: {process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://tradingagents-main-351731559902.asia-east1.run.app'}</li>
+                    <li>🌐 API Base: {process.env.NODE_ENV === 'development' ? 'http://localhost:8000' : 'https://twshocks-app-79rsx.ondigitalocean.app'}</li>
                   </ul>
                 </div>
                 <div className="col-md-6">

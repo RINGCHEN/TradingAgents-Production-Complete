@@ -45,7 +45,7 @@ const TestPricingApp: React.FC = () => {
       console.log('📋 支付數據:', paymentData);
 
       // 調用後端測試API (無需認證)
-      const response = await fetch('https://tradingagents-main-351731559902.asia-east1.run.app/api/v1/payuni/test-payment', {
+      const response = await fetch('https://twshocks-app-79rsx.ondigitalocean.app/api/v1/payuni/test-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -195,7 +195,7 @@ const TestPricingApp: React.FC = () => {
       }}>
         <h3 style={{ color: '#333', marginBottom: '15px' }}>🔧 測試信息</h3>
         <div style={{ color: '#666', fontSize: '0.9rem', lineHeight: '1.6' }}>
-          <p><strong>後端API:</strong> https://tradingagents-main-351731559902.asia-east1.run.app</p>
+          <p><strong>後端API:</strong> https://twshocks-app-79rsx.ondigitalocean.app</p>
           <p><strong>PayUni商店:</strong> U03823060 (正式環境)</p>
           <p><strong>測試流程:</strong> 點擊購買 → PayUni API → 跳轉支付頁面</p>
           <p><strong>開發者工具:</strong> 打開Console (F12) 查看詳細日誌</p>

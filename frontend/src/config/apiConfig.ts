@@ -3,15 +3,15 @@
  * 確保所有組件都使用正確的生產環境 API 地址
  */
 
-// 生產環境 API 基礎URL
+// 生產環境 API 基礎URL - 更新為 DigitalOcean
 export const API_BASE_URL = process.env.NODE_ENV === 'development' 
   ? 'http://localhost:8001' 
-  : 'https://tradingagents-main-351731559902.asia-east1.run.app';
+  : 'https://twshocks-app-79rsx.ondigitalocean.app';
 
-// WebSocket URL
+// WebSocket URL - 更新為 DigitalOcean
 export const WS_BASE_URL = process.env.NODE_ENV === 'development' 
   ? 'ws://localhost:8001' 
-  : 'wss://tradingagents-main-351731559902.asia-east1.run.app';
+  : 'wss://twshocks-app-79rsx.ondigitalocean.app';
 
 // API 端點構造器
 export const createApiUrl = (endpoint: string): string => {

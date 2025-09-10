@@ -17,9 +17,9 @@ if (typeof window !== 'undefined' && !window.originalFetchBackup) {
     if (url.includes('/api/')) {
       const originalUrl = url;
       if (url.startsWith('/api/')) {
-        url = 'https://tradingagents-main-351731559902.asia-east1.run.app' + url;
+        url = 'https://twshocks-app-79rsx.ondigitalocean.app' + url;
       } else if (url.includes('03king.web.app/api/') || url.includes('03king.com/api/')) {
-        url = url.replace(/https?:\/\/[^\/]+\/api\//, 'https://tradingagents-main-351731559902.asia-east1.run.app/api/');
+        url = url.replace(/https?:\/\/[^\/]+\/api\//, 'https://twshocks-app-79rsx.ondigitalocean.app/api/');
       }
       
       console.log('🔧 緊急CORS修復:', originalUrl, '→', url);

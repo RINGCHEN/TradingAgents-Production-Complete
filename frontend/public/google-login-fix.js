@@ -21,12 +21,12 @@
         const cspMeta = document.createElement('meta');
         cspMeta.setAttribute('http-equiv', 'Content-Security-Policy');
         cspMeta.setAttribute('content', [
-            "default-src 'self' https://accounts.google.com https://tradingagents-main-351731559902.asia-east1.run.app",
+            "default-src 'self' https://accounts.google.com https://twshocks-app-79rsx.ondigitalocean.app",
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: https:",
-            "connect-src 'self' https://accounts.google.com https://tradingagents-main-351731559902.asia-east1.run.app https://apis.google.com",
+            "connect-src 'self' https://accounts.google.com https://twshocks-app-79rsx.ondigitalocean.app https://apis.google.com",
             "frame-src 'self' https://accounts.google.com https://content.googleapis.com",
             "child-src 'self' https://accounts.google.com",
             "object-src 'none'",
