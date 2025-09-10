@@ -220,6 +220,12 @@ class CacheManager:
         if not REDIS_AVAILABLE:
             logger.warning("Redis 模塊不可用，將使用本地緩存")
             return
+            
+        # DigitalOcean 生產環境檢查 - 避免嘗試連接不存在的 Redis
+        import os
+        if os.getenv('ENVIRONMENT') == 'production' and 'ondigitalocean.app' in os.getenv('HOSTNAME', ''):
+            logger.warning("DigitalOcean 生產環境偵測，跳過 Redis 連接，使用本地緩存")
+            return
         
         try:
             # 初始化 Redis 連接

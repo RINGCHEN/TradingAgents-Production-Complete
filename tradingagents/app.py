@@ -62,9 +62,9 @@ from .api.alpha_insight_endpoints import router as alpha_insight_router
 from .api.upgrade_recommendation_endpoints import router as upgrade_recommendation_router
 from .api.value_validation_endpoints import router as value_validation_router
 from .api.google_auth_endpoints import router as google_auth_router
-# from .api.portfolio_endpoints import router as portfolio_router  # 舊的投資組合API
-from .api.simple_portfolio import router as simple_portfolio_router  # 全新的投資組合API
-from .api.enhanced_portfolio_endpoints import router as enhanced_portfolio_router  # 🏆 專業級投資組合API
+from .api.portfolio_endpoints import router as portfolio_router  # 舊的投資組合API
+# from .api.simple_portfolio import router as simple_portfolio_router  # 全新的投資組合API
+# from .api.enhanced_portfolio_endpoints import router as enhanced_portfolio_router  # 🏆 專業級投資組合API
 
 # 導入 Admin 管理路由器
 from .admin.routers.config_router import router as config_router
@@ -258,9 +258,9 @@ app.include_router(pay_per_use_router, prefix="/api")
 app.include_router(alpha_insight_router, prefix="/api")
 app.include_router(upgrade_recommendation_router, prefix="/api")
 app.include_router(value_validation_router, prefix="/api")
-# app.include_router(portfolio_router, prefix="/api")  # 舊的投資組合 API 路由器
-app.include_router(simple_portfolio_router, prefix="/api")  # 全新的投資組合 API 路由器
-app.include_router(enhanced_portfolio_router)  # 🏆 專業級投資組合 API 路由器
+app.include_router(portfolio_router, prefix="/api/v1")  # 舊的投資組合 API 路由器
+# app.include_router(simple_portfolio_router, prefix="/api")  # 全新的投資組合 API 路由器
+# app.include_router(enhanced_portfolio_router)  # 🏆 專業級投資組合 API 路由器
 app.include_router(google_auth_router)  # Google Auth 路由器已包含 /api/auth 前綴
 
 # 註冊 Admin 管理路由器

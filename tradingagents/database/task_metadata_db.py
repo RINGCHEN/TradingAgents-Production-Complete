@@ -50,8 +50,13 @@ class TaskMetadataDB:
             Base.metadata.create_all(bind=engine)
             self.logger.info("✅ Task metadata tables created/verified successfully")
         except Exception as e:
-            self.logger.error(f"❌ Failed to create task metadata tables: {e}")
-            raise TaskMetadataDBError(f"Database initialization failed: {e}")
+            # 檢查是否為權限錯誤
+            if "permission denied for schema public" in str(e):
+                self.logger.warning(f"⚠️ 數據庫權限不足，跳過資料表創建，將以降級模式運行: {e}")
+                return  # 繼續運行，但不創建表
+            else:
+                self.logger.error(f"❌ Failed to create task metadata tables: {e}")
+                raise TaskMetadataDBError(f"Database initialization failed: {e}")
     
     @contextmanager
     def get_session(self):
