@@ -10,35 +10,49 @@ const SimplePortfolioPage: React.FC = () => {
   // API基礎URL - 更新為 DigitalOcean
   const API_BASE = 'https://twshocks-app-79rsx.ondigitalocean.app';
 
-  // 修復後的fetch函數 - 移除所有可能導致CORS衝突的設置
+  // 修復後的fetch函數 - 移除所有可能導致CORS衝突的設置，加上認證
   const simpleFetch = async (url: string, options: any = {}) => {
     const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
     
-    // 最基本的 fetch 配置，讓瀏覽器處理所有 CORS 細節
+    // 準備認證token
+    const authToken = localStorage.getItem('auth_token') || 'temp-token';
+    
+    // 最基本的 fetch 配置，讓瀏覽器處理所有 CORS 細節，加上認證
     const defaultOptions = {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+        'Authorization': `Bearer ${authToken}`,
         ...(options.body && { 'Content-Type': 'application/json' })
       },
       mode: 'cors' as RequestMode,
       ...options
     };
 
-    console.log('🚀 修復版 Fetch:', fullUrl, defaultOptions);
+    console.log('🚀 修復版 Fetch:', fullUrl, {
+      ...defaultOptions,
+      headers: {
+        ...defaultOptions.headers,
+        Authorization: `Bearer ${authToken.substring(0, 10)}...` // 只顯示部分token
+      }
+    });
     
     try {
       const response = await fetch(fullUrl, defaultOptions);
       
+      console.log('📡 HTTP狀態:', response.status, response.statusText);
+      
       if (!response.ok) {
+        const errorText = await response.text().catch(() => '');
+        console.error('❌ HTTP錯誤詳情:', errorText);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
-      console.log('📦 Response:', data);
+      console.log('📦 API回應:', data);
       return data;
     } catch (err) {
-      console.error('❌ Fetch Error:', err);
+      console.error('❌ Fetch錯誤詳情:', err);
       throw err;
     }
   };
@@ -49,20 +63,35 @@ const SimplePortfolioPage: React.FC = () => {
     setError(null);
     
     try {
-      // 首先嘗試新的API端點
+      console.log('🔄 開始載入投資組合...');
       let data;
       try {
         data = await simpleFetch('/api/simple-portfolios');
+        console.log('✅ API呼叫成功，回應資料:', data);
       } catch (err) {
-        // 如果新端點失敗，使用舊的端點
-        console.log('新端點失敗，嘗試舊端點...');
+        console.log('⚠️ 主端點失敗，嘗試備用端點...', err);
         data = await simpleFetch('/api/portfolios');
       }
       
-      if (data.success || data.portfolios) {
-        setPortfolios(data.portfolios || []);
+      // 更詳細的回應資料檢查
+      console.log('📊 檢查API回應結構:', {
+        hasSuccess: !!data.success,
+        hasPortfolios: !!data.portfolios,
+        successValue: data.success,
+        portfoliosLength: data.portfolios?.length,
+        fullData: data
+      });
+      
+      if (data.success === true && data.portfolios) {
+        console.log('✅ 成功載入投資組合:', data.portfolios.length, '個項目');
+        setPortfolios(data.portfolios);
+        setError(null); // 清除任何錯誤信息
+      } else if (data.portfolios && Array.isArray(data.portfolios)) {
+        console.log('✅ 找到portfolios陣列，載入:', data.portfolios.length, '個項目');
+        setPortfolios(data.portfolios);
+        setError(null);
       } else if (data.detail && data.detail.includes('身份驗證')) {
-        // 身份驗證失敗，創建一個示例投資組合
+        console.log('⚠️ 身份驗證問題，使用示例模式');
         setPortfolios([{
           id: 'demo_portfolio',
           name: '示例投資組合',
@@ -72,10 +101,13 @@ const SimplePortfolioPage: React.FC = () => {
         }]);
         setError('正在使用示例模式');
       } else {
-        setError(data.error || '載入投資組合失敗');
+        console.error('❌ API回應結構異常:', data);
+        setPortfolios([]);
+        setError('API回應格式異常: ' + JSON.stringify(data));
       }
     } catch (err) {
-      // 創建示例投資組合作為後備
+      console.error('❌ 載入投資組合失敗:', err);
+      // 只有在真正的網路錯誤時才創建示例
       setPortfolios([{
         id: 'demo_portfolio',
         name: '示例投資組合',
@@ -86,6 +118,7 @@ const SimplePortfolioPage: React.FC = () => {
       setError('網路連接問題，使用示例模式: ' + (err as Error).message);
     } finally {
       setLoading(false);
+      console.log('🏁 載入流程完成');
     }
   };
 
@@ -122,7 +155,10 @@ const SimplePortfolioPage: React.FC = () => {
         });
       }
 
-      if (data.success || data.portfolio) {
+      console.log('📊 創建投資組合API回應:', data);
+      
+      if (data.success === true || data.portfolio) {
+        console.log('✅ 投資組合創建成功');
         setNewPortfolioName('');
         // 直接添加新投資組合到列表，避免重新載入
         const newPortfolio = data.portfolio || {
@@ -135,6 +171,7 @@ const SimplePortfolioPage: React.FC = () => {
         setPortfolios(prev => [...prev, newPortfolio]);
         setError(null);
       } else if (data.detail && data.detail.includes('身份驗證')) {
+        console.log('⚠️ 身份驗證問題，創建示例投資組合');
         // 身份驗證失敗，手動創建投資組合
         const newPortfolio = {
           id: `demo_${Date.now()}`,
@@ -147,7 +184,8 @@ const SimplePortfolioPage: React.FC = () => {
         setNewPortfolioName('');
         setError('已在示例模式下創建投資組合');
       } else {
-        setError(data.error || '創建投資組合失敗');
+        console.error('❌ 創建投資組合失敗:', data);
+        setError(data.error || '創建投資組合失敗: ' + JSON.stringify(data));
       }
     } catch (err) {
       // 作為後備，手動創建投資組合
