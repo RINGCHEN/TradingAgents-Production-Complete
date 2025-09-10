@@ -304,28 +304,34 @@ const SimplePortfolioPage: React.FC = () => {
           </div>
         ) : (
           <div style={{ display: 'grid', gap: '15px' }}>
-            {portfolios.map((portfolio) => (
-              <div
-                key={portfolio.id}
-                style={{
-                  border: '2px solid #e9ecef',
-                  borderRadius: '8px',
-                  padding: '15px',
-                  background: '#f8f9fa'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h4 style={{ margin: '0 0 5px 0', color: '#495057' }}>
-                      📈 {portfolio.name}
-                    </h4>
-                    <p style={{ margin: '0', color: '#6c757d', fontSize: '14px' }}>
-                      {portfolio.description || '無描述'}
-                    </p>
-                    <small style={{ color: '#adb5bd' }}>
-                      創建時間: {new Date(portfolio.created_at * 1000).toLocaleString()}
-                    </small>
-                  </div>
+            {portfolios.map((portfolio) => {
+              // 安全檢查，防止 undefined 錯誤
+              if (!portfolio || typeof portfolio !== 'object') {
+                return null;
+              }
+              
+              return (
+                <div
+                  key={portfolio.id || `portfolio-${Math.random()}`}
+                  style={{
+                    border: '2px solid #e9ecef',
+                    borderRadius: '8px',
+                    padding: '15px',
+                    background: '#f8f9fa'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <h4 style={{ margin: '0 0 5px 0', color: '#495057' }}>
+                        📈 {portfolio.name || '未命名投資組合'}
+                      </h4>
+                      <p style={{ margin: '0', color: '#6c757d', fontSize: '14px' }}>
+                        {portfolio.description || '無描述'}
+                      </p>
+                      <small style={{ color: '#adb5bd' }}>
+                        創建時間: {portfolio.created_at ? new Date(portfolio.created_at * 1000).toLocaleString() : '未知時間'}
+                      </small>
+                    </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button
                       style={{
@@ -355,8 +361,8 @@ const SimplePortfolioPage: React.FC = () => {
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

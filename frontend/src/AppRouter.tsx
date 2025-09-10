@@ -11,7 +11,8 @@ import HelpCenterPage from './pages/HelpCenterPage';
 // 會員專區頁面
 import UserDashboard from './pages/UserDashboard';
 // import PortfolioPage from './pages/PortfolioPage';  // 舊的投資組合頁面
-import EmergencyPortfolioPage from './pages/EmergencyPortfolioPage';  // 全新的投資組合頁面
+// import EmergencyPortfolioPage from './pages/EmergencyPortfolioPage';  // 舊的投資組合頁面
+import SimplePortfolioPage from './pages/SimplePortfolioPage';  // 🔄 修復版投資組合頁面 (2025-09-10)
 import AnalysisHistoryPage from './pages/AnalysisHistoryPage';
 import AnalystSelectionPage from './pages/AnalystSelectionPage';
 import StockSearchPage from './pages/StockSearchPage';
@@ -110,7 +111,7 @@ const AppRouter: React.FC = () => {
                 path="/portfolio" 
                 element={
                   <MembershipRoute>
-                    <EmergencyPortfolioPage />
+                    <SimplePortfolioPage />
                   </MembershipRoute>
                 } 
               />
