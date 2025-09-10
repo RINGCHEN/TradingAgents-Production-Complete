@@ -17,7 +17,7 @@ def setup_simple_cors(app: FastAPI):
         allow_origins=["https://03king.com", "https://03king.web.app", "https://admin.03king.com", "http://localhost:3000", "http://localhost:5173"],  # 明確允許的來源（不能使用通配符 * 當 credentials=True）
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # 明確允許的方法
-        allow_headers=["*"],  # 允許所有頭部
+        allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],  # 明確指定允許的頭部
         expose_headers=["*"]  # 暴露所有標頭
     )
     
@@ -46,7 +46,7 @@ def setup_simple_cors(app: FastAPI):
                     "Access-Control-Allow-Origin": allow_origin,
                     "Access-Control-Allow-Credentials": "true", 
                     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept, Origin, X-Requested-With",
                     "Access-Control-Max-Age": "86400"
                 }
             )
@@ -59,7 +59,7 @@ def setup_simple_cors(app: FastAPI):
         response.headers["Access-Control-Allow-Origin"] = allow_origin
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, Accept, Origin, X-Requested-With"
         response.headers["Access-Control-Expose-Headers"] = "*"
         
         return response
