@@ -7,14 +7,23 @@ Replay Decision API端點 - 生產環境版本
 from fastapi import APIRouter, Request, HTTPException, Depends, Header
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import json
 import base64
 import logging
 from datetime import datetime, timedelta
+import asyncio
 
 # 設置日誌
 logger = logging.getLogger(__name__)
+
+# AI分析師導入
+from ..agents.analysts.base_analyst import AnalysisState, AnalysisResult
+from ..agents.analysts.fundamentals_analyst import FundamentalsAnalyst
+from ..agents.analysts.technical_analyst import TechnicalAnalyst
+from ..agents.analysts.news_analyst import NewsAnalyst
+from ..agents.analysts.risk_analyst import RiskAnalyst
+from ..agents.analysts.investment_planner import InvestmentPlanner
 
 # 創建路由器
 router = APIRouter(prefix="/api/v1", tags=["replay"])
@@ -92,25 +101,68 @@ def determine_user_tier(authorization_header: Optional[str]) -> tuple[str, Optio
     
     return tier, trial_days_remaining
 
-def get_stock_analysis(stock_symbol: str, user_tier: str) -> Dict[str, Any]:
-    """獲取股票分析（模擬數據）"""
+async def get_stock_analysis(stock_id: str, user_tier: str, user_context: Dict[str, Any]) -> Dict[str, Any]:
+    """獲取股票分析（真實模型整合版）"""
     
-    base_analysis = {
-        "technical_analysis": f"📈 {stock_symbol} 技術分析顯示目前處於上升趨勢，RSI指標為65，MACD呈現黃金交叉格局。",
-        "fundamental_analysis": f"💰 {stock_symbol} 基本面分析：本季EPS成長15%，ROE維持在20%以上，財務結構穩健。",
-        "news_sentiment": f"📰 {stock_symbol} 近期新聞情感分析：市場對該股票保持樂觀態度，機構投資人增持。"
+    logger.info(f"開始為股票 {stock_id} 進行真實AI分析...")
+    
+    # 1. 初始化所有分析師
+    analysts = {
+        "fundamentals_analyst": FundamentalsAnalyst(config={}),
+        "technical_analyst": TechnicalAnalyst(config={}),
+        "news_analyst": NewsAnalyst(config={}),
+        # "risk_analyst": RiskAnalyst(config={}),
+        # "investment_planner": InvestmentPlanner(config={})
     }
     
-    # 只有試用和付費用戶才能看到投資建議
-    if user_tier in ["trial", "paid"]:
-        base_analysis["recommendation"] = {
-            "action": "buy",
-            "confidence": 85,
-            "target_price": 580,
-            "reasoning": "基於技術面和基本面分析，建議適量買入並設定停利點於600元。"
-        }
+    # 2. 創建共享的分析狀態
+    state = AnalysisState(
+        stock_id=stock_id,
+        analysis_date=datetime.now().strftime('%Y-%m-%d'),
+        user_context=user_context
+    )
     
-    return base_analysis
+    # 3. 並發執行所有分析師的分析
+    tasks = [analyst.analyze(state) for analyst in analysts.values()]
+    results: List[AnalysisResult] = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    # 4. 組合分析結果
+    combined_analysis = {}
+    final_recommendation = {
+        "actions": [],
+        "confidences": [],
+        "reasons": []
+    }
+
+    for result in results:
+        if isinstance(result, AnalysisResult):
+            analyst_type = result.analysis_type.value
+            combined_analysis[analyst_type] = {
+                "recommendation": result.recommendation,
+                "confidence": result.confidence,
+                "reasoning": result.reasoning[0] if result.reasoning else ""
+            }
+            final_recommendation["actions"].append(result.recommendation)
+            final_recommendation["confidences"].append(result.confidence)
+            final_recommendation["reasons"].extend(result.reasoning)
+        else:
+            logger.error(f"分析時發生錯誤: {result}")
+
+    # 5. 根據用戶層級決定是否包含最終建議
+    if user_tier in ["trial", "paid"]:
+        # 簡單的投票機制決定最終建議
+        action = max(set(final_recommendation["actions"]), key=final_recommendation["actions"].count) if final_recommendation["actions"] else "HOLD"
+        confidence = round(sum(final_recommendation["confidences"]) / len(final_recommendation["confidences"]), 2) if final_recommendation["confidences"] else 0.5
+        
+        combined_analysis["recommendation"] = {
+            "action": action,
+            "confidence": confidence * 100,
+            "target_price": None, # 暫不提供
+            "reasoning": ". ".join(list(set(final_recommendation["reasons"])))
+        }
+
+    logger.info(f"股票 {stock_id} 的真實AI分析完成")
+    return combined_analysis
 
 def get_upgrade_prompt(user_tier: str) -> Optional[str]:
     """獲取升級提示"""
@@ -130,8 +182,13 @@ async def get_replay_decision(
     根據用戶層級返回不同詳細度的分析結果
     """
     try:
-        # 確定用戶層級
+        # 確定用戶層級和上下文
         user_tier, trial_days_remaining = determine_user_tier(authorization)
+        user_payload = decode_test_token(authorization) if authorization else {}
+        user_context = {
+            "user_id": user_payload.get("user_id", "anonymous"),
+            "membership_tier": user_tier
+        }
         
         # 處理股票代號
         stock_symbol = request.stock_symbol or request.stock_id or "2330"
@@ -139,7 +196,7 @@ async def get_replay_decision(
         logger.info(f"處理 {stock_symbol} 的請求，用戶層級：{user_tier}")
         
         # 獲取分析數據
-        analysis = get_stock_analysis(stock_symbol, user_tier)
+        analysis = await get_stock_analysis(stock_symbol, user_tier, user_context)
         
         # 構建回應
         response_data = {
@@ -159,7 +216,7 @@ async def get_replay_decision(
         return ReplayDecisionResponse(**response_data)
         
     except Exception as e:
-        logger.error(f"處理請求時發生錯誤: {e}")
+        logger.error(f"處理請求時發生錯誤: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"內部服務器錯誤: {str(e)}")
 
 # 健康檢查端點
@@ -170,5 +227,5 @@ async def replay_health():
         "service": "replay_decision",
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "version": "1.0.0"
+        "version": "2.0.0-real-engine"
     }
