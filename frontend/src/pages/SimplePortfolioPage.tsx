@@ -1,18 +1,27 @@
 import React, { useState, useEffect } from 'react';
 
-// 全新的投資組合頁面 - 完全重新編寫
+// 全新的投資組合頁面 - 完全重新編寫，修復 toFixed 錯誤
 const SimplePortfolioPage: React.FC = () => {
   const [portfolios, setPortfolios] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [newPortfolioName, setNewPortfolioName] = useState('');
+  const [mounted, setMounted] = useState(false);
+  const [criticalError, setCriticalError] = useState<string | null>(null);
 
-  // API基礎URL - 更新為 DigitalOcean
+  // 頂層錯誤處理
+  const handleCriticalError = (error: Error, context: string) => {
+    console.error(`💥 關鍵錯誤 [${context}]:`, error);
+    setCriticalError(`組件錯誤: ${error.message}`);
+  };
+
+  // API基礎URL - 更新為 DigitalOcean (修復版 v2.1)
   const API_BASE = 'https://twshocks-app-79rsx.ondigitalocean.app';
 
-  // 修復後的fetch函數 - 移除所有可能導致CORS衝突的設置，加上認證
-  const simpleFetch = async (url: string, options: any = {}) => {
+  // 修復後的fetch函數 - 加入重試機制和健康檢查
+  const simpleFetch = async (url: string, options: any = {}, retryCount = 0) => {
     const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+    const MAX_RETRIES = 3;
     
     // 準備認證token
     const authToken = localStorage.getItem('auth_token') || 'temp-token';
@@ -26,21 +35,32 @@ const SimplePortfolioPage: React.FC = () => {
         ...(options.body && { 'Content-Type': 'application/json' })
       },
       mode: 'cors' as RequestMode,
+      timeout: 10000, // 10秒超時
       ...options
     };
 
-    console.log('🚀 修復版 Fetch:', fullUrl, {
-      ...defaultOptions,
-      headers: {
-        ...defaultOptions.headers,
-        Authorization: `Bearer ${authToken.substring(0, 10)}...` // 只顯示部分token
-      }
-    });
+    console.log(`🚀 API請求 (嘗試 ${retryCount + 1}/${MAX_RETRIES + 1}):`, fullUrl);
     
     try {
       const response = await fetch(fullUrl, defaultOptions);
       
       console.log('📡 HTTP狀態:', response.status, response.statusText);
+      
+      // 檢查是否為伺服器錯誤 (5xx)
+      if (response.status >= 500) {
+        const errorText = await response.text().catch(() => '');
+        console.error(`❌ 伺服器錯誤 ${response.status}:`, errorText);
+        
+        // 如果是 502, 503, 504 且還有重試次數，則重試
+        if ([502, 503, 504].includes(response.status) && retryCount < MAX_RETRIES) {
+          const delay = Math.pow(2, retryCount) * 1000; // 指數退避：1s, 2s, 4s
+          console.log(`⏳ ${delay}ms後重試...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return simpleFetch(url, options, retryCount + 1);
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - 伺服器暫時無法回應`);
+      }
       
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
@@ -49,10 +69,19 @@ const SimplePortfolioPage: React.FC = () => {
       }
       
       const data = await response.json();
-      console.log('📦 API回應:', data);
+      console.log('✅ API回應成功:', data);
       return data;
     } catch (err) {
       console.error('❌ Fetch錯誤詳情:', err);
+      
+      // 網路錯誤也重試
+      if ((err instanceof TypeError && err.message.includes('fetch')) && retryCount < MAX_RETRIES) {
+        const delay = Math.pow(2, retryCount) * 1000;
+        console.log(`⏳ 網路錯誤，${delay}ms後重試...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return simpleFetch(url, options, retryCount + 1);
+      }
+      
       throw err;
     }
   };
@@ -216,12 +245,67 @@ const SimplePortfolioPage: React.FC = () => {
     }
   };
 
-  // 頁面載入時載入投資組合
+  // 頁面載入時載入投資組合 - 加入安全檢查
   useEffect(() => {
-    loadPortfolios();
+    setMounted(true);
+    // 延遲載入，避免組件掛載時的錯誤
+    const timer = setTimeout(() => {
+      if (mounted) {
+        loadPortfolios();
+      }
+    }, 100);
+    
+    return () => {
+      clearTimeout(timer);
+      setMounted(false);
+    };
   }, []);
 
-  return (
+  // 如果有關鍵錯誤，顯示錯誤頁面
+  if (criticalError) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <div style={{ 
+          background: '#f8d7da', 
+          border: '1px solid #f5c6cb', 
+          color: '#721c24', 
+          padding: '20px', 
+          borderRadius: '8px',
+          margin: '20px auto',
+          maxWidth: '600px'
+        }}>
+          <h2>🚫 投資組合系統暫時無法使用</h2>
+          <p>{criticalError}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              marginTop: '10px'
+            }}
+          >
+            🔄 重新載入頁面
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 如果組件未掛載，顯示載入狀態
+  if (!mounted) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <div style={{ fontSize: '18px', color: '#666' }}>⏳ 投資組合系統載入中...</div>
+      </div>
+    );
+  }
+
+  try {
+    return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ 
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -371,7 +455,17 @@ const SimplePortfolioPage: React.FC = () => {
                         {portfolio.description || '無描述'}
                       </p>
                       <small style={{ color: '#adb5bd' }}>
-                        創建時間: {portfolio.created_at ? new Date(portfolio.created_at * 1000).toLocaleString() : '未知時間'}
+                        創建時間: {(() => {
+                          try {
+                            if (portfolio.created_at && typeof portfolio.created_at === 'number') {
+                              return new Date(portfolio.created_at * 1000).toLocaleString();
+                            }
+                            return '未知時間';
+                          } catch (e) {
+                            console.warn('日期轉換錯誤:', e);
+                            return '未知時間';
+                          }
+                        })()}
                       </small>
                     </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
@@ -426,7 +520,44 @@ const SimplePortfolioPage: React.FC = () => {
         錯誤狀態: {error || '無'}
       </div>
     </div>
-  );
+    );
+  } catch (error) {
+    // 如果渲染過程中發生錯誤，捕獲並顯示友善錯誤信息
+    console.error('💥 組件渲染錯誤:', error);
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <div style={{ 
+          background: '#f8d7da', 
+          border: '1px solid #f5c6cb', 
+          color: '#721c24', 
+          padding: '20px', 
+          borderRadius: '8px',
+          margin: '20px auto',
+          maxWidth: '600px'
+        }}>
+          <h2>🚫 投資組合頁面發生錯誤</h2>
+          <p>系統暫時無法顯示投資組合，請稍後再試。</p>
+          <p style={{ fontSize: '12px', color: '#666' }}>
+            錯誤詳情: {error instanceof Error ? error.message : '未知錯誤'}
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            style={{
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              marginTop: '10px'
+            }}
+          >
+            🔄 重新載入頁面
+          </button>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default SimplePortfolioPage;
