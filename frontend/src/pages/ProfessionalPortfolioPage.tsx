@@ -341,6 +341,45 @@ const ProfessionalPortfolioPage: React.FC = () => {
     }
   };
 
+  const createNewPortfolio = async () => {
+    try {
+      const portfolioName = prompt('請輸入投資組合名稱:', '我的投資組合 #1');
+      if (!portfolioName) return;
+
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        alert('請先登入');
+        navigate('/auth');
+        return;
+      }
+
+      const response = await fetch(createApiUrl('/api/simple-portfolios'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: portfolioName,
+          description: '新建立的投資組合'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API 回應錯誤: ${response.status}`);
+      }
+
+      const newPortfolio = await response.json();
+      setPortfolios(prev => [...prev, newPortfolio]);
+      setSelectedPortfolio(newPortfolio);
+      alert(`成功創建投資組合: ${portfolioName}`);
+    } catch (error) {
+      console.error('創建投資組合失敗:', error);
+      alert('創建投資組合失敗，請稍後再試');
+    }
+  };
+
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('zh-TW', {
       style: 'currency',
@@ -640,7 +679,10 @@ const ProfessionalPortfolioPage: React.FC = () => {
             <div className="empty-icon">📊</div>
             <h2>開始您的投資之旅</h2>
             <p>創建您的第一個投資組合，體驗專業級的資產管理</p>
-            <button className="create-portfolio-btn">
+            <button 
+              className="create-portfolio-btn"
+              onClick={createNewPortfolio}
+            >
               創建投資組合
             </button>
           </div>
