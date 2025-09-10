@@ -250,5 +250,5 @@ async def replay_health():
         "service": "replay_decision",
         "status": "healthy", 
         "timestamp": datetime.now().isoformat(),
-        "version": "2.0.0-emergency-real-engine"
+        "version": "2.0.1-emergency-real-engine-deployed"
     }
