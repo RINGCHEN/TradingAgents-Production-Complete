@@ -195,7 +195,7 @@ class ModelCapability(Base):
     # 模型信息
     provider = Column(String(50), nullable=False)
     model_id = Column(String(100), nullable=False)
-    model_name = Column(String(200), nullable=False)
+    name = Column(String(200), nullable=False)  # 改名避免 Pydantic 'model_' 命名空間衝突
     model_version = Column(String(50), nullable=True)
     
     # 能力指标
@@ -328,7 +328,7 @@ class ModelCapabilityResponse(BaseModel):
     id: uuid.UUID
     provider: str
     model_id: str
-    model_name: str
+    name: str  # 對應資料表的 name 字段
     model_version: Optional[str]
     capability_score: float
     reasoning_score: Optional[float]

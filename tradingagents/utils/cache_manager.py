@@ -221,10 +221,18 @@ class CacheManager:
             logger.warning("Redis 模塊不可用，將使用本地緩存")
             return
             
-        # DigitalOcean 生產環境檢查 - 避免嘗試連接不存在的 Redis
+        # DigitalOcean 生產環境檢查 - 強制跳過 Redis 連接
         import os
-        if os.getenv('ENVIRONMENT') == 'production' and 'ondigitalocean.app' in os.getenv('HOSTNAME', ''):
-            logger.warning("DigitalOcean 生產環境偵測，跳過 Redis 連接，使用本地緩存")
+        hostname = os.getenv('HOSTNAME', '')
+        dyno = os.getenv('DYNO', '')
+        
+        # 檢查多種部署環境指標
+        if (os.getenv('ENVIRONMENT') == 'production' or 
+            'ondigitalocean.app' in hostname or
+            'heroku' in hostname.lower() or
+            dyno or  # Heroku dyno 存在
+            os.path.exists('/workspace/.heroku')):  # Heroku 構建環境
+            logger.warning(f"雲端部署環境偵測 (hostname: {hostname}), 跳過 Redis 連接，使用本地緩存")
             return
         
         try:

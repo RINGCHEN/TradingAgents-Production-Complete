@@ -50,6 +50,8 @@ numpy==1.26.4
 pandas==2.2.2
 scikit-learn==1.3.0
 scipy==1.13.0
+torch==2.0.1
+torchvision==0.15.2
 
 # ============= 金融數據 =============
 yfinance==0.2.28
