@@ -10,26 +10,30 @@ const SimplePortfolioPage: React.FC = () => {
   // API基礎URL - 更新為 DigitalOcean
   const API_BASE = 'https://twshocks-app-79rsx.ondigitalocean.app';
 
-  // 簡單的fetch函數，強制使用CORS
+  // 修復後的fetch函數 - 移除所有可能導致CORS衝突的設置
   const simpleFetch = async (url: string, options: any = {}) => {
     const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
     
+    // 最基本的 fetch 配置，讓瀏覽器處理所有 CORS 細節
     const defaultOptions = {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Origin': window.location.origin,
+        ...(options.body && { 'Content-Type': 'application/json' })
       },
       mode: 'cors' as RequestMode,
-      credentials: 'include' as RequestCredentials,
       ...options
     };
 
-    console.log('🚀 Simple Fetch:', fullUrl, defaultOptions);
+    console.log('🚀 修復版 Fetch:', fullUrl, defaultOptions);
     
     try {
       const response = await fetch(fullUrl, defaultOptions);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
       console.log('📦 Response:', data);
       return data;
