@@ -1,0 +1,358 @@
+/**
+ * 結構化升級提示組件樣式
+ * 支援GEMINI新的upgrade_prompt格式，提供專業的升級引導體驗
+ */
+
+.upgrade-prompt-component {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 2px solid #e9ecef;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 16px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.upgrade-prompt-component:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* 主題樣式 */
+.upgrade-prompt-component.visitor-theme {
+  border-color: #2196f3;
+  background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+}
+
+.upgrade-prompt-component.visitor-theme:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #2196f3, #42a5f5);
+}
+
+.upgrade-prompt-component.trial-theme {
+  border-color: #ff9800;
+  background: linear-gradient(135deg, #fff3e0 0%, #ffffff 100%);
+}
+
+.upgrade-prompt-component.trial-theme:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ff9800, #ffb74d);
+}
+
+.upgrade-prompt-component.free-theme {
+  border-color: #9c27b0;
+  background: linear-gradient(135deg, #f3e5f5 0%, #ffffff 100%);
+}
+
+.upgrade-prompt-component.free-theme:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #9c27b0, #ba68c8);
+}
+
+/* 升級內容區域 */
+.upgrade-content {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* 標題樣式 */
+.upgrade-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.upgrade-icon {
+  font-size: 1.6rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* 價值主張 */
+.upgrade-value-prop {
+  font-size: 1.1rem;
+  color: #495057;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* 升級福利 */
+.upgrade-benefits {
+  margin: 20px 0 24px 0;
+  text-align: left;
+}
+
+.benefits-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.benefits-list li {
+  padding: 6px 0;
+  font-size: 0.95rem;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.benefits-list li:not(:last-child) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+}
+
+/* CTA 按鈕 */
+.upgrade-cta-button {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  color: white;
+  border: none;
+  border-radius: 28px;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  text-transform: none;
+  letter-spacing: 0.5px;
+  min-width: 180px;
+  justify-content: center;
+}
+
+.upgrade-cta-button:hover {
+  background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+}
+
+.upgrade-cta-button:active {
+  transform: translateY(0);
+}
+
+.cta-icon {
+  font-size: 1.2rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-4px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+/* 主題特定的按鈕樣式 */
+.visitor-theme .upgrade-cta-button {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.visitor-theme .upgrade-cta-button:hover {
+  background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+}
+
+.trial-theme .upgrade-cta-button {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.trial-theme .upgrade-cta-button:hover {
+  background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+  box-shadow: 0 6px 16px rgba(255, 152, 0, 0.4);
+}
+
+.free-theme .upgrade-cta-button {
+  background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+  box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+}
+
+.free-theme .upgrade-cta-button:hover {
+  background: linear-gradient(135deg, #7b1fa2 0%, #9c27b0 100%);
+  box-shadow: 0 6px 16px rgba(156, 39, 176, 0.4);
+}
+
+/* 額外說明 */
+.additional-note {
+  margin: 16px 0 0 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .upgrade-prompt-component {
+    padding: 20px 16px;
+    margin: 12px 0;
+  }
+
+  .upgrade-title {
+    font-size: 1.2rem;
+  }
+
+  .upgrade-value-prop {
+    font-size: 1rem;
+  }
+
+  .upgrade-cta-button {
+    padding: 12px 24px;
+    font-size: 1rem;
+    min-width: 160px;
+  }
+
+  .benefits-list {
+    padding: 12px;
+  }
+
+  .benefits-list li {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .upgrade-prompt-component {
+    padding: 16px 12px;
+  }
+
+  .upgrade-title {
+    font-size: 1.1rem;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .upgrade-cta-button {
+    width: 100%;
+    padding: 14px 20px;
+  }
+}
+
+/* 無障礙設計 */
+.upgrade-cta-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+}
+
+.visitor-theme .upgrade-cta-button:focus {
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+}
+
+.trial-theme .upgrade-cta-button:focus {
+  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.3);
+}
+
+.free-theme .upgrade-cta-button:focus {
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.3);
+}
+
+/* 高對比度模式支援 */
+@media (prefers-contrast: high) {
+  .upgrade-prompt-component {
+    border-width: 3px;
+  }
+  
+  .upgrade-cta-button {
+    border: 2px solid transparent;
+  }
+  
+  .upgrade-cta-button:focus {
+    border-color: currentColor;
+  }
+}
+
+/* 嵌入式升級提示樣式 */
+.embedded-upgrade-prompt {
+  margin: 0;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.embedded-upgrade-prompt:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.embedded-upgrade-prompt:before {
+  display: none;
+}
+
+.visitor-upgrade-prompt {
+  margin: 20px 0;
+  border-radius: 16px;
+}
+
+/* 鎖定推薦區域內的升級提示 */
+.locked-recommendation .upgrade-prompt-component {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(156, 39, 176, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+/* 減少動畫偏好設定支援 */
+@media (prefers-reduced-motion: reduce) {
+  .upgrade-prompt-component {
+    transition: none;
+  }
+  
+  .upgrade-icon,
+  .cta-icon {
+    animation: none;
+  }
+  
+  .upgrade-cta-button {
+    transition: background-color 0.2s ease;
+  }
+}

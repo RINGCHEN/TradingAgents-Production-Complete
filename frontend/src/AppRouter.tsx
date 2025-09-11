@@ -42,6 +42,9 @@ import SystemMonitorDashboard from './pages/SystemMonitorDashboard';
 import SystemConfigurationManagement from './pages/SystemConfigurationManagement';
 import UserDetailsManagement from './pages/UserDetailsManagement';
 
+// 測試頁面
+import UpgradePromptTestPage from './pages/UpgradePromptTestPage';
+
 // 保護路由組件
 import { ProtectedRoute, MembershipRoute } from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
@@ -68,6 +71,9 @@ const AppRouter: React.FC = () => {
               <Route path="/pricing-simple" element={<SimplePricingPageSimple />} />
               <Route path="/pricing-full" element={<SimplePricingPage />} />
               <Route path="/test" element={<TestSimplePage />} />
+              
+              {/* GEMINI 升級提示整合測試頁面 */}
+              <Route path="/upgrade-prompt-test" element={<UpgradePromptTestPage />} />
               
               {/* PayUni支付相關路由 */}
               <Route path="/payment/success" element={<PaymentSuccessPage />} />
