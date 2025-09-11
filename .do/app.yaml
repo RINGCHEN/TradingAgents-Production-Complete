@@ -4,7 +4,7 @@ services:
   source_dir: .
   dockerfile_path: Dockerfile
   github:
-    repo: ring-w/twstock
+    repo: RINGCHEN/TradingAgents-Production-Complete
     branch: main
     deploy_on_push: true
   http_port: 8000
@@ -41,12 +41,14 @@ databases:
   version: "14"
   size: db-s-1vcpu-1gb
 
-static_sites:
-- name: tradingagents-frontend
-  source_dir: frontend/dist
-  routes:
-  - path: /
-  - name: tradingagents-admin
-  source_dir: frontend/dist-admin
-  routes:
-  - path: /admin
+
+  static_sites:
+  - name: tradingagents-frontend
+    source_dir: frontend/dist
+    routes:
+    - path: /
+  - name: tradingagents-admin      # <--- 已修正
+    source_dir: frontend/dist-admin
+    routes:
+    - path: /admin
+  
