@@ -20,7 +20,8 @@ from datetime import datetime, timedelta
 import re
 
 from fastapi import HTTPException, status, Depends, Request
-from ..utils.user_context import UserContext, TierType
+from ..utils.user_context import UserContext
+from ..default_config import MembershipTier as TierType # Use the correct Tier enum
 from ..utils.logging_config import get_security_logger
 
 # 配置日誌
