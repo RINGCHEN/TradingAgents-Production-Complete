@@ -241,9 +241,18 @@ async def internal_test_analysis(request: DecisionReplayRequest):
     if not available_analysts:
         raise HTTPException(status_code=503, detail="No available analyst services.")
 
+    # Create a mock user context with DIAMOND tier to bypass permission checks for testing
+    mock_user_context = {
+        "user_id": "internal_test_user",
+        "membership_tier": "diamond",
+        "created_at": datetime.now().isoformat(),
+        "permissions": {"can_use_advanced_analysis": True, "can_export_data": True, "can_use_premium_features": True},
+        "usage_stats": {"daily_analyses": 0}
+    }
+
     analysis_state = create_analysis_state(
         stock_id=request.stock_id,
-        user_context={},  # Bypassing user_context for this internal test
+        user_context=mock_user_context,
         trade_info={
             "trade_price": request.trade_price,
             "trade_date": str(request.trade_date)
