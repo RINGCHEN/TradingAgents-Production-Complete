@@ -45,7 +45,7 @@ from .api.user_endpoints import router as user_router
 from .api.subscription_endpoints import router as subscription_router
 from .api.payment_endpoints import router as payment_router
 from .api.payuni_endpoints import router as payuni_router
-from .api.emergency_replay_endpoints import router as replay_router # AI決策復盤API (緊急版本)
+from .api.replay_endpoints import router as replay_router # AI決策復盤API
 # from .api.membership_endpoints import router as membership_router
 from .api.ab_testing_endpoints import router as ab_testing_router
 from .api.pricing_strategy_endpoints import router as pricing_router
