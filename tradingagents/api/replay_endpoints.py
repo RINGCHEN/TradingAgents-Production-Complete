@@ -113,7 +113,7 @@ async def get_decision_replay(
 
     analysis_state = create_analysis_state(
         stock_id=request.stock_id,
-        user_context=user_context.dict(),
+        user_context=user_context, # FIX: Pass the object directly
         trade_info={
             "trade_price": request.trade_price,
             "trade_date": str(request.trade_date)

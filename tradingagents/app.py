@@ -92,7 +92,31 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:; font-src 'self' https: https://cdn.jsdelivr.net; connect-src 'self' https: wss: ws:; media-src 'self' data: blob:; frame-ancestors 'none';"
+        # Build CSP with optional environment overrides (comma-separated lists)
+        import os
+        def _srcs(base, envkey):
+            extra = os.getenv(envkey, "")
+            extras = [s.strip() for s in extra.split(",") if s.strip()]
+            return " ".join(base + extras)
+        script_src = _srcs(["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"], "CSP_EXTRA_SCRIPT")
+        style_src = _srcs(["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"], "CSP_EXTRA_STYLE")
+        img_src = _srcs(["'self'", "data:", "https:"], "CSP_EXTRA_IMG")
+        font_src = _srcs(["'self'", "https:", "https://cdn.jsdelivr.net", "https://fonts.gstatic.com"], "CSP_EXTRA_FONT")
+        connect_src = _srcs(["'self'", "https:", "wss:", "ws:", "https://api.payuni.com.tw", "https://sandbox-api.payuni.com.tw"], "CSP_EXTRA_CONNECT")
+        frame_src = _srcs(["'self'", "https://accounts.google.com", "https://js.payuni.com.tw"], "CSP_EXTRA_FRAME")
+        csp = ("default-src 'self'; "
+               f"script-src {script_src}; "
+               f"style-src {style_src}; "
+               f"img-src {img_src}; "
+               f"font-src {font_src}; "
+               f"connect-src {connect_src}; "
+               f"frame-src {frame_src}; "
+               "media-src 'self' data: blob:; "
+               "frame-ancestors 'none';")
+        if os.getenv("CSP_REPORT_ONLY", "false").lower() == "true":
+            response.headers["Content-Security-Policy-Report-Only"] = csp
+        else:
+            response.headers["Content-Security-Policy"] = csp
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"

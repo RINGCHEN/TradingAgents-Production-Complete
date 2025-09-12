@@ -18,6 +18,9 @@ from enum import Enum
 import logging
 import asyncio
 
+from ...utils.user_context import UserContext
+
+
 # ART系統整合
 try:
     from ...art.trajectory_collector import (
@@ -160,7 +163,7 @@ class AnalysisState:
     stock_id: str
     analysis_date: str
     user_id: Optional[str] = None  # ART系統用戶識別
-    user_context: Optional[Dict[str, Any]] = None
+    user_context: Optional[UserContext] = None # FIX: Now expects a UserContext object
     
     # 數據收集結果
     stock_data: Optional[Dict[str, Any]] = None
@@ -1086,16 +1089,21 @@ class BaseAnalyst(ABC):
 # 便利函數
 def create_analysis_state(
     stock_id: str,
-    user_context: Dict[str, Any] = None,
+    user_context: Optional[UserContext] = None, # FIX: Expect a UserContext object
     stock_data: Dict[str, Any] = None,
-    financial_data: Dict[str, Any] = None
+    financial_data: Dict[str, Any] = None,
+    trade_info: Dict[str, Any] = None # Added for consistency with replay_endpoints
 ) -> AnalysisState:
     """創建分析狀態"""
     
+    # Extract user_id from user_context if it exists
+    user_id = user_context.user_id if user_context else None
+
     return AnalysisState(
         stock_id=stock_id,
         analysis_date=datetime.now().strftime('%Y-%m-%d'),
-        user_context=user_context,
+        user_id=user_id,
+        user_context=user_context, # Pass the object directly
         stock_data=stock_data,
         financial_data=financial_data
     )

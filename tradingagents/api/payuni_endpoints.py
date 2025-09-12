@@ -21,6 +21,20 @@ from ..services.refund_service import create_refund_service, RefundStatus, Refun
 logger = get_logger(__name__)
 router = APIRouter(prefix="/payuni", tags=["payuni"])
 
+# In-memory idempotency cache for webhook notifications (best-effort)
+_processed_trade_nos = set()
+_MAX_CACHE_SIZE = 5000
+
+def _mark_processed(trade_no: str):
+    try:
+        if len(_processed_trade_nos) > _MAX_CACHE_SIZE:
+            # best-effort trim
+            for _ in range(int(_MAX_CACHE_SIZE * 0.1)):
+                _processed_trade_nos.pop()
+        _processed_trade_nos.add(trade_no)
+    except Exception:
+        pass
+
 # PayUni配置 (正式生產環境)
 import os
 PAYUNI_CONFIG = {
@@ -516,6 +530,9 @@ async def payuni_webhook_notify(
                 trade_data = verification_result["trade_data"]
                 payment_status = verification_result["status"]
                 trade_no = trade_data.get("TradeNo", "")
+                if trade_no and trade_no in _processed_trade_nos:
+                    logger.warning(f"Duplicate webhook ignored for TradeNo={trade_no}")
+                    return result["response"]
                 
                 # 更新交易狀態
                 update_result = transaction_service.update_transaction_status(
