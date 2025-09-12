@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends
+from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from datetime import date, datetime, timedelta
@@ -205,3 +205,76 @@ async def get_decision_replay(
         enhanced_response.overall_narrative += f"\n\n**您的完整功能試用期還剩下 {days_left} 天。**"
 
     return enhanced_response
+
+
+# =================================================================
+# ================= TEMPORARY INTERNAL TEST ROUTE =================
+# =================================================================
+# NOTE: This entire block should be removed after verification is complete.
+
+class InternalTestResponse(BaseModel):
+    """Response model for the internal test endpoint."""
+    message: str
+    stock_id: str
+    available_analysts: List[str]
+    analysis_results: List[Dict[str, Any]]
+
+@router.post(
+    "/internal-test-analysis",
+    response_model=InternalTestResponse,
+    tags=["Internal Testing"],
+    include_in_schema=False  # Hide from public OpenAPI docs
+)
+async def internal_test_analysis(request: DecisionReplayRequest):
+    """
+    [INTERNAL-TESTING-ONLY]
+    This is a temporary, unprotected endpoint to verify the core AI analysis service.
+    It bypasses authentication and returns raw analysis results.
+    THIS MUST BE REMOVED BEFORE FINAL PRODUCTION.
+    """
+    analysts_service = get_analysts_service()
+    available_analysts = [
+        analyst['analyst_id'] for analyst in analysts_service.list_analysts()
+        if analyst['available'] and 'base' not in analyst['analyst_id']
+    ]
+
+    if not available_analysts:
+        raise HTTPException(status_code=503, detail="No available analyst services.")
+
+    analysis_state = create_analysis_state(
+        stock_id=request.stock_id,
+        user_context={},  # Bypassing user_context for this internal test
+        trade_info={
+            "trade_price": request.trade_price,
+            "trade_date": str(request.trade_date)
+        }
+    )
+
+    tasks = [analysts_service.analyze(analyst_id, analysis_state) for analyst_id in available_analysts]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    processed_results = []
+    for i, result in enumerate(results):
+        analyst_id = available_analysts[i]
+        if isinstance(result, Exception):
+            processed_results.append({
+                "analyst_id": analyst_id,
+                "status": "error",
+                "detail": str(result)
+            })
+        else:
+            # The result from the service is an AnalysisResult Pydantic model
+            processed_results.append({
+                "analyst_id": analyst_id,
+                "status": "success",
+                "data": result.dict()
+            })
+
+    return InternalTestResponse(
+        message="Internal test successful. Raw data returned.",
+        stock_id=request.stock_id,
+        available_analysts=available_analysts,
+        analysis_results=processed_results
+    )
+
+# ================= END OF TEMPORARY TEST ROUTE ================
