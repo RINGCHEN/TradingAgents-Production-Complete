@@ -1,4 +1,109 @@
 #!/usr/bin/env python3
+import os
+import boto3
+from botocore.exceptions import NoCredentialsError
+import logging
+from pathlib import Path
+
+# --- Model Downloader ---
+# Setup logging for the downloader
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+def download_models_from_spaces():
+    """
+    Downloads and caches model files from a DigitalOcean Spaces bucket.
+    This function is designed to run once when the application container starts.
+    It checks for the existence of a marker file to determine if models have
+    already been downloaded to avoid redundant downloads on container restarts
+    if the volume persists.
+    """
+    try:
+        # --- Configuration from Environment Variables ---
+        ACCESS_KEY = os.getenv("DO_SPACES_ACCESS_KEY")
+        SECRET_KEY = os.getenv("DO_SPACES_SECRET_KEY")
+        ENDPOINT_URL = os.getenv("DO_SPACES_ENDPOINT_URL", "https://sgp1.digitaloceanspaces.com")
+        BUCKET_NAME = os.getenv("DO_SPACES_BUCKET", "aitwstock")
+        REGION_NAME = os.getenv("DO_SPACES_REGION", "sgp1")
+        
+        # The directory inside the container where models should be stored.
+        # This path should be on a persistent volume if available.
+        LOCAL_MODEL_DIR = Path(os.getenv("APP_MODEL_DIR", "/app/models"))
+        
+        # The directory/prefix in the bucket where models are stored.
+        BUCKET_MODEL_PREFIX = "models/analysts/"
+
+        # A marker file to indicate that the download was successful
+        MARKER_FILE = LOCAL_MODEL_DIR / ".download_complete"
+
+        # --- Pre-flight Checks ---
+        if not all([ACCESS_KEY, SECRET_KEY, ENDPOINT_URL, BUCKET_NAME, REGION_NAME]):
+            logger.error("Missing one or more required environment variables for model download.")
+            logger.error("Required: DO_SPACES_ACCESS_KEY, DO_SPACES_SECRET_KEY, DO_SPACES_ENDPOINT_URL, DO_SPACES_BUCKET, DO_SPACES_REGION")
+            # Exit or raise an exception if models are critical for the app to start
+            raise RuntimeError("Model download configuration is incomplete.")
+
+        # --- Check if models are already downloaded ---
+        if MARKER_FILE.exists():
+            logger.info("Marker file found. Assuming models are already downloaded. Skipping.")
+            return
+
+        logger.info(f"Marker file not found. Starting model download from bucket '{BUCKET_NAME}'.")
+        os.makedirs(LOCAL_MODEL_DIR, exist_ok=True)
+
+        # --- Connect to Spaces ---
+        session = boto3.session.Session()
+        client = session.client('s3',
+                                region_name=REGION_NAME,
+                                endpoint_url=ENDPOINT_URL,
+                                aws_access_key_id=ACCESS_KEY,
+                                aws_secret_access_key=SECRET_KEY)
+
+        # --- List and Download ---
+        paginator = client.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket=BUCKET_NAME, Prefix=BUCKET_MODEL_PREFIX)
+
+        files_to_download = []
+        for page in pages:
+            if "Contents" in page:
+                for obj in page["Contents"]:
+                    files_to_download.append(obj["Key"])
+        
+        if not files_to_download:
+            logger.error(f"No models found in bucket '{BUCKET_NAME}' with prefix '{BUCKET_MODEL_PREFIX}'.")
+            raise RuntimeError("Could not find model files in the remote storage.")
+
+        for file_key in files_to_download:
+            # Don't try to download "folders"
+            if file_key.endswith('/'):
+                continue
+
+            # Construct the full local path for the file
+            relative_path = os.path.relpath(file_key, BUCKET_MODEL_PREFIX)
+            local_file_path = LOCAL_MODEL_DIR / 'analysts' / relative_path
+            
+            # Ensure the local directory for the file exists
+            local_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+            logger.info(f"Downloading s3://{BUCKET_NAME}/{file_key} to {local_file_path}...")
+            client.download_file(BUCKET_NAME, file_key, str(local_file_path))
+
+        # --- Create marker file on success ---
+        MARKER_FILE.touch()
+        logger.info("All models downloaded successfully. Created marker file.")
+
+    except NoCredentialsError:
+        logger.critical("FATAL: Credentials for object storage not found. The application cannot start without the models.")
+        raise
+    except Exception as e:
+        logger.critical(f"FATAL: An unrecoverable error occurred during model download: {e}")
+        raise
+
+# --- Execute Model Download on Service Startup ---
+# This code runs when the module is first imported.
+download_models_from_spaces()
+# --- End of Model Downloader ---
+
 """
 Analysts Service - 完全獨立的分析師服務架構
 天工 (TianGong) - 世界級智能分析師系統核心服務
@@ -240,6 +345,9 @@ class AnalystsServiceRegistry:
                     analyst_class = self._analysts[analyst_id]
                     config = self._configs[analyst_id]
                     
+                    # The actual model path is now determined by the downloader.
+                    # The config might hold an old path, but the loader logic inside the analyst
+                    # should point to the new download directory, e.g., /app/models/analysts/...
                     instance = analyst_class(config.config)
                     self._instances[analyst_id] = instance
                     
@@ -781,7 +889,7 @@ async def initialize_analysts_service(
     if config:
         _analysts_service = AnalystsService(config)
     else:
-        _analysts_service = get_analysts_service()
+        _analyst_service = get_analysts_service()
     
     if discover_paths is None:
         # 默認搜索路徑

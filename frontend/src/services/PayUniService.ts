@@ -5,7 +5,7 @@
 
 // API Base URL配置 (已遷移到DigitalOcean)
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://coral-app-knueo.ondigitalocean.app/api/v1'
+  ? 'https://twshocks-app-79rsx.ondigitalocean.app/api/v1'
   : 'http://localhost:8000/api/v1';
 
 // 會員方案類型定義

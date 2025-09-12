@@ -28,7 +28,7 @@ const PayUniPaymentPage: React.FC = () => {
         console.log('🔄 載入PayUni支付數據...', { orderNumber });
         
         // 調用後端API獲取真正的支付頁面
-        const response = await fetch(`https://coral-app-knueo.ondigitalocean.app/api/v1/payuni/payment-page/${orderNumber}`, {
+        const response = await fetch(`https://twshocks-app-79rsx.ondigitalocean.app/api/v1/payuni/payment-page/${orderNumber}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ const PayUniPaymentPage: React.FC = () => {
           // 如果後端返回HTML，直接重定向到該頁面
           if (response.headers.get('content-type')?.includes('text/html')) {
             console.log('🔄 重定向到後端PayUni支付頁面');
-            window.location.href = `https://coral-app-knueo.ondigitalocean.app/api/v1/payuni/payment-page/${orderNumber}`;
+            window.location.href = `https://twshocks-app-79rsx.ondigitalocean.app/api/v1/payuni/payment-page/${orderNumber}`;
             return;
           }
           
@@ -211,7 +211,7 @@ const PayUniPaymentPage: React.FC = () => {
           如果頁面沒有自動跳轉，請點擊下方按鈕
         </p>
         <button
-          onClick={() => window.location.href = `https://coral-app-knueo.ondigitalocean.app/api/v1/payuni/payment-page/${orderNumber}`}
+          onClick={() => window.location.href = `https://twshocks-app-79rsx.ondigitalocean.app/api/v1/payuni/payment-page/${orderNumber}`}
           style={{
             background: '#667eea',
             color: 'white',

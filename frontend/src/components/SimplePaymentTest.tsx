@@ -13,7 +13,7 @@ export const SimplePaymentTest: React.FC = () => {
     setResult('開始測試...');
     
     try {
-      const apiBase = 'https://coral-app-knueo.ondigitalocean.app';
+      const apiBase = 'https://twshocks-app-79rsx.ondigitalocean.app';
       
       const response = await fetch(`${apiBase}/api/v1/payuni/create-guest-payment`, {
         method: 'POST',

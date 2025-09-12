@@ -47,7 +47,7 @@ export const AIAnalystDemoCenter: React.FC = () => {
   const [userTier, setUserTier] = useState<'free' | 'gold' | 'diamond'>('free');
   const [quickDemo, setQuickDemo] = useState<any>(null);
 
-  const apiBase = process.env.REACT_APP_API_URL || 'https://coral-app-knueo.ondigitalocean.app';
+  const apiBase = process.env.REACT_APP_API_URL || 'https://twshocks-app-79rsx.ondigitalocean.app';
 
   useEffect(() => {
     fetchPopularStocks();

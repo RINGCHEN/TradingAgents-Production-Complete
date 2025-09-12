@@ -1,4 +1,9 @@
-# TradingAgents Complete Dependencies - 基於原始系統，移除AI訓練依賴
+# TradingAgents Production Dependencies
+# This file is optimized for a small footprint production environment.
+
+# ============= PyTorch CPU-Only Source =============
+# Ensures that only the lightweight CPU versions of torch and torchvision are installed.
+--extra-index-url https://download.pytorch.org/whl/cpu
 
 # ============= 升級核心工具 =============
 pip>=23.0
@@ -41,17 +46,14 @@ python-dateutil==2.8.2
 aiofiles==23.2.1
 asyncio-throttle==1.0.2
 
-# ============= AI API =============
-openai==1.12.0
-anthropic==0.18.1
-
-# ============= 數據處理 (版本已驗證) =============
+# ============= AI / Data Processing (CPU Optimized) =============
+# torch and torchvision are specified as CPU-only to minimize the application size.
+torch==2.0.1+cpu
+torchvision==0.15.2+cpu
 numpy==1.26.4
 pandas==2.2.2
 scikit-learn==1.3.0
 scipy==1.13.0
-torch==2.0.1
-torchvision==0.15.2
 
 # ============= 金融數據 =============
 yfinance==0.2.28
@@ -73,10 +75,8 @@ rich==13.7.0
 beautifulsoup4==4.12.2
 PyYAML==6.0.1
 
+# ============= Cloud Storage for Models =============
+boto3==1.34.57
+
 # ============= 生產部署 =============
 gunicorn==21.2.0
-
-# ============= 開發測試 (可選) =============
-pytest==7.4.3
-pytest-asyncio==0.21.1
-pytest-cov==4.1.0

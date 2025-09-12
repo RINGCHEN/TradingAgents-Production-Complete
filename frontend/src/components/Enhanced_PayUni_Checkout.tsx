@@ -32,7 +32,7 @@ export const EnhancedPayUniCheckout: React.FC = () => {
   const [userEmail, setUserEmail] = useState('');
   const [paymentResponse, setPaymentResponse] = useState<PaymentResponse | null>(null);
   
-  const apiBase = process.env.REACT_APP_API_URL || 'https://coral-app-knueo.ondigitalocean.app';
+  const apiBase = process.env.REACT_APP_API_URL || 'https://twshocks-app-79rsx.ondigitalocean.app';
 
   // 檢查URL參數來預選方案
   useEffect(() => {
