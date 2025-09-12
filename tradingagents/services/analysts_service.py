@@ -14,9 +14,7 @@ def download_models_from_spaces():
     """
     Downloads and caches model files from a DigitalOcean Spaces bucket.
     This function is designed to run once when the application container starts.
-    It checks for the existence of a marker file to determine if models have
-    already been downloaded to avoid redundant downloads on container restarts
-    if the volume persists.
+    It intelligently searches for models in a few common prefixes.
     """
     try:
         # --- Configuration from Environment Variables ---
@@ -25,27 +23,16 @@ def download_models_from_spaces():
         ENDPOINT_URL = os.getenv("DO_SPACES_ENDPOINT_URL", "https://sgp1.digitaloceanspaces.com")
         BUCKET_NAME = os.getenv("DO_SPACES_BUCKET", "aitwstock")
         REGION_NAME = os.getenv("DO_SPACES_REGION", "sgp1")
-        
-        # The directory inside the container where models should be stored.
-        # This path should be on a persistent volume if available.
         LOCAL_MODEL_DIR = Path(os.getenv("APP_MODEL_DIR", "/app/models"))
-        
-        # The directory/prefix in the bucket where models are stored.
-        BUCKET_MODEL_PREFIX = "models/analysts/"
-
-        # A marker file to indicate that the download was successful
         MARKER_FILE = LOCAL_MODEL_DIR / ".download_complete"
 
         # --- Pre-flight Checks ---
-        if not all([ACCESS_KEY, SECRET_KEY, ENDPOINT_URL, BUCKET_NAME, REGION_NAME]):
-            logger.error("Missing one or more required environment variables for model download.")
-            logger.error("Required: DO_SPACES_ACCESS_KEY, DO_SPACES_SECRET_KEY, DO_SPACES_ENDPOINT_URL, DO_SPACES_BUCKET, DO_SPACES_REGION")
-            # Exit or raise an exception if models are critical for the app to start
+        if not all([ACCESS_KEY, SECRET_KEY]):
+            logger.error("Missing DO_SPACES_ACCESS_KEY or DO_SPACES_SECRET_KEY.")
             raise RuntimeError("Model download configuration is incomplete.")
 
-        # --- Check if models are already downloaded ---
         if MARKER_FILE.exists():
-            logger.info("Marker file found. Assuming models are already downloaded. Skipping.")
+            logger.info("Marker file found. Assuming models are downloaded. Skipping.")
             return
 
         logger.info(f"Marker file not found. Starting model download from bucket '{BUCKET_NAME}'.")
@@ -59,30 +46,38 @@ def download_models_from_spaces():
                                 aws_access_key_id=ACCESS_KEY,
                                 aws_secret_access_key=SECRET_KEY)
 
-        # --- List and Download ---
-        paginator = client.get_paginator('list_objects_v2')
-        pages = paginator.paginate(Bucket=BUCKET_NAME, Prefix=BUCKET_MODEL_PREFIX)
-
+        # --- Intelligent Search for Models ---
+        search_prefixes = ["models/analysts/", "analysts/", ""] # Try most specific first, then root
         files_to_download = []
-        for page in pages:
-            if "Contents" in page:
-                for obj in page["Contents"]:
-                    files_to_download.append(obj["Key"])
+        base_prefix = ""
+
+        for prefix in search_prefixes:
+            logger.info(f"Attempting to find models with prefix: '{prefix if prefix else 'root'}'...")
+            paginator = client.get_paginator('list_objects_v2')
+            pages = paginator.paginate(Bucket=BUCKET_NAME, Prefix=prefix)
+            
+            # Check if this prefix yields any files (ignoring "directories")
+            found_files = [obj['Key'] for page in pages for obj in page.get('Contents', []) if not obj['Key'].endswith('/')]
+
+            if found_files:
+                logger.info(f"Success! Found {len(found_files)} model files with prefix '{prefix}'. This will be our base path.")
+                files_to_download = found_files
+                base_prefix = prefix
+                break
         
         if not files_to_download:
-            logger.error(f"No models found in bucket '{BUCKET_NAME}' with prefix '{BUCKET_MODEL_PREFIX}'.")
-            raise RuntimeError("Could not find model files in the remote storage.")
+            logger.error(f"CRITICAL: Searched prefixes {search_prefixes} but could not find any model files in bucket '{BUCKET_NAME}'.")
+            raise RuntimeError("Could not find model files in the remote storage after searching common paths.")
 
+        # --- Download Files ---
         for file_key in files_to_download:
-            # Don't try to download "folders"
-            if file_key.endswith('/'):
-                continue
-
             # Construct the full local path for the file
-            relative_path = os.path.relpath(file_key, BUCKET_MODEL_PREFIX)
+            # The relative path should be calculated from the successful base_prefix
+            relative_path = os.path.relpath(file_key, base_prefix)
+            # We want the final structure to be consistent, e.g., /app/models/analysts/...
+            # So we build the destination path carefully.
             local_file_path = LOCAL_MODEL_DIR / 'analysts' / relative_path
             
-            # Ensure the local directory for the file exists
             local_file_path.parent.mkdir(parents=True, exist_ok=True)
 
             logger.info(f"Downloading s3://{BUCKET_NAME}/{file_key} to {local_file_path}...")
@@ -93,7 +88,7 @@ def download_models_from_spaces():
         logger.info("All models downloaded successfully. Created marker file.")
 
     except NoCredentialsError:
-        logger.critical("FATAL: Credentials for object storage not found. The application cannot start without the models.")
+        logger.critical("FATAL: Credentials for object storage not found.")
         raise
     except Exception as e:
         logger.critical(f"FATAL: An unrecoverable error occurred during model download: {e}")
