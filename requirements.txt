@@ -46,6 +46,10 @@ python-dateutil==2.8.2
 aiofiles==23.2.1
 asyncio-throttle==1.0.2
 
+# ============= AI API =============
+openai==1.12.0
+anthropic==0.18.1
+
 # ============= AI / Data Processing (CPU Optimized) =============
 # torch and torchvision are specified as CPU-only to minimize the application size.
 torch==2.0.1+cpu
