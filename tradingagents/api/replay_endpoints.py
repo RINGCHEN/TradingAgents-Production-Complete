@@ -221,69 +221,75 @@ class InternalTestResponse(BaseModel):
 
 @router.post(
     "/internal-test-analysis",
-    response_model=InternalTestResponse,
+    # response_model=InternalTestResponse, # Temporarily disable response model for diagnostics
     tags=["Internal Testing"],
-    include_in_schema=False  # Hide from public OpenAPI docs
+    include_in_schema=False
 )
 async def internal_test_analysis(request: DecisionReplayRequest):
     """
     [INTERNAL-TESTING-ONLY]
     This is a temporary, unprotected endpoint to verify the core AI analysis service.
-    It bypasses authentication and returns raw analysis results.
+    It now includes a deep exception-catching mechanism for diagnostics.
     THIS MUST BE REMOVED BEFORE FINAL PRODUCTION.
     """
-    analysts_service = get_analysts_service()
-    available_analysts = [
-        analyst['analyst_id'] for analyst in analysts_service.list_analysts()
-        if analyst['available'] and 'base' not in analyst['analyst_id']
-    ]
+    try:
+        analysts_service = get_analysts_service()
+        available_analysts = [
+            analyst['analyst_id'] for analyst in analysts_service.list_analysts()
+            if analyst['available'] and 'base' not in analyst['analyst_id']
+        ]
 
-    if not available_analysts:
-        raise HTTPException(status_code=503, detail="No available analyst services.")
+        if not available_analysts:
+            raise HTTPException(status_code=503, detail="No available analyst services.")
 
-    # Create a mock user context with DIAMOND tier to bypass permission checks for testing
-    mock_user_context = {
-        "user_id": "internal_test_user",
-        "membership_tier": "diamond",
-        "created_at": datetime.now().isoformat(),
-        "permissions": {"can_use_advanced_analysis": True, "can_export_data": True, "can_use_premium_features": True},
-        "usage_stats": {"daily_analyses": 0}
-    }
-
-    analysis_state = create_analysis_state(
-        stock_id=request.stock_id,
-        user_context=mock_user_context,
-        trade_info={
-            "trade_price": request.trade_price,
-            "trade_date": str(request.trade_date)
+        mock_user_context = {
+            "user_id": "internal_test_user",
+            "membership_tier": "diamond",
+            "created_at": datetime.now().isoformat(),
+            "permissions": {"can_use_advanced_analysis": True, "can_export_data": True, "can_use_premium_features": True},
+            "usage_stats": {"daily_analyses": 0}
         }
-    )
 
-    tasks = [analysts_service.analyze(analyst_id, analysis_state) for analyst_id in available_analysts]
-    results = await asyncio.gather(*tasks, return_exceptions=True)
+        analysis_state = create_analysis_state(
+            stock_id=request.stock_id,
+            user_context=mock_user_context,
+            trade_info={
+                "trade_price": request.trade_price,
+                "trade_date": str(request.trade_date)
+            }
+        )
 
-    processed_results = []
-    for i, result in enumerate(results):
-        analyst_id = available_analysts[i]
-        if isinstance(result, Exception):
-            processed_results.append({
-                "analyst_id": analyst_id,
-                "status": "error",
-                "detail": str(result)
-            })
-        else:
-            # The result from the service is an AnalysisResult Pydantic model
-            processed_results.append({
-                "analyst_id": analyst_id,
-                "status": "success",
-                "data": result.dict()
-            })
+        tasks = [analysts_service.analyze(analyst_id, analysis_state) for analyst_id in available_analysts]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    return InternalTestResponse(
-        message="Internal test successful. Raw data returned.",
-        stock_id=request.stock_id,
-        available_analysts=available_analysts,
-        analysis_results=processed_results
-    )
+        processed_results = []
+        for i, result in enumerate(results):
+            analyst_id = available_analysts[i]
+            if isinstance(result, Exception):
+                processed_results.append({
+                    "analyst_id": analyst_id,
+                    "status": "error",
+                    "detail": str(result)
+                })
+            else:
+                processed_results.append({
+                    "analyst_id": analyst_id,
+                    "status": "success",
+                    "data": result.dict()
+                })
+
+        return InternalTestResponse(
+            message="Internal test successful. Raw data returned.",
+            stock_id=request.stock_id,
+            available_analysts=available_analysts,
+            analysis_results=processed_results
+        )
+    except Exception as e:
+        # Deep diagnostics: return the raw exception type and message
+        return {
+            "diagnostic_message": "Caught a raw exception during internal test.",
+            "exception_type": str(type(e)),
+            "exception_details": str(e)
+        }
 
 # ================= END OF TEMPORARY TEST ROUTE ================
