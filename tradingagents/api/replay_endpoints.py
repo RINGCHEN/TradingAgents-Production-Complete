@@ -7,7 +7,8 @@ import json
 
 from ..auth.dependencies import get_current_user
 from ..auth.permissions import require_permission, ResourceType, Action
-from ..utils.user_context import UserContext, TierType
+from ..models.membership import TierType # Correct import for the Enum
+from ..utils.user_context import UserContext # Correct import for the Class
 from ..services.analysts_service import get_analysts_service, AnalysisState, create_analysis_state
 
 # 建立一個新的 API 路由器
@@ -219,6 +220,9 @@ class InternalTestResponse(BaseModel):
     available_analysts: List[str]
     analysis_results: List[Dict[str, Any]]
 
+from ..models.membership import TierType
+from ..utils.user_context import UserContext
+
 @router.post(
     "/internal-test-analysis",
     # response_model=InternalTestResponse, # Temporarily disable response model for diagnostics
@@ -229,7 +233,7 @@ async def internal_test_analysis(request: DecisionReplayRequest):
     """
     [INTERNAL-TESTING-ONLY]
     This is a temporary, unprotected endpoint to verify the core AI analysis service.
-    It now includes a deep exception-catching mechanism for diagnostics.
+    It now includes a deep exception-catching mechanism and a proper UserContext object.
     THIS MUST BE REMOVED BEFORE FINAL PRODUCTION.
     """
     try:
@@ -242,17 +246,15 @@ async def internal_test_analysis(request: DecisionReplayRequest):
         if not available_analysts:
             raise HTTPException(status_code=503, detail="No available analyst services.")
 
-        mock_user_context = {
-            "user_id": "internal_test_user",
-            "membership_tier": "diamond",
-            "created_at": datetime.now().isoformat(),
-            "permissions": {"can_use_advanced_analysis": True, "can_export_data": True, "can_use_premium_features": True},
-            "usage_stats": {"daily_analyses": 0}
-        }
+        # Create a REAL UserContext object with DIAMOND tier to pass all permission checks
+        mock_user = UserContext(
+            user_id="internal_test_user",
+            membership_tier=TierType.DIAMOND
+        )
 
         analysis_state = create_analysis_state(
             stock_id=request.stock_id,
-            user_context=mock_user_context,
+            user_context=mock_user.to_dict(), # Convert object to dict for the state creator
             trade_info={
                 "trade_price": request.trade_price,
                 "trade_date": str(request.trade_date)

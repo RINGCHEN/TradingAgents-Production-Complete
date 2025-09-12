@@ -39,6 +39,7 @@ from .utils.middleware import setup_middleware
 from .auth.routes import router as auth_router
 from .auth.dependencies import get_current_user, CurrentUser, GoldUser, DiamondUser
 from .simple_cors import setup_simple_cors
+from .services.analysts_service import download_models_from_spaces, models_ready
 
 # 導入所有現有的 API 端點路由器
 from .api.user_endpoints import router as user_router
@@ -121,6 +122,29 @@ async def lifespan(app: FastAPI):
     })
     
     try:
+        # Ensure analyst models are available (download if missing)
+        try:
+            if not models_ready():
+                system_logger.info("Model marker not found. Starting model download...", extra={
+                    'startup_phase': 'model_download',
+                    'component': 'app_lifecycle'
+                })
+                download_models_from_spaces()
+                system_logger.info("Model download completed.", extra={
+                    'startup_phase': 'model_download_completed',
+                    'component': 'app_lifecycle'
+                })
+            else:
+                system_logger.info("Models already present. Skipping download.", extra={
+                    'startup_phase': 'model_download_skipped',
+                    'component': 'app_lifecycle'
+                })
+        except Exception as e:
+            # Do not block app startup; continue with degraded mode and expose health
+            system_logger.error(f"Model download failed or skipped: {str(e)}", extra={
+                'startup_phase': 'model_download_failed',
+                'component': 'app_lifecycle'
+            })
         # 初始化數據編排器
         from .dataflows.data_orchestrator import DataOrchestrator
         data_orchestrator = DataOrchestrator()
@@ -241,6 +265,14 @@ app.include_router(auth_router)
 app.include_router(user_router, prefix="/api")
 app.include_router(subscription_router, prefix="/api")
 app.include_router(payment_router, prefix="/api")
+
+# Lightweight model readiness health endpoint
+@app.get("/health/models", tags=["系統??��"])
+async def health_models():
+    return {
+        "ready": models_ready(),
+        "timestamp": datetime.now().isoformat()
+    }
 app.include_router(payuni_router, prefix="/api/v1")
 app.include_router(replay_router) # AI決策復盤API - prefix已在router中定義
 # app.include_router(membership_router, prefix="/api")

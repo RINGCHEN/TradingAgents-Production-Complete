@@ -94,9 +94,12 @@ def download_models_from_spaces():
         logger.critical(f"FATAL: An unrecoverable error occurred during model download: {e}")
         raise
 
-# --- Execute Model Download on Service Startup ---
-# This code runs when the module is first imported.
-download_models_from_spaces()
+# --- Model Readiness Helpers (do not auto-download on import) ---
+def models_ready() -> bool:
+    """Return True if the model download marker file exists."""
+    LOCAL_MODEL_DIR = Path(os.getenv("APP_MODEL_DIR", "/app/models"))
+    MARKER_FILE = LOCAL_MODEL_DIR / ".download_complete"
+    return MARKER_FILE.exists()
 # --- End of Model Downloader ---
 
 """
