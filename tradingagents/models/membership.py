@@ -13,7 +13,12 @@ Base = declarative_base()
 
 class TierType(Enum):
     """會員等級枚舉"""
+    # Tiers used by the permission system and other new logic
     FREE = "free"
+    GOLD = "gold"
+    DIAMOND = "diamond"
+    
+    # Legacy or alternative tiers
     BASIC = "basic"
     PREMIUM = "premium"
     VIP = "vip"
