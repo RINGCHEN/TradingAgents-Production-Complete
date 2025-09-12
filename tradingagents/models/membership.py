@@ -13,6 +13,7 @@ Base = declarative_base()
 
 class TierType(Enum):
     """會員等級枚舉"""
+    FREE = "free"
     BASIC = "basic"
     PREMIUM = "premium"
     VIP = "vip"
