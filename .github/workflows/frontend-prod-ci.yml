@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: TradingAgents-Production-Complete/frontend
+        working-directory: frontend
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,18 +32,18 @@ jobs:
           if [ ! -d "dist" ]; then echo "dist not found"; exit 1; fi
 
       - name: Install Playwright (if config exists)
-        if: ${{ hashFiles('TradingAgents-Production-Complete/frontend/playwright-simple.config.ts') != '' }}
+        if: ${{ hashFiles('frontend/playwright-simple.config.ts') != '' }}
         run: npx playwright install --with-deps
 
       - name: Serve dist on :3000
-        run: npx http-server TradingAgents-Production-Complete/frontend/dist -p 3000 &
+        run: npx http-server dist -p 3000 &
 
       - name: Run smoke tests (headless; skip if no config)
-        if: ${{ hashFiles('TradingAgents-Production-Complete/frontend/playwright-simple.config.ts') != '' }}
+        if: ${{ hashFiles('frontend/playwright-simple.config.ts') != '' }}
         env:
           BASE_URL: http://localhost:3000
           CI: 'true'
-        run: npx playwright test --config=TradingAgents-Production-Complete/frontend/playwright-simple.config.ts --reporter=list
+        run: npx playwright test --config=playwright-simple.config.ts --reporter=list
 
   deploy-production:
     needs: build-and-preview
@@ -70,13 +70,13 @@ jobs:
           echo "GOOGLE_APPLICATION_CREDENTIALS=${HOME}/gcp.json" >> $GITHUB_ENV
 
       - name: Install deps and build
-        working-directory: TradingAgents-Production-Complete/frontend
+        working-directory: frontend
         run: |
           npm ci
           npm run build
 
       - name: Deploy to Firebase (token if present)
-        working-directory: TradingAgents-Production-Complete/frontend
+        working-directory: frontend
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -86,4 +86,3 @@ jobs:
           else \
             firebase deploy --project ${FIREBASE_PROJECT_ID} --only hosting:main-site,hosting:admin; \
           fi
-
