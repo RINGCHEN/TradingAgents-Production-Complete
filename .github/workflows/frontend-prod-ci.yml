@@ -29,14 +29,19 @@ jobs:
       - name: Build (Vite)
         run: |
           npm run build
-          if [ ! -d "dist" ]; then echo "dist not found"; exit 1; fi
+          if [ -d "dist" ]; then OUT_DIR=dist; elif [ -d "build" ]; then OUT_DIR=build; else echo "No dist/ or build/ output found"; exit 1; fi
+          echo "Using output folder: $OUT_DIR"
+          ls -la "$OUT_DIR" | head -n 50
 
       - name: Install Playwright (if config exists)
         if: ${{ hashFiles('frontend/playwright-simple.config.ts') != '' }}
         run: npx playwright install --with-deps
 
-      - name: Serve dist on :3000
-        run: npx http-server dist -p 3000 &
+      - name: Serve preview on :3000 (vite preview)
+        run: |
+          npm run preview -- --port 3000 --strictPort &
+          sleep 3
+          for i in {1..10}; do curl -sSf http://localhost:3000 >/dev/null && break || (echo "waiting for preview..." && sleep 2); done
 
       - name: Run smoke tests (headless; skip if no config)
         if: ${{ hashFiles('frontend/playwright-simple.config.ts') != '' }}
