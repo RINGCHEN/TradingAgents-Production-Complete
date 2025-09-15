@@ -6,7 +6,7 @@
     "tradingagents-main": {
       "hosting": {
         "admin": [
-          "tradingagents-main"
+          "admin-03king"
         ],
         "main-site": [
           "03king"

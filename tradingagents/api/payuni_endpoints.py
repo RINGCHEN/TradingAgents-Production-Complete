@@ -530,6 +530,36 @@ async def payuni_webhook_notify(
                 trade_data = verification_result["trade_data"]
                 payment_status = verification_result["status"]
                 trade_no = trade_data.get("TradeNo", "")
+                # Optional anti-replay based on callback timestamp (disabled by default)
+                try:
+                    import os
+                    from datetime import datetime
+                    max_age = int(os.getenv("PAYUNI_CALLBACK_MAX_AGE_SECONDS", "0") or 0)
+                    enforce = os.getenv("PAYUNI_ENFORCE_CALLBACK_MAX_AGE", "false").lower() == "true"
+                    callback_ts = None
+                    ts_raw = trade_data.get("Timestamp") or callback_data.get("Timestamp")
+                    if ts_raw:
+                        try:
+                            callback_ts = datetime.utcfromtimestamp(int(str(ts_raw)))
+                        except Exception:
+                            callback_ts = None
+                    if callback_ts is None:
+                        for k in ("PayTime", "TradeTime"):
+                            v = trade_data.get(k) or callback_data.get(k)
+                            if v:
+                                try:
+                                    callback_ts = datetime.strptime(v, "%Y-%m-%d %H:%M:%S")
+                                    break
+                                except Exception:
+                                    continue
+                    if max_age > 0 and callback_ts is not None:
+                        age_sec = (datetime.utcnow() - callback_ts).total_seconds()
+                        if age_sec > max_age:
+                            logger.warning(f"PayUni webhook too old: age={age_sec}s, trade_no={trade_no}")
+                            if enforce:
+                                return "0|驗證失敗"
+                except Exception:
+                    pass
                 if trade_no and trade_no in _processed_trade_nos:
                     logger.warning(f"Duplicate webhook ignored for TradeNo={trade_no}")
                     return result["response"]

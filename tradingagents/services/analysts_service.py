@@ -10,6 +10,15 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+def _compute_md5(path: Path) -> str:
+    import hashlib
+    h = hashlib.md5()
+    with open(path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 def download_models_from_spaces():
     """
     Downloads and caches model files from a DigitalOcean Spaces bucket.
@@ -69,7 +78,11 @@ def download_models_from_spaces():
             logger.error(f"CRITICAL: Searched prefixes {search_prefixes} but could not find any model files in bucket '{BUCKET_NAME}'.")
             raise RuntimeError("Could not find model files in the remote storage after searching common paths.")
 
-        # --- Download Files ---
+        # --- Download Files with retry and basic integrity checks ---
+        import time
+        MAX_RETRIES = int(os.getenv("MODEL_DOWNLOAD_MAX_RETRIES", "3") or 3)
+        BACKOFF = float(os.getenv("MODEL_DOWNLOAD_BACKOFF_SECONDS", "2") or 2)
+
         for file_key in files_to_download:
             # Construct the full local path for the file
             # The relative path should be calculated from the successful base_prefix
@@ -80,8 +93,46 @@ def download_models_from_spaces():
             
             local_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            logger.info(f"Downloading s3://{BUCKET_NAME}/{file_key} to {local_file_path}...")
-            client.download_file(BUCKET_NAME, file_key, str(local_file_path))
+            # Query object metadata for size and etag
+            head = client.head_object(Bucket=BUCKET_NAME, Key=file_key)
+            expected_size = head.get('ContentLength')
+            etag = (head.get('ETag') or '').strip('"')
+
+            attempt = 0
+            while True:
+                attempt += 1
+                try:
+                    logger.info(f"Downloading s3://{BUCKET_NAME}/{file_key} to {local_file_path} (attempt {attempt}/{MAX_RETRIES})...")
+                    client.download_file(BUCKET_NAME, file_key, str(local_file_path))
+
+                    # Basic integrity: size match
+                    actual_size = local_file_path.stat().st_size
+                    size_ok = (expected_size is None) or (actual_size == expected_size)
+
+                    # If ETag looks like a single-part MD5 (no '-') then verify
+                    md5_ok = True
+                    if etag and '-' not in etag:
+                        md5 = _compute_md5(local_file_path)
+                        md5_ok = (md5 == etag)
+
+                    if size_ok and md5_ok:
+                        logger.info(f"Verified {local_file_path.name}: size_ok={size_ok}, md5_ok={md5_ok}")
+                        break
+                    else:
+                        logger.warning(f"Verification failed for {local_file_path.name}: size_ok={size_ok}, md5_ok={md5_ok}. Retrying...")
+                        if local_file_path.exists():
+                            try:
+                                local_file_path.unlink()
+                            except Exception:
+                                pass
+                        if attempt >= MAX_RETRIES:
+                            raise RuntimeError(f"Failed to verify {file_key} after {MAX_RETRIES} attempts")
+                        time.sleep(BACKOFF * attempt)
+                except Exception as de:
+                    if attempt >= MAX_RETRIES:
+                        logger.error(f"Download failed for {file_key}: {de}")
+                        raise
+                    time.sleep(BACKOFF * attempt)
 
         # --- Create marker file on success ---
         MARKER_FILE.touch()
