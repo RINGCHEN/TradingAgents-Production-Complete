@@ -97,8 +97,9 @@ jobs:
         run: |
           PROJECT_ID=${FIREBASE_PROJECT_ID:-tradingagents-main}
           echo "Deploying to project: $PROJECT_ID"
-          if [ -n "$FIREBASE_TOKEN" ]; then
-            firebase deploy --project "$PROJECT_ID" --only hosting:main-site,hosting:admin --token "$FIREBASE_TOKEN"
-          else
-            firebase deploy --project "$PROJECT_ID" --only hosting:main-site,hosting:admin
-          fi
+
+          echo "→ Deploy main-site (firebase.json)"
+          firebase deploy --project "$PROJECT_ID" --config firebase.json --only hosting:main-site --non-interactive --debug
+
+          echo "→ Deploy admin (firebase.admin.json)"
+          firebase deploy --project "$PROJECT_ID" --config firebase.admin.json --only hosting:admin --non-interactive --debug
