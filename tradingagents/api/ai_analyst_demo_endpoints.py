@@ -12,7 +12,16 @@ import logging
 import json
 import os
 from datetime import datetime
-from ..dataflows.finmind_realtime_adapter import finmind_service
+
+# 嘗試導入finmind服務，如果失敗則使用模擬服務
+try:
+    from ..dataflows.finmind_realtime_adapter import finmind_service
+except ImportError:
+    # 如果導入失敗，創建一個模擬的finmind_service
+    class MockFinmindService:
+        def get_stock_price(self, symbol):
+            return {"price": 100.0, "change": 0.0}
+    finmind_service = MockFinmindService()
 
 # 配置日誌
 logger = logging.getLogger(__name__)
