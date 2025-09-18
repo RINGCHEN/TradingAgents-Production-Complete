@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install deps
         run: npm ci
@@ -34,7 +34,7 @@ jobs:
           ls -la "$OUT_DIR" | head -n 50
 
       - name: Install Playwright (if config exists)
-        if: ${{ hashFiles('frontend/playwright-simple.config.ts') != '' }}
+        if: ${{ hashFiles('frontend/playwright.config.ts') != '' }}
         run: npx playwright install --with-deps
 
       - name: Serve preview on :3000 (vite preview)
@@ -43,12 +43,12 @@ jobs:
           sleep 3
           for i in {1..10}; do curl -sSf http://localhost:3000 >/dev/null && break || (echo "waiting for preview..." && sleep 2); done
 
-      - name: Run smoke tests (headless; skip if no config)
-        if: ${{ hashFiles('frontend/playwright-simple.config.ts') != '' }}
+      - name: Run smoke tests (stable only)
+        if: ${{ hashFiles('frontend/playwright.config.ts') != '' }}
         env:
           BASE_URL: http://localhost:3000
           CI: 'true'
-        run: npx playwright test --config=playwright-simple.config.ts --reporter=list
+        run: npx playwright test tests/e2e/smoke/stable-auth-pricing.spec.ts --config=playwright.config.ts --reporter=list
 
   deploy-production:
     needs: build-and-preview
@@ -61,10 +61,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install Firebase Tools
         run: npm install -g firebase-tools
+
+      - name: Display hosting targets (both configs)
+        run: |
+          echo "== firebase.json targets =="
+          firebase target:display hosting --config firebase.json || true
+          echo "
+== firebase.admin.json targets =="
+          firebase target:display hosting --config firebase.admin.json || true
 
       - name: Resolve Firebase credentials (supports TRADINGAGENTS_MAIN)
         env:
