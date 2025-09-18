@@ -65,7 +65,7 @@ from .api.value_validation_endpoints import router as value_validation_router
 from .api.google_auth_endpoints import router as google_auth_router
 from .api.portfolio_endpoints import router as portfolio_router  # 舊的投資組合API
 from .api.ai_effectiveness import router as ai_effectiveness_router  # AI效果分析 API
-from .api.revenue_dashboard import router as revenue_dashboard_router  # 營收分析儀表板
+# from .api.revenue_dashboard import router as revenue_dashboard_router  # 營收分析儀表板 - 暫時停用等待修復
 # from .api.simple_portfolio import router as simple_portfolio_router  # 全新的投資組合API
 # from .api.enhanced_portfolio_endpoints import router as enhanced_portfolio_router  # 🏆 專業級投資組合API
 
@@ -321,7 +321,7 @@ app.include_router(portfolio_router, prefix="/api/v1")  # 舊的投資組合 API
 # app.include_router(enhanced_portfolio_router)  # 🏆 專業級投資組合 API 路由器
 app.include_router(google_auth_router)  # Google Auth 路由器已包含 /api/auth 前綴
 app.include_router(ai_effectiveness_router)  # AI效果分析 API (已包含前綴)
-app.include_router(revenue_dashboard_router)  # 營收分析儀表板 API (已包含前綴)
+# app.include_router(revenue_dashboard_router)  # 營收分析儀表板 API - 暫時停用等待修復
 
 # 註冊 Admin 管理路由器
 app.include_router(config_router, prefix="/admin")

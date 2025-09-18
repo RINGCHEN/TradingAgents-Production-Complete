@@ -10,9 +10,9 @@ from datetime import datetime, date, timedelta
 import logging
 import os
 
-from ..core.deps import get_current_user
-from ...analytics.warehouse import DataWarehouseManager
-from ...analytics.revenue import RevenueAnalyzer
+from ..auth.dependencies import get_current_user
+# from ...analytics.warehouse import DataWarehouseManager  # 暫時註解，等待實現
+# from ...analytics.revenue import RevenueAnalyzer  # 暫時註解，等待實現
 
 logger = logging.getLogger(__name__)
 
