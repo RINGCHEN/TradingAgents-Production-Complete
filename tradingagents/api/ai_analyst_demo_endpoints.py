@@ -92,6 +92,21 @@ MOCK_ANALYSTS_CONFIG = {
         "name": "投資規劃師",
         "description": "綜合各分析師意見，提供最終投資建議",
         "specialties": ["投資建議", "配置建議", "時間規劃", "風險配比"]
+    },
+    "market_sentiment_analyst": {
+        "name": "市場情緒分析師",
+        "description": "專精分析市場情緒、投資者心理和群體行為模式",
+        "specialties": ["市場恐慌指數", "社交媒體監測", "投資者行為", "情緒週期判斷"]
+    },
+    "quantitative_analyst": {
+        "name": "量化分析師",
+        "description": "運用數學模型、統計分析提供數據驅動的投資決策",
+        "specialties": ["統計套利", "因子分析", "風險價值計算", "投資組合優化"]
+    },
+    "macro_economic_analyst": {
+        "name": "總體經濟分析師",
+        "description": "分析宏觀經濟環境、政策對投資市場的影響",
+        "specialties": ["央行政策", "經濟週期", "通脹分析", "地緣政治風險"]
     }
 }
 
@@ -188,8 +203,54 @@ async def generate_enhanced_analysis(analyst_name: str, stock_symbol: str, user_
                 analysis = f"【黃金會員】投資規劃師：{stock_name} 綜合評估 - 趨勢{overall_trend}，建議{recommendation}，適合{'積極' if recommendation == '買入' else '保守' if recommendation == '賣出' else '平衡'}型投資者"
                 confidence = 0.8
             else:
-                analysis = f"【鑽石會員】投資規劃師：{stock_name} 最終投資建議 - 綜合6位分析師意見，整體趨勢{overall_trend}，投資建議{recommendation}，信心度{summary.get('confidence_score', 0.5):.0%}，建議配置比例{'20-30%' if recommendation == '買入' else '5-10%' if recommendation == '觀望' else '0-5%'}，持有週期{'長期' if recommendation == '買入' else '短期' if recommendation == '賣出' else '中期'}"
+                analysis = f"【鑽石會員】投資規劃師：{stock_name} 最終投資建議 - 綜合9位分析師意見，整體趨勢{overall_trend}，投資建議{recommendation}，信心度{summary.get('confidence_score', 0.5):.0%}，建議配置比例{'20-30%' if recommendation == '買入' else '5-10%' if recommendation == '觀望' else '0-5%'}，持有週期{'長期' if recommendation == '買入' else '短期' if recommendation == '賣出' else '中期'}"
                 confidence = 0.95
+                
+        elif analyst_name == "market_sentiment_analyst":
+            fear_greed = 45 + (sentiment.get("sentiment_score", 0) * 30) if sentiment else 50
+            social_mentions = sentiment.get("social_mentions", 1500) if sentiment else 1500
+            
+            if user_tier == "free":
+                analysis = f"【免費預覽】市場情緒分析師：{stock_name} 恐慌貪婪指數 {fear_greed:.0f}... [升級查看完整情緒週期、投資者行為分析]"
+                confidence = 0.5
+            elif user_tier == "gold":
+                analysis = f"【黃金會員】市場情緒分析師：{stock_name} 恐慌貪婪指數 {fear_greed:.0f}，社交討論熱度 {social_mentions} 次，市場情緒{'過度樂觀' if fear_greed > 70 else '過度悲觀' if fear_greed < 30 else '相對均衡'}"
+                confidence = 0.75
+            else:
+                analysis = f"【鑽石會員】市場情緒分析師：{stock_name} 深度情緒分析 - 恐慌貪婪指數 {fear_greed:.0f}{'(極度貪婪)' if fear_greed > 80 else '(過度貪婪)' if fear_greed > 70 else '(極度恐慌)' if fear_greed < 20 else '(過度恐慌)' if fear_greed < 30 else '(中性)'}，投資者行為趨向{'追高' if fear_greed > 70 else '恐慌賣出' if fear_greed < 30 else '理性配置'}，建議{'逆向思考' if fear_greed > 75 or fear_greed < 25 else '順勢而為'}"
+                confidence = 0.9
+                
+        elif analyst_name == "quantitative_analyst":
+            import random
+            sharpe_ratio = round(random.uniform(0.5, 2.0), 2)
+            beta = round(random.uniform(0.8, 1.5), 2)
+            alpha = round(random.uniform(-0.1, 0.2), 3)
+            
+            if user_tier == "free":
+                analysis = f"【免費預覽】量化分析師：{stock_name} Sharpe比率 {sharpe_ratio}... [升級查看Alpha、Beta、VaR等完整量化指標]"
+                confidence = 0.5
+            elif user_tier == "gold":
+                analysis = f"【黃金會員】量化分析師：{stock_name} Sharpe比率 {sharpe_ratio}，Beta係數 {beta}，風險調整報酬{'優異' if sharpe_ratio > 1.5 else '良好' if sharpe_ratio > 1.0 else '一般'}"
+                confidence = 0.8
+            else:
+                analysis = f"【鑽石會員】量化分析師：{stock_name} 量化模型評估 - Sharpe比率 {sharpe_ratio}{'(優秀)' if sharpe_ratio > 1.5 else '(良好)' if sharpe_ratio > 1.0 else '(需改善)'}，Alpha值 {alpha}{'(創造超額報酬)' if alpha > 0.05 else '(表現平平)' if alpha > -0.03 else '(表現不佳)'}，Beta {beta}{'(高風險高報酬)' if beta > 1.2 else '(防禦性)' if beta < 0.8 else '(市場同步)'}，建議倉位{'15-25%' if sharpe_ratio > 1.5 else '8-15%' if sharpe_ratio > 1.0 else '3-8%'}"
+                confidence = 0.95
+                
+        elif analyst_name == "macro_economic_analyst":
+            import random
+            gdp_growth = round(random.uniform(1.5, 4.5), 1)
+            inflation_rate = round(random.uniform(2.0, 5.0), 1)
+            interest_rate = round(random.uniform(1.5, 4.0), 1)
+            
+            if user_tier == "free":
+                analysis = f"【免費預覽】總體經濟分析師：當前GDP成長 {gdp_growth}%... [升級查看通脹、利率、地緣政治等完整總經分析]"
+                confidence = 0.5
+            elif user_tier == "gold":
+                analysis = f"【黃金會員】總體經濟分析師：GDP成長 {gdp_growth}%，通脹率 {inflation_rate}%，基準利率 {interest_rate}%，總經環境{'有利' if gdp_growth > 3 and inflation_rate < 4 else '中性' if gdp_growth > 2 else '不利'}"
+                confidence = 0.75
+            else:
+                analysis = f"【鑽石會員】總體經濟分析師：{stock_name} 總經環境評估 - GDP成長 {gdp_growth}%{'(強勁)' if gdp_growth > 3.5 else '(溫和)' if gdp_growth > 2.5 else '(疲弱)'}，通脹壓力{'偏高' if inflation_rate > 4 else '適中' if inflation_rate > 2.5 else '偏低'}，央行政策{'緊縮' if interest_rate > 3.5 else '寬鬆' if interest_rate < 2.5 else '中性'}，對該股影響{'正面' if gdp_growth > 3 and inflation_rate < 4 else '負面' if gdp_growth < 2 or inflation_rate > 4.5 else '中性'}"
+                confidence = 0.85
         else:
             # 使用模擬數據作為後備
             if user_tier == "free":
@@ -250,13 +311,13 @@ async def create_stock_analysis(request: StockAnalysisRequest):
         if request.user_tier == "free":
             # 免費用戶：只能使用1位分析師
             selected_analysts = available_analysts[:1]
-            upgrade_msg = "🔮 升級至黃金會員，解鎖4位專業AI分析師！"
+            upgrade_msg = "🔮 升級至黃金會員，解鎖6位專業AI分析師！"
         elif request.user_tier == "gold":
-            # 黃金會員：可使用4位分析師
-            selected_analysts = available_analysts[:4]
-            upgrade_msg = "💎 升級至鑽石會員，解鎖全部6位頂級AI分析師！"
+            # 黃金會員：可使用6位分析師
+            selected_analysts = available_analysts[:6]
+            upgrade_msg = "💎 升級至鑽石會員，解鎖全部9位頂級AI分析師！"
         else:  # diamond
-            # 鑽石會員：全部6位分析師
+            # 鑽石會員：全部9位分析師
             selected_analysts = available_analysts
             upgrade_msg = None
         
@@ -274,15 +335,15 @@ async def create_stock_analysis(request: StockAnalysisRequest):
         confidence_score = analysis_summary.get("confidence_score", 0.5)
         
         if request.user_tier == "free":
-            final_recommendation = f"🔍 基於1位AI分析師分析，{stock_name}目前趨勢{overall_trend}... [升級會員解鎖完整6位分析師團隊建議]"
+            final_recommendation = f"🔍 基於1位AI分析師分析，{stock_name}目前趨勢{overall_trend}... [升級會員解鎖完整9位分析師團隊建議]"
             confidence = "中等"
         elif request.user_tier == "gold":
-            final_recommendation = f"📊 基於4位專業AI分析師協同分析，{stock_name}投資建議：{investment_rec}，整體趨勢{overall_trend}，建議{'積極配置' if investment_rec == '買入' else '適度配置' if investment_rec == '觀望' else '謹慎配置'}"
+            final_recommendation = f"📊 基於6位專業AI分析師協同分析，{stock_name}投資建議：{investment_rec}，整體趨勢{overall_trend}，建議{'積極配置' if investment_rec == '買入' else '適度配置' if investment_rec == '觀望' else '謹慎配置'}"
             confidence = "高"
         else:
             key_factors = analysis_summary.get("key_factors", [])
             factors_text = "、".join(key_factors[:3]) if key_factors else "多重技術指標"
-            final_recommendation = f"🏆 基於6位頂級AI分析師全面協同分析，{stock_name}最終投資建議：{investment_rec}，信心度{confidence_score:.0%}。關鍵因子包括{factors_text}，建議配置比例{'25-35%' if investment_rec == '買入' else '10-20%' if investment_rec == '觀望' else '0-10%'}，預期持有週期{'6-12個月' if investment_rec == '買入' else '1-3個月'}"
+            final_recommendation = f"🏆 基於9位頂級AI分析師全面協同分析，{stock_name}最終投資建議：{investment_rec}，信心度{confidence_score:.0%}。關鍵因子包括{factors_text}，建議配置比例{'25-35%' if investment_rec == '買入' else '10-20%' if investment_rec == '觀望' else '0-10%'}，預期持有週期{'6-12個月' if investment_rec == '買入' else '1-3個月'}"
             confidence = "極高"
         
         # 生成分析ID
