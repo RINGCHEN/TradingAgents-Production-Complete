@@ -15,6 +15,20 @@ from datetime import datetime
 
 # 嘗試導入finmind服務，如果失敗則使用模擬服務
 try:
+    # 設置FinMind API Token (如果沒有環境變量)
+    import os
+    if not os.getenv("FINMIND_API_TOKEN"):
+        # 讀取token文件
+        try:
+            token_file = os.path.join(os.path.dirname(__file__), "..", "..", "secure", "config", "secrets", "finmind-token.txt")
+            if os.path.exists(token_file):
+                with open(token_file, 'r') as f:
+                    token = f.read().strip()
+                    os.environ["FINMIND_API_TOKEN"] = token
+                    logger.info("FinMind API Token loaded from file")
+        except Exception as e:
+            logger.warning(f"Failed to load FinMind token: {e}")
+    
     from ..dataflows.finmind_realtime_adapter import finmind_service
 except ImportError:
     # 如果導入失敗，創建一個模擬的finmind_service
