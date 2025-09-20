@@ -21,6 +21,55 @@ except ImportError:
     class MockFinmindService:
         def get_stock_price(self, symbol):
             return {"price": 100.0, "change": 0.0}
+        
+        async def get_stock_analysis(self, symbol):
+            """提供完整的模擬股票分析數據以支援diamond/gold功能測試"""
+            return {
+                "symbol": symbol,
+                "name": "台積電" if "2330" in symbol else "測試股票",
+                "real_time_data": {
+                    "current_price": 580.0,
+                    "change": 5.0,
+                    "change_percent": 0.87,
+                    "volume": 25000000,
+                    "high": 585.0,
+                    "low": 575.0
+                },
+                "technical_indicators": {
+                    "rsi": 65.2,
+                    "macd": 1.8,
+                    "sma_20": 572.5,
+                    "sma_50": 568.0,
+                    "bollinger_upper": 590.0,
+                    "bollinger_lower": 555.0
+                },
+                "financial_metrics": {
+                    "pe_ratio": 18.5,
+                    "roe": 26.8,
+                    "roa": 15.2,
+                    "eps": 31.2,
+                    "revenue_growth": 12.3,
+                    "profit_margin": 42.5
+                },
+                "market_sentiment": {
+                    "fear_greed_index": 72,
+                    "social_mentions": 8940,
+                    "sentiment_score": 0.68,
+                    "analyst_ratings": {"buy": 12, "hold": 3, "sell": 1}
+                },
+                "macro_economic": {
+                    "gdp_growth": 3.2,
+                    "inflation_rate": 2.8,
+                    "interest_rate": 1.75,
+                    "usd_twd": 31.2
+                },
+                "analysis_summary": {
+                    "overall_trend": "偏多",
+                    "investment_recommendation": "買入",
+                    "confidence_score": 0.78,
+                    "key_factors": ["技術面突破", "基本面強勁", "政策利多"]
+                }
+            }
     finmind_service = MockFinmindService()
 
 # 配置日誌
