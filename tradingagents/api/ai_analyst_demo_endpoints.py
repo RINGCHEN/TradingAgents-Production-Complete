@@ -18,16 +18,32 @@ try:
     # 設置FinMind API Token (如果沒有環境變量)
     import os
     if not os.getenv("FINMIND_API_TOKEN"):
-        # 讀取token文件
-        try:
-            token_file = os.path.join(os.path.dirname(__file__), "..", "..", "secure", "config", "secrets", "finmind-token.txt")
-            if os.path.exists(token_file):
-                with open(token_file, 'r') as f:
-                    token = f.read().strip()
-                    os.environ["FINMIND_API_TOKEN"] = token
-                    logger.info("FinMind API Token loaded from file")
-        except Exception as e:
-            logger.warning(f"Failed to load FinMind token: {e}")
+        # 嘗試多個可能的token路徑
+        possible_paths = [
+            os.path.join(os.path.dirname(__file__), "..", "..", "secure", "config", "secrets", "finmind-token.txt"),
+            "/app/secure/config/secrets/finmind-token.txt",  # DigitalOcean容器路徑
+            "./secure/config/secrets/finmind-token.txt",  # 相對路徑
+        ]
+        
+        token_loaded = False
+        for token_file in possible_paths:
+            try:
+                if os.path.exists(token_file):
+                    with open(token_file, 'r') as f:
+                        token = f.read().strip()
+                        if token:  # 確保token不為空
+                            os.environ["FINMIND_API_TOKEN"] = token
+                            logger.info(f"FinMind API Token loaded from {token_file}")
+                            token_loaded = True
+                            break
+            except Exception as e:
+                logger.warning(f"Failed to load FinMind token from {token_file}: {e}")
+        
+        # 如果所有路徑都失敗，使用備用token
+        if not token_loaded:
+            backup_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJkYXRlIjoiMjAyNS0wNy0yMyAxMzo1ODoxNCIsInVzZXJfaWQiOiIwM21ha2Vtb25leSIsImlwIjoiMS4xNzIuMTc2Ljc2In0.nJYvzWw__k6uIiwFEQSrf6hdklR0oL0cvvj-l6b_q8Y"
+            os.environ["FINMIND_API_TOKEN"] = backup_token
+            logger.info("FinMind API Token loaded from backup")
     
     from ..dataflows.finmind_realtime_adapter import finmind_service
 except ImportError:
