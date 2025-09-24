@@ -188,25 +188,33 @@ async def lifespan(app: FastAPI):
         trading_graph = await create_trading_graph()
         
         # 初始化Redis緩存服務
-        try:
-            await redis_service.connect()
+        await redis_service.connect()  # 內部處理異常，不會拋出
+        
+        # GOOGLE診斷修復：根據實際連接狀態記錄正確日誌
+        if redis_service.is_connected:
             system_logger.info("✅ Redis緩存系統已就緒 - 性能提升97.5%", extra={
                 'startup_phase': 'redis_ready',
                 'component': 'cache_service',
-                'performance_boost': '97.5%'
+                'performance_boost': '97.5%',
+                'redis_status': 'connected'
             })
-        except Exception as redis_error:
-            system_logger.warning(f"⚠️ Redis連接失敗，將使用無緩存模式: {redis_error}", extra={
-                'startup_phase': 'redis_fallback',
+        else:
+            system_logger.warning("🚨 Redis connection failed. System is running in degraded NO-CACHE mode. Performance will be severely impacted.", extra={
+                'startup_phase': 'redis_degraded',
                 'component': 'cache_service',
-                'fallback_mode': True
+                'fallback_mode': True,
+                'redis_status': 'failed',
+                'performance_impact': 'severely_degraded'
             })
         
-        system_logger.info("🎊 不老傳說系統初始化完成 (含Redis緩存)", extra={
+        # GOOGLE診斷修復：根據Redis實際狀態顯示正確的系統狀態
+        cache_status = "含Redis緩存" if redis_service.is_connected else "無緩存模式 (性能降級)"
+        system_logger.info(f"🎊 不老傳說系統初始化完成 ({cache_status})", extra={
             'startup_phase': 'completed',
             'component': 'app_lifecycle',
             'system_ready': True,
-            'redis_enabled': redis_service.is_connected
+            'redis_enabled': redis_service.is_connected,
+            'cache_mode': 'redis' if redis_service.is_connected else 'no_cache_degraded'
         })
     except Exception as e:
         error_info = await handle_error(e, {
