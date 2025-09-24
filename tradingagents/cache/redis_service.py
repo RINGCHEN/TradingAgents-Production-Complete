@@ -38,12 +38,20 @@ class RedisService:
     async def connect(self):
         """Establish Redis connection pool with production settings"""
         try:
-            # 詳細記錄 Redis 連接配置（基於 GOOGLE 診斷建議）
+            # GOOGLE 清剿指令：詳細記錄 Redis 連接配置進行診斷
+            logger.info(f"🚨 GOOGLE 清剿指令：Redis 連接神經接駁診斷")
             logger.info(f"🔧 Redis 連接配置:")
             logger.info(f"  - Redis URL: {'已設置' if self.redis_url else '未設置'}")
+            if self.redis_url:
+                # GOOGLE 建議：直接打印 Redis URL 的值進行調試
+                logger.info(f"  - 實際 Redis URL 值: {self.redis_url[:50]}...")
             logger.info(f"  - Redis Host: {self.redis_host}")
             logger.info(f"  - Redis Port: {self.redis_port}")
             logger.info(f"  - Redis SSL: {self.redis_ssl}")
+            
+            # GOOGLE 診斷：檢查是否在雲端環境
+            is_cloud_env = bool(os.getenv('DATABASE_URL') or os.getenv('PORT'))
+            logger.info(f"  - 雲端環境檢測: {'是' if is_cloud_env else '否'}")
             
             if self.redis_url:
                 logger.info(f"📡 使用 Redis URL 連接: {self.redis_url[:50]}...")

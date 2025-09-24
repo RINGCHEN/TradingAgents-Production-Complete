@@ -76,25 +76,30 @@ def check_database_permissions(conn, app_user):
         return can_create and can_use
 
 def fix_database_permissions(conn, app_user):
-    """修復數據庫權限 - 基於 GOOGLE 最終診斷的徹底解決方案"""
+    """修復數據庫權限 - 基於 GOOGLE 最新清剿指令的徹底解決方案"""
     logger.info(f"🔧 修復用戶 '{app_user}' 的數據庫權限...")
-    logger.info("🏥 執行 GOOGLE 建議的根治性修復：ALTER SCHEMA public OWNER")
+    logger.info("🚨 執行 GOOGLE 最新清剿指令：徹底消滅數據庫權限頑抗")
     
     with conn.cursor() as cur:
         try:
-            # GOOGLE 診斷建議：最徹底的解決方案 - 將 schema 所有權轉移
-            logger.info("🏥 GOOGLE 診斷建議：將 public schema 的所有權赋予應用用戶")
+            # GOOGLE 最新清剿指令：確保 USAGE 和 CREATE 權限
+            logger.info("🏥 GOOGLE 清剿指令：授予完整的 schema 使用權和創建權")
             permission_commands = [
+                # GOOGLE 指定：授予 schema 的使用權和創建權
+                f"GRANT USAGE, CREATE ON SCHEMA public TO {app_user}",
+                # 確保對未來創建的所有對象都有權限
+                f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO {app_user}",
+                f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO {app_user}",
+                f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO {app_user}",
+                # (可選但建議) 將 schema 的所有權直接赋予應用用戶
                 f"ALTER SCHEMA public OWNER TO {app_user}",
+                # 額外的保障權限
                 f"GRANT ALL ON SCHEMA public TO {app_user}",
                 f"GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO {app_user}",
                 f"GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO {app_user}",
                 f"GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO {app_user}",
                 f"GRANT ALL PRIVILEGES ON ALL TYPES IN SCHEMA public TO {app_user}",
-                f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO {app_user}",
-                f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO {app_user}",
-                f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO {app_user}",
-                f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO {app_user}"
+                f"ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO {app_user}"
             ]
             
             for cmd in permission_commands:
