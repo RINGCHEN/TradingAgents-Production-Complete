@@ -215,11 +215,23 @@ class FinMindAPI:
         if self.api_token:
             params['token'] = self.api_token
         
+        # 基於 GOOGLE 診斷建議：詳細記錄請求信息，幫助診斷 422 錯誤
+        request_url = f"{self.base_url}/data"
+        logger.info(f"🌐 FinMind API 請求詳細信息:")
+        logger.info(f"  - URL: {request_url}")
+        logger.info(f"  - 參數: {params}")
+        logger.info(f"  - 數據集: {params.get('dataset')}")
+        logger.info(f"  - 股票代碼: {params.get('data_id')}")
+        logger.info(f"  - 起始日期: {params.get('start_date')}")
+        logger.info(f"  - 結束日期: {params.get('end_date', 'None')}")
+        logger.info(f"  - 是否有Token: {'是' if self.api_token else '否'}")
+        
         # 執行請求（帶重試）
         for attempt in range(self.max_retries):
             try:
                 async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=self.timeout)) as session:
-                    async with session.get(f"{self.base_url}/data", params=params) as response:
+                    logger.info(f"📤 發送 FinMind API 請求 (嘗試 {attempt + 1}/{self.max_retries})...")
+                    async with session.get(request_url, params=params) as response:
                         response_data = await response.json()
                         
                         # 更新統計
@@ -239,6 +251,20 @@ class FinMindAPI:
                         else:
                             error_msg = response_data.get('msg', f'HTTP {response.status}')
                             
+                            # 基於 GOOGLE 診斷建議：詳細記錄錯誤響應，特別是 422 錯誤
+                            logger.error(f"❌ FinMind API 錯誤響應:")
+                            logger.error(f"  - HTTP 狀態碼: {response.status}")
+                            logger.error(f"  - API 狀態碼: {response_data.get('status')}")
+                            logger.error(f"  - 錯誤消息: {error_msg}")
+                            logger.error(f"  - 完整響應: {json.dumps(response_data, ensure_ascii=False, indent=2)}")
+                            
+                            # 特別處理 422 錯誤（Unprocessable Entity）
+                            if response.status == 422:
+                                logger.error(f"🚨 HTTP 422 詳細診斷:")
+                                logger.error(f"  - 這通常表示請求格式正確但內容無法處理")
+                                logger.error(f"  - 可能的原因：股票代碼不存在、日期格式錯誤、缺少必需參數")
+                                logger.error(f"  - 建議檢查：股票代碼 '{params.get('data_id')}'、日期範圍 '{params.get('start_date')}-{params.get('end_date')}'")
+                            
                             # 檢查是否為權限錯誤
                             if 'permission' in error_msg.lower() or 'unauthorized' in error_msg.lower():
                                 raise FinMindPermissionError(f"權限不足: {error_msg}")
@@ -247,7 +273,7 @@ class FinMindAPI:
                             if 'quota' in error_msg.lower() or 'limit' in error_msg.lower():
                                 raise FinMindQuotaError(f"配額不足: {error_msg}")
                             
-                            raise FinMindAPIError(f"API 錯誤: {error_msg}")
+                            raise FinMindAPIError(f"API 錯誤: HTTP {response.status} - {error_msg}")
                 
             except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                 logger.warning(f"FinMind API 請求失敗，嘗試 {attempt + 1}/{self.max_retries}: {e}")

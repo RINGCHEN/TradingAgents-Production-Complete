@@ -38,7 +38,15 @@ class RedisService:
     async def connect(self):
         """Establish Redis connection pool with production settings"""
         try:
+            # 詳細記錄 Redis 連接配置（基於 GOOGLE 診斷建議）
+            logger.info(f"🔧 Redis 連接配置:")
+            logger.info(f"  - Redis URL: {'已設置' if self.redis_url else '未設置'}")
+            logger.info(f"  - Redis Host: {self.redis_host}")
+            logger.info(f"  - Redis Port: {self.redis_port}")
+            logger.info(f"  - Redis SSL: {self.redis_ssl}")
+            
             if self.redis_url:
+                logger.info(f"📡 使用 Redis URL 連接: {self.redis_url[:50]}...")
                 # Use full Redis URL (DigitalOcean format)
                 self.pool = redis.ConnectionPool.from_url(
                     self.redis_url,
@@ -52,6 +60,7 @@ class RedisService:
                     health_check_interval=30
                 )
             else:
+                logger.info(f"🔧 使用手動 Redis 配置")
                 # Manual configuration for development
                 pool_kwargs = {
                     'host': self.redis_host,
