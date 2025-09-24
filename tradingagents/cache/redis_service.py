@@ -53,18 +53,24 @@ class RedisService:
                 )
             else:
                 # Manual configuration for development
-                self.pool = redis.ConnectionPool(
-                    host=self.redis_host,
-                    port=self.redis_port,
-                    password=self.redis_password,
-                    db=self.redis_db,
-                    ssl=self.redis_ssl,
-                    decode_responses=True,
-                    max_connections=20,
-                    retry_on_timeout=True,
-                    socket_connect_timeout=5,
-                    socket_timeout=5
-                )
+                pool_kwargs = {
+                    'host': self.redis_host,
+                    'port': self.redis_port,
+                    'password': self.redis_password,
+                    'db': self.redis_db,
+                    'decode_responses': True,
+                    'max_connections': 20,
+                    'retry_on_timeout': True,
+                    'socket_connect_timeout': 5,
+                    'socket_timeout': 5
+                }
+                
+                # Add SSL configuration if enabled
+                if self.redis_ssl:
+                    pool_kwargs['ssl_cert_reqs'] = None
+                    pool_kwargs['ssl_check_hostname'] = False
+                
+                self.pool = redis.ConnectionPool(**pool_kwargs)
             
             self.redis = redis.Redis(connection_pool=self.pool)
             

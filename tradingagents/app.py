@@ -829,7 +829,11 @@ async def http_exception_handler(request, exc: HTTPException):
         'exception_type': 'http_exception'
     })
     
-    return exc
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc: Exception):

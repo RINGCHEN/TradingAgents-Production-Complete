@@ -11,7 +11,7 @@ from datetime import datetime
 import logging
 import os
 
-from ..core.deps import get_current_user
+from ..auth.dependencies import get_current_user
 from ...analytics.behavior.behavior_tracker import BehaviorTracker
 
 logger = logging.getLogger(__name__)

@@ -11,7 +11,8 @@ import logging
 import asyncio
 import os
 
-from ..core.deps import get_current_user, require_admin
+from ..auth.dependencies import get_current_user
+# Note: require_admin function may need to be implemented or imported from appropriate module
 from ...analytics.warehouse import DataWarehouseManager
 from ...analytics.etl import ETLScheduler
 from ...analytics.quality import DataQualityMonitor

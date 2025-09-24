@@ -13,6 +13,7 @@
 """
 
 from jose import jwt
+from jose.exceptions import JWTError, ExpiredSignatureError, JWTClaimsError
 import bcrypt
 import secrets
 import uuid
@@ -283,12 +284,12 @@ class JWTManager:
                 )
             
             return payload
-        except jwt.ExpiredSignatureError:
+        except ExpiredSignatureError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="令牌已過期"
             )
-        except jwt.InvalidTokenError:
+        except (JWTError, JWTClaimsError):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="無效的令牌"
