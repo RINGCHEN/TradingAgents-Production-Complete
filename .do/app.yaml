@@ -13,27 +13,38 @@ services:
     routes:
       - path: /
     envs:
+      # ✅ 安全修正：所有敏感環境變數只在運行時提供
       - key: DATABASE_URL
-        scope: RUN_AND_BUILD_TIME
+        scope: RUN_TIME  # 修正：從 RUN_AND_BUILD_TIME 改為 RUN_TIME
         type: SECRET
       - key: PAYUNI_MERCHANT_ID
-        scope: RUN_AND_BUILD_TIME
+        scope: RUN_TIME  # 修正：只在運行時提供
         type: SECRET
       - key: PAYUNI_HASH_KEY
-        scope: RUN_AND_BUILD_TIME
+        scope: RUN_TIME  # 修正：加強安全性
         type: SECRET
       - key: PAYUNI_HASH_IV
-        scope: RUN_AND_BUILD_TIME
+        scope: RUN_TIME  # 修正：只在運行時可用
         type: SECRET
       - key: SECRET_KEY
-        scope: RUN_AND_BUILD_TIME
+        scope: RUN_TIME  # 修正：關鍵密鑰保護
         type: SECRET
       - key: JWT_SECRET
-        scope: RUN_AND_BUILD_TIME
+        scope: RUN_TIME  # 修正：JWT 密鑰保護
         type: SECRET
+      
+      # ✅ 非敏感配置保持原設定
       - key: ENVIRONMENT
         scope: RUN_AND_BUILD_TIME
         value: production
+      
+      # ✅ 新增：安全配置參數
+      - key: DB_SSL_MODE
+        scope: RUN_TIME
+        value: require
+      - key: SECURITY_AUDIT_ENABLED
+        scope: RUN_TIME
+        value: "true"
 
 databases:
   - name: tradingagents-db
