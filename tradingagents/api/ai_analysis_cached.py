@@ -114,14 +114,30 @@ async def get_cached_ai_analysis(request: CachedAnalysisRequest, http_request: R
         base_ttl = get_cache_ttl(request.user_tier)
         
         # Use comprehensive defense system (CODEX Critical Fix)
-        # Handle force_refresh by invalidating cache first, then providing fetch_function
+        # Handle force_refresh by invalidating ALL cache layers (Redis + Secondary)
         if request.force_refresh:
-            # Invalidate existing cache entry
+            # Use unified cache invalidation to clear both Redis and secondary cache
             try:
-                await redis_service.delete_cached_analysis(cache_key)
-                logger.info(f"🔄 Cache invalidated for force refresh: {cache_key}")
+                from ..cache.cache_defense_system import cache_defense
+                invalidation_results = await cache_defense.invalidate_cache_entry(cache_key)
+                
+                # Log detailed invalidation results for transparency
+                cleared_caches = []
+                if invalidation_results["redis_cleared"]: cleared_caches.append("Redis")
+                if invalidation_results["secondary_cleared"]: cleared_caches.append("Secondary")
+                
+                if cleared_caches:
+                    logger.info(f"🔄 Force refresh: {cache_key} cleared from {'+'.join(cleared_caches)}")
+                else:
+                    logger.info(f"🔄 Force refresh: {cache_key} not found in any cache (will fetch fresh)")
+                    
+                # If Redis is not available, warn but continue
+                if not invalidation_results["redis_available"]:
+                    logger.warning(f"⚠️ Redis not available - force refresh only cleared secondary cache")
+                    
             except Exception as e:
-                logger.warning(f"Cache invalidation failed: {e}")
+                logger.error(f"Cache invalidation error: {e}")
+                # Continue anyway - fetch_function will still provide fresh data
         
         defense_result = await redis_service.get_with_defense(
             cache_key=cache_key,

@@ -219,6 +219,17 @@ class InMemoryCache:
         del self.cache[lru_key]
         del self.access_times[lru_key]
     
+    def delete(self, key: str) -> bool:
+        """Delete specific cache entry"""
+        with self._lock:
+            if key in self.cache:
+                del self.cache[key]
+                if key in self.access_times:
+                    del self.access_times[key]
+                logger.debug(f"📱 In-memory cache DELETE: {key}")
+                return True
+            return False
+    
     def size(self) -> int:
         """Get current cache size"""
         return len(self.cache)
@@ -477,6 +488,39 @@ class CacheDefenseSystem:
             
             "timestamp": datetime.now().isoformat()
         }
+    
+    async def invalidate_cache_entry(self, cache_key: str) -> Dict[str, bool]:
+        """
+        Unified cache invalidation for force refresh - CODEX Critical Fix
+        Clears both Redis and secondary in-memory cache
+        """
+        results = {
+            "redis_cleared": False,
+            "secondary_cleared": False,
+            "redis_available": False
+        }
+        
+        # Clear secondary cache (always available)
+        results["secondary_cleared"] = self.secondary_cache.delete(cache_key)
+        
+        # Clear Redis cache if available
+        if self.redis_service and self.redis_service.is_connected:
+            results["redis_available"] = True
+            try:
+                results["redis_cleared"] = await self.redis_service.delete_cached_analysis(cache_key)
+            except Exception as e:
+                logger.warning(f"Redis cache clear failed: {e}")
+        
+        # Log the invalidation results
+        if results["redis_cleared"] or results["secondary_cleared"]:
+            cache_types = []
+            if results["redis_cleared"]: cache_types.append("Redis")
+            if results["secondary_cleared"]: cache_types.append("Secondary")
+            logger.info(f"🗑️ Force refresh cache invalidation: {cache_key} cleared from {'+'.join(cache_types)}")
+        else:
+            logger.info(f"🗑️ Force refresh cache invalidation: {cache_key} not found in any cache")
+            
+        return results
     
     def reset_metrics(self):
         """Reset defense metrics"""
