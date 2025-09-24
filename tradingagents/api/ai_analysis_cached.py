@@ -114,12 +114,12 @@ async def get_cached_ai_analysis(request: CachedAnalysisRequest, http_request: R
         base_ttl = get_cache_ttl(request.user_tier)
         
         # Use comprehensive defense system (CODEX Critical Fix)
-        # Handle force_refresh by invalidating ALL cache layers (Redis + Secondary)
+        # Handle force_refresh by invalidating ALL cache layers using the CORRECT defense_system instance
         if request.force_refresh:
-            # Use unified cache invalidation to clear both Redis and secondary cache
+            # CRITICAL FIX: Use redis_service.defense_system (the actual instance being used)
+            # NOT the global cache_defense instance
             try:
-                from ..cache.cache_defense_system import cache_defense
-                invalidation_results = await cache_defense.invalidate_cache_entry(cache_key)
+                invalidation_results = await redis_service.defense_system.invalidate_cache_entry(cache_key)
                 
                 # Log detailed invalidation results for transparency
                 cleared_caches = []
