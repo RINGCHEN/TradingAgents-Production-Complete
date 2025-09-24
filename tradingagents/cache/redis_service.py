@@ -13,6 +13,7 @@ import time
 from typing import Optional, Any, Dict
 from datetime import datetime
 import logging
+from .cache_defense_system import cache_defense, CacheDefenseSystem
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,9 @@ class RedisService:
         self.pool = None
         self.redis = None
         self.is_connected = False
+        
+        # Initialize cache defense system - GOOGLE's comprehensive security
+        self.defense_system = CacheDefenseSystem(redis_service=self)
         
     async def connect(self):
         """Establish Redis connection pool with production settings"""
@@ -209,6 +213,29 @@ class RedisService:
             self.is_connected = False
             return False
     
+    async def get_with_defense(self, cache_key: str, fetch_function=None, 
+                              user_tier: str = "free", user_ip: Optional[str] = None,
+                              base_ttl: int = 1800) -> Dict[str, Any]:
+        """
+        Get cached value with comprehensive defense mechanisms
+        GOOGLE Chief Risk Officer Security Implementation
+        """
+        return await self.defense_system.get_with_defense(
+            cache_key=cache_key,
+            fetch_function=fetch_function,
+            user_tier=user_tier,
+            user_ip=user_ip,
+            base_ttl=base_ttl
+        )
+    
+    def get_defense_metrics(self) -> Dict[str, Any]:
+        """Get comprehensive defense system metrics"""
+        return self.defense_system.get_defense_metrics()
+    
+    def reset_defense_metrics(self):
+        """Reset defense metrics for monitoring"""
+        self.defense_system.reset_metrics()
+
     async def close(self):
         """Close Redis connection pool"""
         if self.pool:

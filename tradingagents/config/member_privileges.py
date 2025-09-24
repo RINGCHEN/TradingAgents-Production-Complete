@@ -12,6 +12,7 @@ from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
 import logging
+from .security_validator import security_validator, ConfigurationSecurityValidator
 
 logger = logging.getLogger(__name__)
 
@@ -56,21 +57,41 @@ class MemberPrivilegeService:
         self.promotions = self._parse_promotions()
     
     def _load_config(self) -> Dict:
-        """載入配置文件，支援環境變數覆蓋"""
+        """載入配置文件，支援環境變數覆蓋 + GOOGLE安全驗證"""
         try:
             # 嘗試從文件載入
             if os.path.exists(self.config_file):
                 with open(self.config_file, 'r', encoding='utf-8') as f:
                     config = json.load(f)
-                logger.info(f"✅ 會員權益配置已從文件載入: {self.config_file}")
+                
+                # GOOGLE首席風險官建議：嚴格配置驗證
+                if not security_validator.validate_configuration(config):
+                    logger.error("❌ 配置安全驗證失敗，使用預設配置")
+                    return self._get_default_config()
+                
+                logger.info(f"✅ 會員權益配置已從文件載入並通過安全驗證: {self.config_file}")
                 return config
             else:
                 logger.warning(f"⚠️ 配置文件不存在，使用預設配置: {self.config_file}")
-                return self._get_default_config()
+                default_config = self._get_default_config()
+                
+                # 驗證預設配置也要通過安全檢查
+                if not security_validator.validate_configuration(default_config):
+                    logger.critical("❌ 預設配置安全驗證失敗！系統可能不穩定")
+                
+                return default_config
                 
         except Exception as e:
             logger.error(f"❌ 配置載入失敗，使用預設配置: {e}")
-            return self._get_default_config()
+            default_config = self._get_default_config()
+            
+            # 確保預設配置至少是安全的
+            try:
+                security_validator.validate_configuration(default_config)
+            except Exception as ve:
+                logger.critical(f"❌ 預設配置安全驗證失敗: {ve}")
+            
+            return default_config
     
     def _get_default_config(self) -> Dict:
         """預設會員權益配置 - 可由環境變數覆蓋"""

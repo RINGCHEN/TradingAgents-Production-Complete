@@ -245,3 +245,44 @@ async def cache_health_check():
             "redis_connected": False,
             "timestamp": datetime.now().isoformat()
         }
+
+@router.get("/api/v1/cache/defense-metrics")
+async def get_cache_defense_metrics():
+    """
+    Get comprehensive cache defense metrics
+    GOOGLE Chief Risk Officer Security Monitoring
+    """
+    try:
+        defense_metrics = redis_service.get_defense_metrics()
+        
+        return {
+            **defense_metrics,
+            "endpoint": "/api/v1/cache/defense-metrics",
+            "documentation": "Comprehensive cache defense system metrics for security monitoring"
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
+
+@router.post("/api/v1/cache/reset-defense-metrics")
+async def reset_defense_metrics():
+    """Reset cache defense metrics for monitoring cycles"""
+    try:
+        redis_service.reset_defense_metrics()
+        
+        return {
+            "status": "success",
+            "message": "Defense metrics reset successfully",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
