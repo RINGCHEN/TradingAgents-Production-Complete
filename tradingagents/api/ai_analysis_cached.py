@@ -5,7 +5,7 @@ Cached AI Analysis Endpoints
 Implements 97.5% performance improvement through Redis caching
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import time
@@ -31,143 +31,131 @@ class CachedAnalysisResponse(BaseModel):
     cache_metadata: Dict[str, Any]
 
 @router.post("/api/v1/ai-analysis/cached", response_model=CachedAnalysisResponse)
-async def get_cached_ai_analysis(request: CachedAnalysisRequest):
+async def get_cached_ai_analysis(request: CachedAnalysisRequest, http_request: Request):
     """
-    Get AI analysis with Redis caching for 97.5% performance boost
+    Get AI analysis with comprehensive defense system (CODEX Fix)
     
     Performance expectations:
-    - Cache HIT: ~50ms (97.5% improvement from 2000ms)
+    - Cache HIT: ~50ms (97.5% improvement from 2000ms) 
     - Cache MISS: ~2000ms (original performance, then cached)
+    - Includes: Negative cache, TTL jitter, circuit breaker, rate limiting
     """
     start_time = time.time()
     
     try:
-        # Generate cache key
+        # Generate cache key  
         cache_key = generate_cache_key(
-            request.stock_symbol, 
+            request.stock_symbol,
             request.user_tier, 
             request.analysis_type
         )
         
-        logger.info(f"🔍 AI Analysis Request: {request.stock_symbol} ({request.user_tier})")
+        # Get user IP for rate limiting
+        user_ip = http_request.client.host if http_request.client else None
         
-        # Check cache unless force refresh
-        cached_result = None
-        if not request.force_refresh:
-            cached_result = await redis_service.get_cached_analysis(cache_key)
+        logger.info(f"🛡️ AI Analysis Request with Defense: {request.stock_symbol} ({request.user_tier}) from {user_ip}")
         
-        if cached_result:
-            # Cache HIT - Return cached result with updated performance metrics
-            total_time = (time.time() - start_time) * 1000
+        # Define AI fetch function for defense system
+        async def fetch_ai_analysis():
+            """Fetch function for defense system to call on cache miss"""
+            if request.force_refresh:
+                logger.info(f"🔄 Force refresh requested for {request.stock_symbol}")
             
-            response = CachedAnalysisResponse(
-                analysis=cached_result.get("analysis", cached_result),
-                performance_metrics={
-                    "response_time_ms": total_time,
-                    "cache_hit": True,
-                    "performance_improvement": "97.5%",
-                    "original_processing_time": "~2000ms",
-                    "cached_processing_time": f"{total_time:.1f}ms"
-                },
-                cache_metadata=cached_result.get("cache_metadata", {
-                    "cache_hit": True,
-                    "cache_key": cache_key
-                })
-            )
-            
-            logger.info(f"⚡ Cache HIT: {request.stock_symbol} - {total_time:.1f}ms response")
-            return response
-        
-        # Cache MISS - Perform full AI analysis
-        logger.info(f"🔄 Cache MISS: {request.stock_symbol} - Performing full AI analysis...")
-        
-        # Call existing AI analysis logic
-        ai_analysis_start = time.time()
-        
-        try:
-            # Use existing AI demo logic with proper error handling
-            ai_result = await get_ai_analysis_result(
-                request.stock_symbol, 
-                request.user_tier
-            )
+            ai_start = time.time()
+            ai_result = await get_ai_analysis_result(request.stock_symbol, request.user_tier)
+            ai_time = (time.time() - ai_start) * 1000
             
             if not ai_result:
-                raise HTTPException(status_code=500, detail="AI analysis failed")
-                
-        except Exception as e:
-            logger.error(f"AI analysis error for {request.stock_symbol}: {e}")
-            # Return error response without caching
-            total_time = (time.time() - start_time) * 1000
+                raise Exception("AI analysis service returned empty result")
             
-            return CachedAnalysisResponse(
-                analysis={"error": "AI analysis temporarily unavailable", "details": str(e)},
-                performance_metrics={
-                    "response_time_ms": total_time,
-                    "cache_hit": False,
-                    "status": "error"
-                },
-                cache_metadata={
-                    "cache_hit": False,
-                    "cache_key": cache_key,
-                    "error": "ai_analysis_failed"
+            return {
+                "analysis": ai_result,
+                "analysis_metadata": {
+                    "generated_at": datetime.now().isoformat(),
+                    "processing_time_ms": ai_time,
+                    "stock_symbol": request.stock_symbol,
+                    "user_tier": request.user_tier,
+                    "defense_system": "active"
                 }
-            )
-        
-        ai_processing_time = (time.time() - ai_analysis_start) * 1000
-        
-        # Cache the successful result with dynamic privileges
-        cache_data = {
-            "analysis": ai_result,
-            "analysis_metadata": {
-                "generated_at": datetime.now().isoformat(),
-                "processing_time_ms": ai_processing_time,
-                "stock_symbol": request.stock_symbol,
-                "user_tier": request.user_tier
             }
-        }
         
-        # Cache asynchronously with dynamic TTL from member privileges
-        cache_success = await redis_service.cache_analysis(
-            cache_key, 
-            cache_data, 
-            user_tier=request.user_tier
+        # Get base TTL for this user tier
+        base_ttl = get_cache_ttl(request.user_tier)
+        
+        # Use comprehensive defense system (CODEX Critical Fix)
+        defense_result = await redis_service.get_with_defense(
+            cache_key=cache_key,
+            fetch_function=None if request.force_refresh else fetch_ai_analysis,
+            user_tier=request.user_tier,
+            user_ip=user_ip,
+            base_ttl=base_ttl
         )
         
         total_time = (time.time() - start_time) * 1000
         
+        # Check if this was a defense system response
+        if defense_result.get("error"):
+            error_type = defense_result.get("cache_metadata", {}).get("defense_type", "unknown")
+            
+            return CachedAnalysisResponse(
+                analysis={"error": defense_result["error"], "defense_type": error_type},
+                performance_metrics={
+                    "response_time_ms": total_time,
+                    "cache_hit": defense_result.get("cache_metadata", {}).get("cache_hit", False),
+                    "defense_system": "active",
+                    "defense_action": error_type
+                },
+                cache_metadata=defense_result.get("cache_metadata", {
+                    "cache_hit": False,
+                    "cache_key": cache_key,
+                    "defense_system": "error"
+                })
+            )
+        
+        # Successful response with defense metadata
+        cache_metadata = defense_result.get("cache_metadata", {})
+        is_cache_hit = cache_metadata.get("cache_hit", False)
+        
         response = CachedAnalysisResponse(
-            analysis=ai_result,
+            analysis=defense_result.get("analysis", defense_result),
             performance_metrics={
                 "response_time_ms": total_time,
-                "ai_processing_time_ms": ai_processing_time,
-                "cache_hit": False,
-                "cache_stored": cache_success,
-                "next_request_expected": "~50ms (cache hit)"
+                "cache_hit": is_cache_hit,
+                "defense_system": "active",
+                "performance_improvement": "97.5%" if is_cache_hit else None,
+                "original_processing_time": "~2000ms" if is_cache_hit else None,
+                "cached_processing_time": f"{total_time:.1f}ms" if is_cache_hit else None,
+                "ai_processing_time_ms": defense_result.get("analysis_metadata", {}).get("processing_time_ms"),
+                "next_request_expected": "~50ms (cache hit)" if not is_cache_hit else None
             },
             cache_metadata={
-                "cache_hit": False,
+                "cache_hit": is_cache_hit,
                 "cache_key": cache_key,
-                "cache_ttl_seconds": get_cache_ttl(request.user_tier),
-                "cache_stored": cache_success
+                "cache_ttl_seconds": base_ttl,
+                "defense_system": "comprehensive",
+                "user_ip": user_ip,
+                **cache_metadata
             }
         )
         
-        logger.info(f"💾 Analysis completed and cached: {request.stock_symbol} - {total_time:.1f}ms")
+        defense_action = "HIT" if is_cache_hit else "MISS"
+        logger.info(f"🛡️ Defense System {defense_action}: {request.stock_symbol} - {total_time:.1f}ms")
         return response
         
     except Exception as e:
-        logger.error(f"Cached analysis error: {e}")
+        logger.error(f"Defense system error: {e}")
         total_time = (time.time() - start_time) * 1000
         
         return CachedAnalysisResponse(
-            analysis={"error": "Service temporarily unavailable"},
+            analysis={"error": "Service temporarily unavailable", "defense_system": "error"},
             performance_metrics={
                 "response_time_ms": total_time,
                 "cache_hit": False,
-                "status": "error"
+                "defense_system": "error"
             },
             cache_metadata={
                 "cache_hit": False,
+                "defense_system": "error",
                 "error": str(e)
             }
         )

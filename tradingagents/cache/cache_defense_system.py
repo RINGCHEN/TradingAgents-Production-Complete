@@ -23,6 +23,7 @@ from enum import Enum
 import logging
 from collections import defaultdict
 import threading
+import inspect
 
 logger = logging.getLogger(__name__)
 
@@ -78,8 +79,8 @@ class CircuitBreaker:
         self.state = CircuitBreakerState.CLOSED
         self._lock = threading.Lock()
     
-    def call(self, func, *args, **kwargs):
-        """Execute function with circuit breaker protection"""
+    async def call(self, func, *args, **kwargs):
+        """Execute function with circuit breaker protection - CODEX Async Fix"""
         
         with self._lock:
             if self.state == CircuitBreakerState.OPEN:
@@ -93,7 +94,11 @@ class CircuitBreaker:
                     raise Exception("Circuit breaker is OPEN")
             
         try:
-            result = func(*args, **kwargs)
+            # CODEX Critical Fix: Proper async handling
+            if inspect.iscoroutinefunction(func):
+                result = await func(*args, **kwargs)
+            else:
+                result = func(*args, **kwargs)
             
             # Success - reset if we were in half-open
             if self.state == CircuitBreakerState.HALF_OPEN:
@@ -113,6 +118,7 @@ class CircuitBreaker:
                     self.state = CircuitBreakerState.OPEN
                     logger.error(f"🚨 Circuit breaker OPENED after {self.failure_count} failures")
                 
+            logger.warning(f"⚡ Circuit breaker recorded failure: {str(e)}")
             raise e
     
     def get_state(self) -> Dict[str, Any]:

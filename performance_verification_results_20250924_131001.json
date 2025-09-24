@@ -1,0 +1,133 @@
+{
+  "timestamp": "2025-09-24T13:09:50.170860",
+  "base_url": "https://twshocks-app-79rsx.ondigitalocean.app",
+  "tests": {
+    "redis_performance": {
+      "test_name": "Redis Cache Performance",
+      "status": "pending",
+      "cache_miss_times": [],
+      "cache_hit_times": [],
+      "performance_improvement": 0,
+      "meets_97_5_percent_claim": false
+    },
+    "system_health": {
+      "test_name": "System Health Check",
+      "status": "completed",
+      "components": {
+        "Main API": {
+          "status": "healthy",
+          "response_time_ms": 667.5,
+          "data": {
+            "status": "healthy",
+            "timestamp": "2025-09-24T05:09:56.572368",
+            "services": {
+              "trading_graph": true,
+              "active_sessions": 0,
+              "error_handler": true,
+              "logging_system": true
+            },
+            "system_health": {
+              "status": "healthy",
+              "health_score": 100,
+              "recent_errors_1h": 0,
+              "critical_errors_1h": 0,
+              "high_errors_1h": 0,
+              "timestamp": "2025-09-24T05:09:56.572358"
+            },
+            "uptime_seconds": 0.0
+          }
+        },
+        "Redis Cache": {
+          "status": "unhealthy",
+          "http_status": 404,
+          "response_time_ms": 228.5
+        },
+        "PayUni Payment": {
+          "status": "healthy",
+          "response_time_ms": 250.1,
+          "data": {
+            "service": "payuni",
+            "status": "healthy",
+            "timestamp": "2025-09-24T05:09:57.020487",
+            "version": "1.0.0",
+            "merchant_id": "U03823060",
+            "is_sandbox": false,
+            "features": [
+              "payment_creation",
+              "webhook_handling",
+              "payment_query",
+              "return_page",
+              "refund_processing",
+              "refund_query",
+              "refund_webhook"
+            ]
+          }
+        },
+        "Database Connection": {
+          "status": "unhealthy",
+          "http_status": 404,
+          "response_time_ms": 231.1
+        }
+      },
+      "healthy_components": 2,
+      "total_components": 4,
+      "health_percentage": 50.0
+    },
+    "member_privileges": {
+      "test_name": "Member Privilege Configuration",
+      "status": "completed",
+      "tier_tests": {
+        "free": {
+          "status": "failed",
+          "http_status": 404,
+          "api_accessible": false
+        },
+        "gold": {
+          "status": "failed",
+          "http_status": 404,
+          "api_accessible": false
+        },
+        "diamond": {
+          "status": "failed",
+          "http_status": 404,
+          "api_accessible": false
+        }
+      }
+    },
+    "api_endpoints": {
+      "test_name": "API Endpoints Verification",
+      "status": "completed",
+      "endpoints": {
+        "/api/v1/cache/stats": {
+          "method": "GET",
+          "status_code": 404,
+          "response_time_ms": 227.3,
+          "accessible": true
+        },
+        "/api/v1/ai-demo/health": {
+          "method": "GET",
+          "status_code": 200,
+          "response_time_ms": 212.0,
+          "accessible": true
+        },
+        "/api/v1/ai-demo/analysts": {
+          "method": "GET",
+          "status_code": 200,
+          "response_time_ms": 224.5,
+          "accessible": true
+        },
+        "/api/v1/payuni/payment-page/test": {
+          "method": "GET",
+          "status_code": 200,
+          "response_time_ms": 240.6,
+          "accessible": true
+        }
+      }
+    }
+  },
+  "overall_status": "partial",
+  "performance_metrics": {},
+  "successful_tests": 3,
+  "total_tests": 4,
+  "success_percentage": 75.0
+}
