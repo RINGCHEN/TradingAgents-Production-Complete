@@ -13,11 +13,41 @@ import logging
 from datetime import datetime
 
 from ..cache.redis_service import redis_service, generate_cache_key, get_cache_ttl
-from .ai_demo import get_ai_analysis_result  # Import existing AI logic
+from .ai_analyst_demo_endpoints import generate_enhanced_analysis  # Import existing AI logic
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# Wrapper function for compatibility with cached analysis system
+async def get_ai_analysis_result(stock_symbol: str, user_tier: str = "free") -> Dict[str, Any]:
+    """Wrapper function to provide cached analysis compatible interface"""
+    try:
+        # Use the main analysis function from ai_analyst_demo_endpoints
+        result = await generate_enhanced_analysis(
+            analyst_name="technical_analyst",
+            stock_symbol=stock_symbol, 
+            user_tier=user_tier,
+            market_data=None
+        )
+        
+        # Convert AnalystInsight to dict format expected by cached system
+        return {
+            "analyst": result.analyst,
+            "analysis": result.analysis,
+            "confidence": result.confidence,
+            "timestamp": result.timestamp,
+            "stock_symbol": stock_symbol,
+            "user_tier": user_tier
+        }
+    except Exception as e:
+        logger.error(f"AI analysis failed: {e}")
+        return {
+            "error": f"AI analysis failed: {str(e)}",
+            "stock_symbol": stock_symbol,
+            "user_tier": user_tier,
+            "timestamp": datetime.now().isoformat()
+        }
 
 class CachedAnalysisRequest(BaseModel):
     stock_symbol: str
@@ -83,9 +113,18 @@ async def get_cached_ai_analysis(request: CachedAnalysisRequest, http_request: R
         base_ttl = get_cache_ttl(request.user_tier)
         
         # Use comprehensive defense system (CODEX Critical Fix)
+        # Handle force_refresh by invalidating cache first, then providing fetch_function
+        if request.force_refresh:
+            # Invalidate existing cache entry
+            try:
+                await redis_service.delete_cached_analysis(cache_key)
+                logger.info(f"🔄 Cache invalidated for force refresh: {cache_key}")
+            except Exception as e:
+                logger.warning(f"Cache invalidation failed: {e}")
+        
         defense_result = await redis_service.get_with_defense(
             cache_key=cache_key,
-            fetch_function=None if request.force_refresh else fetch_ai_analysis,
+            fetch_function=fetch_ai_analysis,  # Always provide fetch_function
             user_tier=request.user_tier,
             user_ip=user_ip,
             base_ttl=base_ttl

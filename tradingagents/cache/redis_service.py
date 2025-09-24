@@ -151,6 +151,21 @@ class RedisService:
             logger.error(f"Redis set error for {cache_key}: {e}")
             return False
     
+    async def delete_cached_analysis(self, cache_key: str) -> bool:
+        """Delete specific cached analysis entry"""
+        if not self.is_connected:
+            return False
+            
+        try:
+            deleted = await self.redis.delete(cache_key)
+            if deleted:
+                logger.info(f"🗑️ Cache DELETE: {cache_key}")
+            return deleted > 0
+            
+        except Exception as e:
+            logger.error(f"Redis delete error for key {cache_key}: {e}")
+            return False
+    
     async def invalidate_cache(self, pattern: str) -> int:
         """Invalidate cache keys matching pattern"""
         if not self.is_connected:

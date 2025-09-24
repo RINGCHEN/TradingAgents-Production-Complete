@@ -24,6 +24,7 @@ import logging
 from collections import defaultdict
 import threading
 import inspect
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -94,18 +95,22 @@ class CircuitBreaker:
                     raise Exception("Circuit breaker is OPEN")
             
         try:
-            # CODEX Critical Fix: Proper async handling
-            if inspect.iscoroutinefunction(func):
+            # CODEX Critical Fix: Enhanced async handling with dual detection
+            # First check if function is a coroutine function
+            if asyncio.iscoroutinefunction(func) or inspect.iscoroutinefunction(func):
                 result = await func(*args, **kwargs)
             else:
+                # Call the function and check if result is a coroutine
                 result = func(*args, **kwargs)
+                if asyncio.iscoroutine(result):
+                    result = await result
             
             # Success - reset if we were in half-open
             if self.state == CircuitBreakerState.HALF_OPEN:
                 with self._lock:
                     self.state = CircuitBreakerState.CLOSED
                     self.failure_count = 0
-                    logger.info("✅ Circuit breaker CLOSED - service recovered")
+                    logger.info("[OK] Circuit breaker CLOSED - service recovered")
             
             return result
             
