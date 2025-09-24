@@ -33,12 +33,13 @@ async def get_ai_analysis_result(stock_symbol: str, user_tier: str = "free") -> 
         
         # Convert AnalystInsight to dict format expected by cached system
         return {
-            "analyst": result.analyst,
+            "analyst": result.analyst_name,
             "analysis": result.analysis,
             "confidence": result.confidence,
-            "timestamp": result.timestamp,
+            "timestamp": result.timestamp.isoformat() if hasattr(result.timestamp, 'isoformat') else str(result.timestamp),
             "stock_symbol": stock_symbol,
-            "user_tier": user_tier
+            "user_tier": user_tier,
+            "analyst_type": result.analyst_type
         }
     except Exception as e:
         logger.error(f"AI analysis failed: {e}")
