@@ -1,0 +1,114 @@
+{
+  "version": "1.0",
+  "last_updated": "2025-09-24T10:00:00Z",
+  "description": "會員權益配置中心 - 支援動態業務策略調整",
+  
+  "tiers": {
+    "FREE": {
+      "cache_ttl_seconds": 3600,
+      "api_quota_daily": 100,
+      "api_quota_hourly": 20,
+      "export_formats": ["csv"],
+      "export_size_limit_mb": 10,
+      "ai_analysts_count": 1,
+      "realtime_alerts": false,
+      "priority_support": false,
+      "custom_dashboards": false,
+      "historical_data_months": 1
+    },
+    "GOLD": {
+      "cache_ttl_seconds": 1800,
+      "api_quota_daily": 1000,
+      "api_quota_hourly": 200,
+      "export_formats": ["csv", "excel"],
+      "export_size_limit_mb": 100,
+      "ai_analysts_count": 6,
+      "realtime_alerts": true,
+      "priority_support": true,
+      "custom_dashboards": true,
+      "historical_data_months": 12
+    },
+    "DIAMOND": {
+      "cache_ttl_seconds": 900,
+      "api_quota_daily": -1,
+      "api_quota_hourly": -1,
+      "export_formats": ["csv", "excel", "pdf"],
+      "export_size_limit_mb": -1,
+      "ai_analysts_count": 9,
+      "realtime_alerts": true,
+      "priority_support": true,
+      "custom_dashboards": true,
+      "historical_data_months": 60
+    },
+    "PLATINUM": {
+      "cache_ttl_seconds": 300,
+      "api_quota_daily": -1,
+      "api_quota_hourly": -1,
+      "export_formats": ["csv", "excel", "pdf", "api"],
+      "export_size_limit_mb": -1,
+      "ai_analysts_count": 12,
+      "realtime_alerts": true,
+      "priority_support": true,
+      "custom_dashboards": true,
+      "historical_data_months": 120
+    }
+  },
+  
+  "promotions": [
+    {
+      "name": "welcome_boost",
+      "description": "新用戶首週享受金級會員緩存權益",
+      "target_tier": "FREE",
+      "start_date": "2025-09-24T00:00:00Z",
+      "end_date": "2025-12-31T23:59:59Z",
+      "override_privileges": {
+        "cache_ttl_seconds": 1800,
+        "ai_analysts_count": 3,
+        "api_quota_daily": 300
+      },
+      "active": true
+    },
+    {
+      "name": "weekend_speed_boost",
+      "description": "週末為免費用戶提供鑽石級緩存速度",
+      "target_tier": "FREE",
+      "start_date": "2025-09-27T00:00:00Z",
+      "end_date": "2025-09-28T23:59:59Z",
+      "override_privileges": {
+        "cache_ttl_seconds": 900
+      },
+      "active": true
+    },
+    {
+      "name": "gold_upgrade_trial",
+      "description": "黃金會員體驗鑽石級AI分析師",
+      "target_tier": "GOLD", 
+      "start_date": "2025-10-01T00:00:00Z",
+      "end_date": "2025-10-07T23:59:59Z",
+      "override_privileges": {
+        "ai_analysts_count": 9,
+        "cache_ttl_seconds": 900
+      },
+      "active": false
+    }
+  ],
+  
+  "feature_flags": {
+    "enable_promotion_rules": true,
+    "enable_dynamic_ttl": true,
+    "enable_tier_upgrade_notifications": true,
+    "enable_usage_analytics": true
+  },
+  
+  "business_rules": {
+    "cache_warmup_hours": [8, 9, 13, 14],
+    "peak_hours": [9, 10, 11, 13, 14, 15],
+    "maintenance_window": "02:00-04:00",
+    "max_concurrent_analyses": {
+      "FREE": 2,
+      "GOLD": 10,
+      "DIAMOND": 50,
+      "PLATINUM": -1
+    }
+  }
+}

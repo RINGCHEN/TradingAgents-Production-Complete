@@ -115,9 +115,7 @@ async def get_cached_ai_analysis(request: CachedAnalysisRequest):
         
         ai_processing_time = (time.time() - ai_analysis_start) * 1000
         
-        # Cache the successful result
-        cache_ttl = get_cache_ttl(request.user_tier)
-        
+        # Cache the successful result with dynamic privileges
         cache_data = {
             "analysis": ai_result,
             "analysis_metadata": {
@@ -128,8 +126,12 @@ async def get_cached_ai_analysis(request: CachedAnalysisRequest):
             }
         }
         
-        # Cache asynchronously (don't wait for cache to complete response)
-        cache_success = await redis_service.cache_analysis(cache_key, cache_data, cache_ttl)
+        # Cache asynchronously with dynamic TTL from member privileges
+        cache_success = await redis_service.cache_analysis(
+            cache_key, 
+            cache_data, 
+            user_tier=request.user_tier
+        )
         
         total_time = (time.time() - start_time) * 1000
         
@@ -145,7 +147,7 @@ async def get_cached_ai_analysis(request: CachedAnalysisRequest):
             cache_metadata={
                 "cache_hit": False,
                 "cache_key": cache_key,
-                "cache_ttl_seconds": cache_ttl,
+                "cache_ttl_seconds": get_cache_ttl(request.user_tier),
                 "cache_stored": cache_success
             }
         )

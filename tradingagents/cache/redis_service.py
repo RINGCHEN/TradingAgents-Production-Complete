@@ -109,20 +109,28 @@ class RedisService:
             logger.error(f"Redis get error for {cache_key}: {e}")
             return None
     
-    async def cache_analysis(self, cache_key: str, data: Dict, ttl: int = 1800):
-        """Cache analysis result with metadata"""
+    async def cache_analysis(self, cache_key: str, data: Dict, ttl: int = None, user_tier: str = None, user_id: Optional[str] = None):
+        """Cache analysis result with dynamic TTL from member privileges"""
         if not self.is_connected:
             return False
             
         try:
             start_time = time.time()
             
+            # 動態獲取TTL - GOOGLE戰略建議的核心實現
+            if ttl is None and user_tier:
+                ttl = get_cache_ttl(user_tier, user_id)
+            elif ttl is None:
+                ttl = 1800  # 預設30分鐘
+            
             # Add caching metadata
             cache_data = {
                 **data,
                 "cached_at": datetime.now().isoformat(),
                 "cache_ttl": ttl,
-                "cache_key": cache_key
+                "cache_key": cache_key,
+                "user_tier": user_tier,
+                "user_id": user_id
             }
             
             await self.redis.setex(
@@ -132,7 +140,7 @@ class RedisService:
             )
             
             cache_time = (time.time() - start_time) * 1000
-            logger.info(f"💾 Cache SET: {cache_key} (TTL={ttl}s, {cache_time:.1f}ms)")
+            logger.info(f"💾 Cache SET: {cache_key} (TTL={ttl}s, tier={user_tier}, {cache_time:.1f}ms)")
             return True
             
         except Exception as e:
@@ -217,14 +225,20 @@ def generate_cache_key(stock_symbol: str, user_tier: str, analysis_type: str = "
     
     return f"ai_analysis:{key_hash}"
 
-def get_cache_ttl(user_tier: str) -> int:
-    """Get cache TTL based on user tier"""
-    ttl_mapping = {
-        "diamond": 900,   # 15 minutes for premium users
-        "gold": 1800,     # 30 minutes for gold users  
-        "free": 3600      # 60 minutes for free users
-    }
-    return ttl_mapping.get(user_tier, 1800)
+def get_cache_ttl(user_tier: str, user_id: Optional[str] = None) -> int:
+    """Get cache TTL based on user tier - 動態從配置中心獲取"""
+    try:
+        from ..config.member_privileges import member_privilege_service
+        return member_privilege_service.get_cache_ttl(user_tier, user_id)
+    except Exception as e:
+        logger.warning(f"Failed to get dynamic TTL for {user_tier}, using fallback: {e}")
+        # 緊急降級機制
+        ttl_mapping = {
+            "diamond": 900,   # 15 minutes for premium users
+            "gold": 1800,     # 30 minutes for gold users  
+            "free": 3600      # 60 minutes for free users
+        }
+        return ttl_mapping.get(user_tier, 1800)
 
 # Global Redis service instance
 redis_service = RedisService()

@@ -1,0 +1,1 @@
+# Member Privileges Configuration Module
