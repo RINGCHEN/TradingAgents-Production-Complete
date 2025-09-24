@@ -32,7 +32,7 @@ class DataCategory(Enum):
     MARGIN_PURCHASE = "TaiwanStockMarginPurchaseShort"  # 融資融券
     SHAREHOLDING = "TaiwanStockShareholding"      # 股權分布
     DIVIDEND = "TaiwanStockDividend"              # 股利資訊
-    MARKET_INDEX = "TaiwanStockIndex"             # 大盤指數
+    MARKET_INDEX = "TaiwanStockPrice"             # 修復：基於GOOGLE診斷，使用正確的FinMind API參數
 
 class InstitutionalType(Enum):
     """法人類型"""

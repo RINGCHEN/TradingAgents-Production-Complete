@@ -26,7 +26,7 @@ class DataType(Enum):
     FINANCIAL_STATEMENT = "TaiwanStockFinancialStatements"
     BALANCE_SHEET = "TaiwanStockBalanceSheet"
     CASH_FLOW = "TaiwanStockCashFlowsStatement"
-    MARKET_INDEX = "TaiwanStockIndex"
+    MARKET_INDEX = "TaiwanStockPrice"  # 修復：基於GOOGLE診斷，FinMind API不支援TaiwanStockIndex
     INSTITUTIONAL_INVESTORS = "InstitutionalInvestors"
 
 class StatementType(Enum):

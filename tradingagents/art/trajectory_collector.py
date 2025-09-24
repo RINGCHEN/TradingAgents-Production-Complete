@@ -344,11 +344,16 @@ class TrajectoryCollector:
                  storage_path: str = None,
                  max_active_trajectories: int = 1000,
                  auto_save_interval: int = 300,
-                 enable_performance_monitoring: bool = True):
+                 enable_performance_monitoring: bool = True,
+                 agent_id: str = None,  # 修復：基於GOOGLE診斷，添加兼容性參數
+                 **kwargs):  # 修復：忽略其他未知參數
         
-        # 存儲配置
+        # 存儲配置  
         self.storage_path = Path(storage_path) if storage_path else Path("./art_data/trajectories")
         self.storage_path.mkdir(parents=True, exist_ok=True)
+        
+        # Agent 標識符（可選）
+        self.agent_id = agent_id  # 記錄用於軌跡追蹤
         
         # 軌跡管理
         self.active_trajectories: Dict[str, AnalysisTrajectory] = {}
