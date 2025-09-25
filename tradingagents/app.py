@@ -75,7 +75,7 @@ from .api.financial_endpoints import router as financial_router  # P2-2 財務�
 
 # 導入 Admin 管理路由器 - 暫時只導入測試路由器
 from .admin.routers.simple_auth_test import router as admin_auth_router
-# from .admin.routers.config_router import router as config_router
+from .admin.routers.config_router import router as config_router
 # from .admin.routers.basic_stats_router import router as basic_stats_router  
 # from .admin.routers.user_management import router as user_management_router
 # from .admin.routers.system_monitor import router as system_monitor_router
@@ -364,19 +364,20 @@ app.include_router(ai_analyst_demo_router)  # AI分析師展示中心 API (已�
 app.include_router(financial_router)  # P2-2 財務管理 API (已包含前綴)
 # app.include_router(revenue_dashboard_router)  # 營收分析儀表板 API - 暫時停用等待修復
 
-# 註冊 Admin 管理路由器 - 暫時只註冊測試路由器
+# 註冊 Admin 管理路由器 - 測試兩個路由器對比
 try:
-    app.include_router(admin_auth_router)  # 管理後台認證測試 (已包含 /admin/auth 前綴)
+    app.include_router(admin_auth_router, prefix="/admin/auth")  # 管理後台認證測試
     logger.info("Admin auth router registered successfully")
 except Exception as e:
     logger.error(f"Failed to register admin auth router: {e}")
+
+app.include_router(config_router, prefix="/admin")  # 測試對比用
 
 # 添加直接測試端點
 @app.get("/admin/auth/direct-test")
 async def direct_admin_auth_test():
     """直接在main app添加的測試端點"""
     return {"status": "working", "message": "Direct admin auth test endpoint"}
-# app.include_router(config_router, prefix="/admin")
 # app.include_router(basic_stats_router)
 # app.include_router(user_management_router, prefix="/admin")
 # app.include_router(system_monitor_router, prefix="/admin")

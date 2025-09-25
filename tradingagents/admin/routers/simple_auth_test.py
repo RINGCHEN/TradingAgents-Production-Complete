@@ -6,8 +6,8 @@ Simple admin authentication test router
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-# 創建簡單的測試路由器
-router = APIRouter(prefix="/admin/auth", tags=["admin-auth-test"])
+# 創建簡單的測試路由器 (不包含prefix，在註冊時添加)
+router = APIRouter(tags=["admin-auth-test"])
 
 class SimpleResponse(BaseModel):
     success: bool
