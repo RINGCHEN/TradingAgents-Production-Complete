@@ -73,15 +73,15 @@ from .api.financial_endpoints import router as financial_router  # P2-2 財務�
 # from .api.simple_portfolio import router as simple_portfolio_router  # 全新的投資組合API
 # from .api.enhanced_portfolio_endpoints import router as enhanced_portfolio_router  # 🏆 專業級投資組合API
 
-# 導入 Admin 管理路由器
+# 導入 Admin 管理路由器 - 暫時只導入測試路由器
 from .admin.routers.simple_auth_test import router as admin_auth_router
-from .admin.routers.config_router import router as config_router
-from .admin.routers.basic_stats_router import router as basic_stats_router
-from .admin.routers.user_management import router as user_management_router
-from .admin.routers.system_monitor import router as system_monitor_router
-from .admin.routers.service_coordinator import router as service_coordinator_router
-from .admin.routers.analyst_management import router as analyst_management_router
-from .admin.routers.content_management import router as content_management_router
+# from .admin.routers.config_router import router as config_router
+# from .admin.routers.basic_stats_router import router as basic_stats_router  
+# from .admin.routers.user_management import router as user_management_router
+# from .admin.routers.system_monitor import router as system_monitor_router
+# from .admin.routers.service_coordinator import router as service_coordinator_router
+# from .admin.routers.analyst_management import router as analyst_management_router
+# from .admin.routers.content_management import router as content_management_router
 # from .admin.routers.tts_management import router as tts_management_router
 # from .admin.routers.complete_admin_endpoints import admin_router as complete_admin_router
 
@@ -364,15 +364,15 @@ app.include_router(ai_analyst_demo_router)  # AI分析師展示中心 API (已�
 app.include_router(financial_router)  # P2-2 財務管理 API (已包含前綴)
 # app.include_router(revenue_dashboard_router)  # 營收分析儀表板 API - 暫時停用等待修復
 
-# 註冊 Admin 管理路由器
-app.include_router(admin_auth_router)  # 管理後台認證 (已包含 /admin/auth 前綴)
-app.include_router(config_router, prefix="/admin")
-app.include_router(basic_stats_router)
-app.include_router(user_management_router, prefix="/admin")
-app.include_router(system_monitor_router, prefix="/admin")
-app.include_router(service_coordinator_router, prefix="/admin")
-app.include_router(analyst_management_router, prefix="/admin")
-app.include_router(content_management_router, prefix="/admin")
+# 註冊 Admin 管理路由器 - 暫時只註冊測試路由器
+app.include_router(admin_auth_router)  # 管理後台認證測試 (已包含 /admin/auth 前綴)
+# app.include_router(config_router, prefix="/admin")
+# app.include_router(basic_stats_router)
+# app.include_router(user_management_router, prefix="/admin")
+# app.include_router(system_monitor_router, prefix="/admin")
+# app.include_router(service_coordinator_router, prefix="/admin")
+# app.include_router(analyst_management_router, prefix="/admin")
+# app.include_router(content_management_router, prefix="/admin")
 # app.include_router(tts_management_router)  # TTS管理路由器已包含 /admin/tts 前綴
 # app.include_router(complete_admin_router)  # 完整管理後台路由器已包含 /admin 前綴
 
