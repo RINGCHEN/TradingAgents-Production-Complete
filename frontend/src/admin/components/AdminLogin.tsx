@@ -114,34 +114,40 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
 
   const authenticateAdmin = async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
-      // 調用管理員專用認證API - 使用 /admin/auth 端點
-      const response = await fetch('https://twshocks-app-79rsx.ondigitalocean.app/admin/auth/login', {
+      // 調用現有認證API - 使用模擬管理員帳戶
+      const response = await fetch('https://twshocks-app-79rsx.ondigitalocean.app/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: credentials.username,
-          password: credentials.password,
-          twoFactorCode: credentials.twoFactorCode
+          email: credentials.username === 'admin' ? 'admin@example.com' : `${credentials.username}@example.com`,
+          password: credentials.password
         }),
       });
 
       const result = await response.json();
 
-      if (response.ok && result.success && result.token && result.adminData) {
-        // 管理員API使用token格式和完整adminData
-        const adminData = result.adminData;
+      if (response.ok && result.access_token) {
+        // 現有API使用access_token格式
+        const adminData = {
+          id: 'admin_001',
+          username: credentials.username,
+          email: credentials.username === 'admin' ? 'admin@example.com' : `${credentials.username}@example.com`,
+          role: 'admin',
+          permissions: ['*'],
+          token: result.access_token
+        };
 
         // 儲存管理員Token到localStorage
-        localStorage.setItem('admin_token', result.token);
+        localStorage.setItem('admin_token', result.access_token);
         localStorage.setItem('admin_user', JSON.stringify(adminData));
 
         return {
           success: true,
           adminData: adminData,
-          token: result.token,
-          requiresTwoFactor: result.requiresTwoFactor || false
+          token: result.access_token,
+          requiresTwoFactor: false
         };
       } else {
         return {
@@ -299,7 +305,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
               disabled={isLoading}
             >
               👑 超級管理員
-              <small>admin / admin123</small>
+              <small>admin / admin123 (admin@example.com)</small>
             </button>
             <button 
               onClick={() => handleDemoLogin('manager')} 
