@@ -74,7 +74,7 @@ from .api.financial_endpoints import router as financial_router  # P2-2 財務�
 # from .api.enhanced_portfolio_endpoints import router as enhanced_portfolio_router  # 🏆 專業級投資組合API
 
 # 導入 Admin 管理路由器
-from .admin.routers.auth_router import router as admin_auth_router
+from .admin.routers.simple_auth_test import router as admin_auth_router
 from .admin.routers.config_router import router as config_router
 from .admin.routers.basic_stats_router import router as basic_stats_router
 from .admin.routers.user_management import router as user_management_router
