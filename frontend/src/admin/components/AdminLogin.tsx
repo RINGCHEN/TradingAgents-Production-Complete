@@ -19,6 +19,13 @@ interface AdminData {
   token: string;
 }
 
+interface AuthResponse {
+  success: boolean;
+  adminData?: AdminData;
+  token?: string;
+  requiresTwoFactor?: boolean;
+}
+
 interface LoginCredentials {
   username: string;
   password: string;
@@ -67,7 +74,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
         return;
       }
 
-      if (response.success) {
+      if (response.success && response.adminData && response.token) {
         // 重置登入嘗試
         setLoginAttempts(0);
         setLockoutTime(null);
@@ -105,11 +112,49 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
     }
   };
 
-  const authenticateAdmin = async (credentials: LoginCredentials) => {
-    // 模擬API呼叫 - 實際環境應該調用真實的後端API
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  const authenticateAdmin = async (credentials: LoginCredentials): Promise<AuthResponse> => {
+    try {
+      // 調用管理員專用認證API - 使用 /admin/auth 端點
+      const response = await fetch('https://twshocks-app-79rsx.ondigitalocean.app/admin/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password,
+          twoFactorCode: credentials.twoFactorCode
+        }),
+      });
 
-    // 模擬管理員帳戶
+      const result = await response.json();
+
+      if (response.ok && result.success && result.token && result.adminData) {
+        // 管理員API使用token格式和完整adminData
+        const adminData = result.adminData;
+
+        // 儲存管理員Token到localStorage
+        localStorage.setItem('admin_token', result.token);
+        localStorage.setItem('admin_user', JSON.stringify(adminData));
+
+        return {
+          success: true,
+          adminData: adminData,
+          token: result.token,
+          requiresTwoFactor: result.requiresTwoFactor || false
+        };
+      } else {
+        return {
+          success: false,
+          requiresTwoFactor: false
+        };
+      }
+    } catch (error) {
+      console.error('Admin authentication error:', error);
+      return { success: false };
+    }
+
+    // 備用模擬管理員帳戶 (如果API失敗)
     const adminAccounts = [
       {
         username: 'admin',
@@ -181,7 +226,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
               value={credentials.username}
               onChange={(e) => setCredentials({...credentials, username: e.target.value})}
               placeholder="請輸入管理員用戶名"
-              disabled={isLoading || isLockedOut}
+              disabled={isLoading || Boolean(isLockedOut)}
               required
             />
           </div>
@@ -194,7 +239,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
               value={credentials.password}
               onChange={(e) => setCredentials({...credentials, password: e.target.value})}
               placeholder="請輸入密碼"
-              disabled={isLoading || isLockedOut}
+              disabled={isLoading || Boolean(isLockedOut)}
               required
             />
           </div>
@@ -224,7 +269,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
           <button
             type="submit"
             className="login-button"
-            disabled={isLoading || isLockedOut}
+            disabled={isLoading || Boolean(isLockedOut)}
           >
             {isLoading ? (
               <>
@@ -277,7 +322,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .admin-login-container {
           min-height: 100vh;
           display: flex;
