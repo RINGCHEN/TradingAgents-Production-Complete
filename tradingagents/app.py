@@ -378,6 +378,16 @@ app.include_router(config_router, prefix="/admin")  # 測試對比用
 async def direct_admin_auth_test():
     """直接在main app添加的測試端點"""
     return {"status": "working", "message": "Direct admin auth test endpoint"}
+
+@app.get("/test-admin-endpoint")
+async def test_admin_endpoint():
+    """簡單測試端點（不在admin路徑下）"""
+    return {"status": "working", "message": "Test endpoint working"}
+
+@app.get("/admin/test-endpoint")
+async def admin_test_endpoint():
+    """測試admin路徑下的簡單端點"""
+    return {"status": "working", "message": "Admin path test endpoint working"}
 # app.include_router(basic_stats_router)
 # app.include_router(user_management_router, prefix="/admin")
 # app.include_router(system_monitor_router, prefix="/admin")
