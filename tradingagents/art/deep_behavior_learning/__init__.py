@@ -20,9 +20,11 @@ from .deep_behavior_analyzer import (
 
 from .behavior_predictor import (
     BehaviorPredictor,
-    PredictionModel,
     BehaviorForecast,
-    ModelType
+    ModelType,
+    PredictionRequest,
+    PredictionType,
+    PredictionHorizon
 )
 
 from .adaptive_learning_engine import (
@@ -51,9 +53,11 @@ __all__ = [
     'BehaviorInsight',
     'BehaviorCluster',
     'BehaviorPredictor',
-    'PredictionModel',
     'BehaviorForecast',
     'ModelType',
+    'PredictionRequest',
+    'PredictionType',
+    'PredictionHorizon',
     'AdaptiveLearningEngine',
     'LearningStrategy',
     'AdaptationResult', 
