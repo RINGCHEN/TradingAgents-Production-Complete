@@ -365,7 +365,17 @@ app.include_router(financial_router)  # P2-2 財務管理 API (已包含前綴)
 # app.include_router(revenue_dashboard_router)  # 營收分析儀表板 API - 暫時停用等待修復
 
 # 註冊 Admin 管理路由器 - 暫時只註冊測試路由器
-app.include_router(admin_auth_router)  # 管理後台認證測試 (已包含 /admin/auth 前綴)
+try:
+    app.include_router(admin_auth_router)  # 管理後台認證測試 (已包含 /admin/auth 前綴)
+    logger.info("Admin auth router registered successfully")
+except Exception as e:
+    logger.error(f"Failed to register admin auth router: {e}")
+
+# 添加直接測試端點
+@app.get("/admin/auth/direct-test")
+async def direct_admin_auth_test():
+    """直接在main app添加的測試端點"""
+    return {"status": "working", "message": "Direct admin auth test endpoint"}
 # app.include_router(config_router, prefix="/admin")
 # app.include_router(basic_stats_router)
 # app.include_router(user_management_router, prefix="/admin")
