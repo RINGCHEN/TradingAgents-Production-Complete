@@ -200,6 +200,50 @@ export class RealAdminApiService {
     }
   }
 
+  /**
+   * 刷新訪問令牌
+   * 對應API: POST /api/auth/refresh
+   * Phase 1 Day 2新增 - Token自動刷新機制
+   */
+  async refreshAccessToken(): Promise<boolean> {
+    this.logApiCall('/api/auth/refresh', 'POST');
+
+    try {
+      const refresh_token = localStorage.getItem('refresh_token');
+      if (!refresh_token) {
+        console.warn('⚠️ 無法刷新token: refresh_token不存在');
+        return false;
+      }
+
+      const response = await this.apiClient.post('/api/auth/refresh', {
+        refresh_token
+      });
+
+      if (response.success && response.data && response.data.access_token) {
+        const { access_token, refresh_token: new_refresh_token } = response.data;
+
+        // 更新存儲的tokens
+        localStorage.setItem('admin_token', access_token);
+        if (new_refresh_token) {
+          localStorage.setItem('refresh_token', new_refresh_token);
+          console.log('✅ refresh_token已更新');
+        }
+
+        // 更新API客戶端的Authorization header
+        this.setAuthToken(access_token);
+
+        console.log('✅ Token刷新成功');
+        return true;
+      }
+
+      console.warn('⚠️ Token刷新失敗: API響應格式異常');
+      return false;
+    } catch (error) {
+      console.error('❌ Token刷新失敗:', error);
+      return false;
+    }
+  }
+
   // =================== 用戶管理API ===================
 
   /**

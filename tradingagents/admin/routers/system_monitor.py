@@ -27,6 +27,7 @@ from ..models.system_monitor import (
 )
 from ...database.database import get_db
 from ...auth.dependencies import get_current_user, require_admin_access
+from ...auth.permissions import ResourceType, Action
 from ...utils.user_context import UserContext
 from ...utils.logging_config import get_api_logger, get_security_logger
 from ...utils.error_handler import handle_error
@@ -741,7 +742,12 @@ async def get_monitoring_dashboard(
 # ==================== 健康檢查端點 ====================
 
 @router.get("/monitor/health", summary="監控服務健康檢查")
-async def monitor_service_health_check():
+async def monitor_service_health_check(
+    current_user: UserContext = Depends(require_admin_access(
+        resource=ResourceType.SYSTEM,
+        action=Action.READ
+    ))
+):
     """
     監控服務自身的健康檢查
     """

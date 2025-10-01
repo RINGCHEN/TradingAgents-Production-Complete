@@ -4,7 +4,7 @@
  * 完整的管理員認證系統 + 營利導向的客戶服務功能
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ToastProvider, useToast } from './components/common/SimpleToast';
 import { GlobalSearchBox } from './components/common/GlobalSearchBox';
 import RealTimeChart, { DataSeries } from './components/common/RealTimeChart';
@@ -16,6 +16,8 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import NetworkFallback from './components/common/NetworkFallback';
 import AdminLogin from './components/AdminLogin';
 import { realAdminApiService } from './services/RealAdminApiService';
+import { AdminAuthManager } from './services/AdminAuthManager';
+import { usePermission } from './hooks/usePermission'; // Phase 1 Day 2: CODEX-based RBAC
 import FinancialManagement from './components/financial/FinancialManagement';
 import './styles/admin-ultimate.css';
 
@@ -61,7 +63,71 @@ const AdminAppInternal: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
-  const { showSuccess, showInfo } = useToast();
+  const { showSuccess, showInfo, showError } = useToast();
+
+  // Phase 1 Day 2: 創建認證管理器實例
+  const [authManager] = useState(() => new AdminAuthManager(realAdminApiService));
+
+  // Phase 1 Day 2: CODEX-based RBAC 權限檢查系統
+  const { can, canRead, canWrite, role, isAdmin, isReadonly, isFinance } = usePermission();
+
+  /**
+   * Phase 1 Day 2: CODEX權限系統使用說明
+   *
+   * 權限模組對應 (CODEX矩陣):
+   * - 'system' → 系統監控 (admin: read/write, readonly: read, finance: -)
+   * - 'config' → 配置管理 (admin: read/write, readonly: -, finance: -)
+   * - 'analysts' → 分析師管理 (admin: read/write, readonly: read, finance: -)
+   * - 'users' → 用戶管理 (admin: read/write, readonly: -, finance: -)
+   * - 'financial' → 財務管理 (admin: read/write, readonly: -, finance: read/write)
+   *
+   * 使用範例:
+   * {canWrite('system') && <button>重啟服務</button>}
+   * {canRead('financial') && <FinancialDashboard />}
+   * {isAdmin && <AdminOnlyFeature />}
+   */
+
+  /**
+   * Phase 1 Day 2: API調用包裝器
+   * 自動處理401錯誤（Token過期）並重試
+   */
+  const handleApiCall = useCallback(async <T,>(
+    apiCall: () => Promise<T>
+  ): Promise<T | null> => {
+    try {
+      const response = await apiCall();
+
+      // 檢查是否是帶有error的響應格式
+      if (
+        response &&
+        typeof response === 'object' &&
+        'success' in response &&
+        !(response as any).success &&
+        'error' in response
+      ) {
+        const error = (response as any).error;
+
+        // 嘗試處理錯誤（401自動刷新，403顯示訊息）
+        const handled = await authManager.handleApiError(error);
+
+        if (handled) {
+          // Token已刷新，重試請求
+          console.log('✅ Token已刷新，重試API請求');
+          return await apiCall();
+        } else if (error.status === 403) {
+          // 403錯誤已顯示訊息，返回null
+          showError('權限不足', '您沒有權限執行此操作');
+          return null;
+        }
+      }
+
+      return response;
+    } catch (error) {
+      console.error('❌ API調用失敗:', error);
+      showError('操作失敗', '請稍後再試或聯繫管理員');
+      throw error;
+    }
+  }, [authManager, showError]);
 
   // 初始化檢查登入狀態
   useEffect(() => {
