@@ -12,7 +12,7 @@ import jwt
 import bcrypt
 from sqlalchemy.orm import Session
 
-from ...auth.dependencies import require_admin_access
+from ...auth.dependencies import require_admin_access, require_permission
 from ...auth.permissions import ResourceType, Action
 from ...utils.user_context import UserContext
 

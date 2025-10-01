@@ -26,7 +26,7 @@ from ..models.system_monitor import (
     MonitoringDashboard, AlertLevel, MetricType, SystemStatus
 )
 from ...database.database import get_db
-from ...auth.dependencies import get_current_user, require_admin_access
+from ...auth.dependencies import get_current_user, require_admin_access, require_permission
 from ...auth.permissions import ResourceType, Action
 from ...utils.user_context import UserContext
 from ...utils.logging_config import get_api_logger, get_security_logger
