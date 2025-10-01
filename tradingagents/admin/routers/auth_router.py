@@ -200,7 +200,7 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(secu
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
-    _: UserContext = Depends(require_admin_access(resource=ResourceType.SYSTEM, action=Action.READ)),
+    _: UserContext = Depends(require_permission(ResourceType.SYSTEM, Action.READ)),
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -218,7 +218,7 @@ async def get_current_user_info(
 
 @router.post("/logout")
 async def logout(
-    _: UserContext = Depends(require_admin_access(resource=ResourceType.SYSTEM, action=Action.WRITE)),
+    _: UserContext = Depends(require_permission(ResourceType.SYSTEM, Action.WRITE)),
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -230,7 +230,7 @@ async def logout(
 
 @router.get("/verify")
 async def verify_token_endpoint(
-    _: UserContext = Depends(require_admin_access(resource=ResourceType.SYSTEM, action=Action.READ)),
+    _: UserContext = Depends(require_permission(ResourceType.SYSTEM, Action.READ)),
     current_user: dict = Depends(get_current_user)
 ):
     """

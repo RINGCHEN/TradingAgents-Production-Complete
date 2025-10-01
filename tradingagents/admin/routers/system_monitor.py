@@ -743,10 +743,7 @@ async def get_monitoring_dashboard(
 
 @router.get("/monitor/health", summary="監控服務健康檢查")
 async def monitor_service_health_check(
-    current_user: UserContext = Depends(require_admin_access(
-        resource=ResourceType.SYSTEM,
-        action=Action.READ
-    ))
+    current_user: UserContext = Depends(require_permission(ResourceType.SYSTEM, Action.READ))
 ):
     """
     監控服務自身的健康檢查
