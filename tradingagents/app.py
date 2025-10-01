@@ -323,7 +323,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 security = HTTPBearer()
 
 # 註冊路由
-app.include_router(auth_router)
+app.include_router(auth_router, prefix="/api/auth")
 
 # 註冊所有現有的 API 端點路由器
 app.include_router(user_router, prefix="/api")
