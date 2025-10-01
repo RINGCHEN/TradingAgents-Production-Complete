@@ -390,7 +390,7 @@ class AuthenticationManager:
             # 創建用戶上下文
             user_context = UserContext(
                 user_id=user_data['user_id'],
-                membership_tier=TierType(user_data['membership_tier']),
+                membership_tier=TierType(user_data['membership_tier'].lower()),  # Convert to lowercase for enum
                 permissions=UserPermissions()
             )
             
