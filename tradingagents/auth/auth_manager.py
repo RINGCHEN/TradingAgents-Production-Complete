@@ -682,36 +682,58 @@ class AuthenticationManager:
         ]
     
     async def _get_user_by_identifier(self, identifier: str) -> Optional[Dict[str, Any]]:
-        """根據標識符獲取用戶 (模擬實現)"""
-        # 實際實現應該從數據庫查詢
-        mock_users = {
-            "admin@example.com": {
-                "user_id": "admin_001",
-                "email": "admin@example.com",
-                "password_hash": self.password_manager.hash_password("admin123"),
-                "membership_tier": "DIAMOND"
-            },
-            "test@example.com": {
-                "user_id": "user_123",
-                "email": "test@example.com",
-                "password_hash": self.password_manager.hash_password("password123"),
-                "membership_tier": "FREE"
-            },
-            "gold@example.com": {
-                "user_id": "user_456", 
-                "email": "gold@example.com",
-                "password_hash": self.password_manager.hash_password("goldpass123"),
-                "membership_tier": "GOLD"
-            },
-            "diamond@example.com": {
-                "user_id": "user_789",
-                "email": "diamond@example.com", 
-                "password_hash": self.password_manager.hash_password("diamondpass123"),
-                "membership_tier": "DIAMOND"
-            }
-        }
-        
-        return mock_users.get(identifier)
+        """根據標識符獲取用戶（從資料庫）"""
+        try:
+            from ..database.database import SessionLocal
+            from sqlalchemy import text
+
+            # 創建資料庫會話
+            db = SessionLocal()
+            try:
+                # 查詢用戶（支援email或username）
+                query = text("""
+                    SELECT
+                        id,
+                        uuid,
+                        email,
+                        username,
+                        password_hash,
+                        membership_tier,
+                        status,
+                        email_verified
+                    FROM users
+                    WHERE email = :identifier OR username = :identifier
+                    LIMIT 1
+                """)
+
+                result = db.execute(query, {"identifier": identifier})
+                row = result.fetchone()
+
+                if not row:
+                    return None
+
+                # 轉換為字典格式
+                user_data = {
+                    "user_id": str(row[1]),  # uuid
+                    "email": row[2],
+                    "username": row[3],
+                    "password_hash": row[4],
+                    "membership_tier": row[5],
+                    "status": row[6],
+                    "email_verified": row[7]
+                }
+
+                return user_data
+
+            finally:
+                db.close()
+
+        except Exception as e:
+            security_logger.error(f"資料庫查詢用戶失敗: {identifier}", extra={
+                'error': str(e),
+                'identifier': identifier
+            })
+            return None
     
     async def _get_user_context(self, user_id: str) -> UserContext:
         """獲取用戶上下文"""
