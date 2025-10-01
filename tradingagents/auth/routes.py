@@ -33,8 +33,8 @@ from ..utils.error_handler import handle_error
 api_logger = get_api_logger("auth")
 security_logger = get_security_logger("auth")
 
-# 創建路由器
-router = APIRouter(prefix="/auth", tags=["認證"])
+# 創建路由器 (prefix 由 app.py 統一管理)
+router = APIRouter(tags=["認證"])
 
 # ==================== 請求/回應模型 ====================
 
