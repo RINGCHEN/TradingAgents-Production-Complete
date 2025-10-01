@@ -69,6 +69,7 @@ from .api.portfolio_endpoints import router as portfolio_router  # 舊的投資�
 from .api.ai_effectiveness import router as ai_effectiveness_router  # AI效果分析 API
 from .api.ai_analyst_demo_endpoints import router as ai_analyst_demo_router  # AI分析師展示中心 API
 from .api.financial_endpoints import router as financial_router  # P2-2 財務管理 API
+from .api.debug_auth import router as debug_auth_router  # Debug authentication endpoint
 # from .api.revenue_dashboard import router as revenue_dashboard_router  # 營收分析儀表板 - 暫時停用等待修復
 # from .api.simple_portfolio import router as simple_portfolio_router  # 全新的投資組合API
 # from .api.enhanced_portfolio_endpoints import router as enhanced_portfolio_router  # 🏆 專業級投資組合API
@@ -324,6 +325,7 @@ security = HTTPBearer()
 
 # 註冊路由
 app.include_router(auth_router, prefix="/api/auth")
+app.include_router(debug_auth_router, prefix="/api")  # Debug endpoint
 
 # 註冊所有現有的 API 端點路由器
 app.include_router(user_router, prefix="/api")
