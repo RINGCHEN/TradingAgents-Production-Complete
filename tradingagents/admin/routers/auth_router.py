@@ -46,29 +46,65 @@ class UserResponse(BaseModel):
     is_admin: bool
     is_active: bool
 
-# 模擬用戶數據（生產環境中應該從數據庫讀取）
-MOCK_USERS = {
-    "admin@example.com": {
-        "id": 1,
-        "username": "admin",
-        "email": "admin@example.com",
-        "password_hash": bcrypt.hashpw("admin123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
-        "role": "admin",
-        "permissions": ["user_management", "system_config", "analytics", "reports"],
-        "is_admin": True,
-        "is_active": True
-    },
-    "manager@example.com": {
-        "id": 2,
-        "username": "manager",
-        "email": "manager@example.com", 
-        "password_hash": bcrypt.hashpw("manager123".encode('utf-8'), bcrypt.gensalt()).decode('utf-8'),
-        "role": "manager",
-        "permissions": ["user_management", "analytics"],
-        "is_admin": False,
-        "is_active": True
-    }
-}
+# Database connection helper
+def get_db_connection():
+    """獲取資料庫連接"""
+    from ...database.database import SessionLocal
+    return SessionLocal()
+
+def get_user_from_db(email: str) -> Optional[dict]:
+    """從資料庫查詢用戶"""
+    from sqlalchemy import text
+
+    db = get_db_connection()
+    try:
+        query = text("""
+            SELECT
+                uuid,
+                email,
+                username,
+                password,
+                membership_tier,
+                status
+            FROM users
+            WHERE email = :email
+            LIMIT 1
+        """)
+
+        result = db.execute(query, {"email": email})
+        row = result.fetchone()
+
+        if not row:
+            return None
+
+        # 判斷 admin 權限：DIAMOND tier 或特定 email
+        is_admin = (
+            row[4] and row[4].upper() == 'DIAMOND'  # membership_tier
+        ) or email in ['admin@example.com', 'manager@example.com']
+
+        # 判斷角色
+        if is_admin:
+            role = "admin" if email == 'admin@example.com' else "manager"
+            permissions = ["user_management", "system_config", "analytics", "reports"] if role == "admin" else ["user_management", "analytics"]
+        else:
+            role = "user"
+            permissions = []
+
+        # 判斷活躍狀態
+        is_active = row[5] and row[5].lower() == 'active'  # status
+
+        return {
+            "id": str(row[0]),  # uuid as id
+            "username": row[2],
+            "email": row[1],
+            "password_hash": row[3],  # bcrypt hashed password from DB
+            "role": role,
+            "permissions": permissions,
+            "is_admin": is_admin,
+            "is_active": is_active
+        }
+    finally:
+        db.close()
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """創建訪問token"""
@@ -101,57 +137,80 @@ def verify_token(token: str, token_type: str = "access"):
         return None
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """獲取當前用戶"""
+    """獲取當前用戶（從資料庫查詢）"""
     token = credentials.credentials
     payload = verify_token(token)
-    
+
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     email = payload.get("sub")
-    if email is None or email not in MOCK_USERS:
+    if email is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    return MOCK_USERS[email]
+
+    # 從資料庫查詢用戶
+    user = get_user_from_db(email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return user
 
 @router.post("/login", response_model=TokenResponse)
 async def login(login_data: LoginRequest):
     """
-    管理員登錄
+    管理員登錄（從資料庫驗證）
     """
-    user = MOCK_USERS.get(login_data.email)
-    
+    # 從資料庫查詢用戶
+    user = get_user_from_db(login_data.email)
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
-    
-    # 驗證密碼
-    if not bcrypt.checkpw(login_data.password.encode('utf-8'), user["password_hash"].encode('utf-8')):
+
+    # 驗證密碼（資料庫中的密碼已經是 bcrypt hashed）
+    if not user["password_hash"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
         )
-    
+
+    try:
+        # 比對密碼 hash
+        if not bcrypt.checkpw(login_data.password.encode('utf-8'), user["password_hash"].encode('utf-8')):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+    except (ValueError, AttributeError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password"
+        )
+
     if not user["is_active"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Account is disabled"
         )
-    
+
     # 創建tokens
     access_token = create_access_token(data={"sub": user["email"]})
     refresh_token = create_refresh_token(data={"sub": user["email"]})
-    
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -161,37 +220,45 @@ async def login(login_data: LoginRequest):
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """
-    刷新訪問token
+    刷新訪問token（從資料庫驗證）
     """
     refresh_token = credentials.credentials
     payload = verify_token(refresh_token, "refresh")
-    
+
     if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     email = payload.get("sub")
-    if email is None or email not in MOCK_USERS:
+    if email is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    user = MOCK_USERS[email]
+
+    # 從資料庫查詢用戶
+    user = get_user_from_db(email)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     if not user["is_active"]:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Account is disabled"
         )
-    
+
     # 創建新的訪問token
     access_token = create_access_token(data={"sub": email})
     new_refresh_token = create_refresh_token(data={"sub": email})
-    
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=new_refresh_token,
