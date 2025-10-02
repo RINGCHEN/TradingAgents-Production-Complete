@@ -53,20 +53,22 @@ def get_db_connection():
     return SessionLocal()
 
 def get_user_from_db(email: str) -> Optional[dict]:
-    """從資料庫查詢用戶"""
+    """從資料庫查詢管理員用戶 (admin_users 表)"""
     from sqlalchemy import text
 
     db = get_db_connection()
     try:
+        # 查詢 admin_users 表（包含 password_hash）
         query = text("""
             SELECT
-                uuid,
+                id,
                 email,
-                username,
-                password,
-                membership_tier,
-                status
-            FROM users
+                name,
+                role,
+                permissions,
+                is_active,
+                password_hash
+            FROM admin_users
             WHERE email = :email
             LIMIT 1
         """)
@@ -77,30 +79,23 @@ def get_user_from_db(email: str) -> Optional[dict]:
         if not row:
             return None
 
-        # 判斷 admin 權限：DIAMOND tier 或特定 email
-        is_admin = (
-            row[4] and row[4].upper() == 'DIAMOND'  # membership_tier
-        ) or email in ['admin@example.com', 'manager@example.com']
-
-        # 判斷角色
-        if is_admin:
-            role = "admin" if email == 'admin@example.com' else "manager"
-            permissions = ["user_management", "system_config", "analytics", "reports"] if role == "admin" else ["user_management", "analytics"]
-        else:
-            role = "user"
-            permissions = []
-
-        # 判斷活躍狀態
-        is_active = row[5] and row[5].lower() == 'active'  # status
+        # 從 admin_users 表構建管理員數據
+        admin_id = str(row[0])
+        admin_email = row[1]
+        admin_name = row[2] or admin_email.split('@')[0]
+        admin_role = row[3] or 'admin'
+        admin_permissions = row[4] if row[4] else ['user_management', 'analytics']
+        is_active = row[5] if row[5] is not None else True
+        password_hash = row[6]  # 從 admin_users 表獲取密碼 hash
 
         return {
-            "id": str(row[0]),  # uuid as id
-            "username": row[2],
-            "email": row[1],
-            "password_hash": row[3],  # bcrypt hashed password from DB
-            "role": role,
-            "permissions": permissions,
-            "is_admin": is_admin,
+            "id": admin_id,
+            "username": admin_name,
+            "email": admin_email,
+            "password_hash": password_hash,  # 真實的密碼 hash
+            "role": admin_role,
+            "permissions": admin_permissions if isinstance(admin_permissions, list) else ['user_management'],
+            "is_admin": True,  # admin_users 表中的都是管理員
             "is_active": is_active
         }
     finally:
