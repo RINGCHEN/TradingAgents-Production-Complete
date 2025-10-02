@@ -736,36 +736,69 @@ class AuthenticationManager:
             return None
     
     async def _get_user_context(self, user_id: str) -> UserContext:
-        """獲取用戶上下文"""
-        # 實際實現應該從數據庫查詢
-        mock_context = {
-            "admin_001": UserContext(
-                user_id="admin_001",
-                membership_tier=TierType.DIAMOND,
-                permissions=UserPermissions()
-            ),
-            "user_123": UserContext(
-                user_id="user_123",
+        """獲取用戶上下文（從真實資料庫查詢）"""
+        try:
+            from ..database.database import SessionLocal
+            from sqlalchemy import text
+
+            # 創建資料庫會話
+            db = SessionLocal()
+            try:
+                # 查詢用戶（使用 UUID）
+                query = text("""
+                    SELECT
+                        uuid,
+                        email,
+                        username,
+                        membership_tier,
+                        status
+                    FROM users
+                    WHERE uuid = :user_id
+                    LIMIT 1
+                """)
+
+                result = db.execute(query, {"user_id": user_id})
+                row = result.fetchone()
+
+                if not row:
+                    # 如果找不到用戶，返回預設的 FREE tier
+                    security_logger.warning(f"用戶不存在，使用預設 tier: {user_id}")
+                    return UserContext(
+                        user_id=user_id,
+                        membership_tier=TierType.FREE,
+                        permissions=UserPermissions()
+                    )
+
+                # 從資料庫構建用戶上下文
+                membership_tier_str = row[3]  # membership_tier column
+
+                # 轉換會員等級（處理大小寫）
+                try:
+                    membership_tier = TierType(membership_tier_str.lower())
+                except (ValueError, AttributeError):
+                    security_logger.warning(f"無效的會員等級 '{membership_tier_str}'，使用 FREE")
+                    membership_tier = TierType.FREE
+
+                return UserContext(
+                    user_id=str(row[0]),  # uuid
+                    membership_tier=membership_tier,
+                    permissions=UserPermissions()
+                )
+
+            finally:
+                db.close()
+
+        except Exception as e:
+            security_logger.error(f"資料庫查詢用戶上下文失敗: {user_id}", extra={
+                'error': str(e),
+                'user_id': user_id
+            })
+            # 發生錯誤時返回預設 tier
+            return UserContext(
+                user_id=user_id,
                 membership_tier=TierType.FREE,
                 permissions=UserPermissions()
-            ),
-            "user_456": UserContext(
-                user_id="user_456",
-                membership_tier=TierType.GOLD,
-                permissions=UserPermissions()
-            ),
-            "user_789": UserContext(
-                user_id="user_789",
-                membership_tier=TierType.DIAMOND,
-                permissions=UserPermissions()
             )
-        }
-        
-        return mock_context.get(user_id) or UserContext(
-            user_id=user_id,
-            membership_tier=TierType.FREE,
-            permissions=UserPermissions()
-        )
     
     def get_auth_stats(self) -> Dict[str, Any]:
         """獲取認證統計"""
