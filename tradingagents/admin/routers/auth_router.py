@@ -106,11 +106,10 @@ def get_user_from_db(email: str) -> Optional[dict]:
         }
     except Exception as e:
         logger.error(f"❌ Database error in get_user_from_db: {str(e)}", exc_info=True)
-        # 重新拋出異常，讓調用者處理
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Database query failed: {str(e)}"
-        )
+        logger.error(f"Exception type: {type(e).__name__}")
+        logger.error(f"Exception details", exc_info=True)
+        # Return None and let caller handle the error
+        return None
     finally:
         db.close()
 
@@ -174,6 +173,69 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         )
 
     return user
+
+@router.get("/debug/database-status")
+async def debug_database_status():
+    """診斷端點：檢查資料庫和admin_users表狀態"""
+    from sqlalchemy import text
+    import logging
+
+    logger = logging.getLogger(__name__)
+    db = get_db_connection()
+
+    try:
+        # Check if admin_users table exists
+        result = db.execute(text("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_name = 'admin_users'
+            );
+        """))
+        table_exists = result.fetchone()[0]
+
+        if not table_exists:
+            return {
+                "status": "error",
+                "message": "admin_users table does not exist",
+                "table_exists": False,
+                "migration_needed": True
+            }
+
+        # Check if password_hash column exists
+        result = db.execute(text("""
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'admin_users'
+            AND column_name = 'password_hash';
+        """))
+        password_column_exists = result.fetchone() is not None
+
+        # Count admin users
+        result = db.execute(text("SELECT COUNT(*) FROM admin_users"))
+        admin_count = result.fetchone()[0]
+
+        # Get admin emails
+        result = db.execute(text("SELECT email FROM admin_users"))
+        admin_emails = [row[0] for row in result.fetchall()]
+
+        return {
+            "status": "success",
+            "table_exists": True,
+            "password_column_exists": password_column_exists,
+            "admin_count": admin_count,
+            "admin_emails": admin_emails,
+            "migration_needed": not password_column_exists
+        }
+
+    except Exception as e:
+        logger.error(f"Debug endpoint error: {str(e)}", exc_info=True)
+        return {
+            "status": "error",
+            "message": str(e),
+            "exception_type": type(e).__name__
+        }
+    finally:
+        db.close()
 
 @router.post("/login", response_model=TokenResponse)
 async def login(login_data: LoginRequest):
