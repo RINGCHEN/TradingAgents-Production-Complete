@@ -55,8 +55,11 @@ def get_db_connection():
 def get_user_from_db(email: str) -> Optional[dict]:
     """從資料庫查詢管理員用戶 (admin_users 表)"""
     from sqlalchemy import text
+    import logging
 
+    logger = logging.getLogger(__name__)
     db = get_db_connection()
+
     try:
         # 查詢 admin_users 表（包含 password_hash）
         query = text("""
@@ -77,6 +80,7 @@ def get_user_from_db(email: str) -> Optional[dict]:
         row = result.fetchone()
 
         if not row:
+            logger.info(f"Admin user not found: {email}")
             return None
 
         # 從 admin_users 表構建管理員數據
@@ -88,6 +92,8 @@ def get_user_from_db(email: str) -> Optional[dict]:
         is_active = row[5] if row[5] is not None else True
         password_hash = row[6]  # 從 admin_users 表獲取密碼 hash
 
+        logger.info(f"Admin user found: {admin_email}, role: {admin_role}")
+
         return {
             "id": admin_id,
             "username": admin_name,
@@ -98,6 +104,13 @@ def get_user_from_db(email: str) -> Optional[dict]:
             "is_admin": True,  # admin_users 表中的都是管理員
             "is_active": is_active
         }
+    except Exception as e:
+        logger.error(f"❌ Database error in get_user_from_db: {str(e)}", exc_info=True)
+        # 重新拋出異常，讓調用者處理
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database query failed: {str(e)}"
+        )
     finally:
         db.close()
 
