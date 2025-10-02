@@ -298,10 +298,15 @@ class RateLimiter:
         return True
 
 # 全局速率限制器實例
+# E2E測試模式：檢查環境變數 E2E_TESTING_MODE
+import os
+_is_e2e_testing = os.getenv('E2E_TESTING_MODE', 'false').lower() == 'true'
+
 _rate_limiters: Dict[str, RateLimiter] = {
     'default': RateLimiter(60, 1),  # 每分鐘60次
     'api_key': RateLimiter(1000, 60),  # 每小時1000次
-    'login': RateLimiter(5, 15),  # 每15分鐘5次
+    # E2E測試模式：放寬登入限制為每分鐘100次，生產模式：每15分鐘5次
+    'login': RateLimiter(100, 1) if _is_e2e_testing else RateLimiter(5, 15),
 }
 
 def rate_limit(limiter_name: str = 'default'):
