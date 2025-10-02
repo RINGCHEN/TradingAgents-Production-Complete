@@ -118,13 +118,13 @@ export class RealAdminApiService {
 
   /**
    * 檢查認證狀態
-   * 對應API: GET /api/auth/status
+   * 對應API: GET /admin/auth/verify
    */
   async checkAuthStatus(): Promise<AuthStatus> {
-    this.logApiCall('/api/auth/status', 'GET');
-    
+    this.logApiCall('/admin/auth/verify', 'GET');
+
     try {
-      const response = await this.apiClient.get<AuthStatus>('/api/auth/status');
+      const response = await this.apiClient.get<AuthStatus>('/admin/auth/verify');
       return response.data;
     } catch (error) {
       console.error('認證狀態檢查失敗:', error);
@@ -137,10 +137,10 @@ export class RealAdminApiService {
    * 對應API: POST /auth/login
    */
   async login(email: string, password: string): Promise<AuthStatus> {
-    this.logApiCall('/auth/login', 'POST');
-    
+    this.logApiCall('/admin/auth/login', 'POST');
+
     try {
-      const response = await this.apiClient.post('/auth/login', {
+      const response = await this.apiClient.post('/admin/auth/login', {
         email,
         password
       });
@@ -206,7 +206,7 @@ export class RealAdminApiService {
    * Phase 1 Day 2新增 - Token自動刷新機制
    */
   async refreshAccessToken(): Promise<boolean> {
-    this.logApiCall('/api/auth/refresh', 'POST');
+    this.logApiCall('/admin/auth/refresh', 'POST');
 
     try {
       const refresh_token = localStorage.getItem('refresh_token');
@@ -215,7 +215,7 @@ export class RealAdminApiService {
         return false;
       }
 
-      const response = await this.apiClient.post('/api/auth/refresh', {
+      const response = await this.apiClient.post('/admin/auth/refresh', {
         refresh_token
       });
 
