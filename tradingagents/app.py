@@ -178,6 +178,20 @@ async def lifespan(app: FastAPI):
                 'startup_phase': 'model_download_failed',
                 'component': 'app_lifecycle'
             })
+        # 執行資料庫遷移
+        try:
+            from .migrations import run_migrations
+            run_migrations()
+            system_logger.info("✅ 資料庫遷移檢查完成", extra={
+                'startup_phase': 'database_migrations',
+                'component': 'app_lifecycle'
+            })
+        except Exception as e:
+            system_logger.warning(f"資料庫遷移失敗（非阻塞）: {str(e)}", extra={
+                'startup_phase': 'database_migrations_failed',
+                'component': 'app_lifecycle'
+            })
+
         # 初始化數據編排器
         from .dataflows.data_orchestrator import DataOrchestrator
         data_orchestrator = DataOrchestrator()
