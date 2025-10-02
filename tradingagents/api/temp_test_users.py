@@ -158,11 +158,20 @@ async def create_all_test_users() -> Dict[str, Any]:
             user_data = TestUserCreate(**user_config)
             result = await create_test_user(user_data)
             results.append(result)
-        except Exception as e:
+        except HTTPException as e:
             results.append({
                 "success": False,
                 "email": user_config["email"],
-                "error": str(e)
+                "error": f"HTTPException: {e.detail}",
+                "status_code": e.status_code
+            })
+        except Exception as e:
+            import traceback
+            results.append({
+                "success": False,
+                "email": user_config["email"],
+                "error": str(e),
+                "traceback": traceback.format_exc()
             })
 
     return {
