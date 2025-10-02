@@ -38,6 +38,19 @@ def run_migrations():
 def needs_migration_001(db) -> bool:
     """檢查是否需要執行 migration 001"""
     try:
+        # 檢查 admin_users 表是否存在
+        result = db.execute(text("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_name = 'admin_users'
+            );
+        """))
+        table_exists = result.fetchone()[0]
+
+        if not table_exists:
+            return True  # 需要創建表
+
+        # 檢查 password_hash 欄位是否存在
         result = db.execute(text("""
             SELECT column_name
             FROM information_schema.columns
@@ -46,16 +59,33 @@ def needs_migration_001(db) -> bool:
         """))
         return result.fetchone() is None
     except:
-        return False
+        return True  # 出錯時保守處理，執行遷移
 
 def run_migration_001(db):
-    """Migration 001: Add password_hash to admin_users"""
+    """Migration 001: Create admin_users table and add password_hash"""
 
-    # 1. 添加 password_hash 欄位
+    # 1. 創建 admin_users 表（如果不存在）
+    db.execute(text("""
+        CREATE TABLE IF NOT EXISTS admin_users (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            email VARCHAR(255) UNIQUE NOT NULL,
+            name VARCHAR(255),
+            role VARCHAR(50) DEFAULT 'admin',
+            permissions TEXT[],
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_active BOOLEAN DEFAULT TRUE,
+            password_hash VARCHAR(255)
+        );
+    """))
+    logger.info("✅ admin_users 表已創建/確認存在")
+
+    # 2. 添加 password_hash 欄位（如果表已存在但沒有此欄位）
     db.execute(text("""
         ALTER TABLE admin_users
         ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
     """))
+    logger.info("✅ password_hash 欄位已添加")
 
     # 2. 生成密碼 hash
     admin_hash = bcrypt.hashpw('admin123'.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
