@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 security = HTTPBearer(auto_error=False)
 
 # JWT 配置（應與 auth_router.py 保持一致）
-SECRET_KEY = "your-secret-key-keep-it-secret"  # 應從環境變量讀取
+SECRET_KEY = "your-secret-key-change-in-production"  # 應從環境變量讀取
 ALGORITHM = "HS256"
 
 
