@@ -387,3 +387,112 @@ async def verify_token_endpoint(
             "role": current_user["role"]
         }
     }
+@router.get("/public-test", summary="Public Test Endpoint - Verify Admin Auth Works")
+async def public_admin_auth_test():
+    """
+    Public test endpoint - No authentication required
+    
+    This endpoint performs a complete admin authentication flow test:
+    1. Login as admin user
+    2. Use the returned token to access /admin/auth/me
+    3. Use the returned token to access /admin/system/monitor/health
+    4. Return all results for verification
+    
+    GEMINI can use web_fetch to access this endpoint to verify the system works.
+    """
+    import httpx
+    from datetime import datetime
+    
+    results = {
+        "test_timestamp": datetime.utcnow().isoformat(),
+        "test_description": "Complete admin authentication flow test",
+        "steps": []
+    }
+    
+    base_url = "https://twshocks-app-79rsx.ondigitalocean.app"
+    
+    try:
+        # Step 1: Login
+        async with httpx.AsyncClient() as client:
+            login_response = await client.post(
+                f"{base_url}/admin/auth/login",
+                json={"email": "admin@example.com", "password": "admin123"},
+                timeout=10.0
+            )
+            
+            step1 = {
+                "step": 1,
+                "action": "POST /admin/auth/login",
+                "status_code": login_response.status_code,
+                "success": login_response.status_code == 200
+            }
+            
+            if login_response.status_code != 200:
+                step1["error"] = login_response.text
+                results["steps"].append(step1)
+                results["overall_result"] = "FAILED"
+                return results
+            
+            token_data = login_response.json()
+            access_token = token_data["access_token"]
+            step1["token_obtained"] = True
+            results["steps"].append(step1)
+            
+            # Step 2: Access /admin/auth/me
+            me_response = await client.get(
+                f"{base_url}/admin/auth/me",
+                headers={"Authorization": f"Bearer {access_token}"},
+                timeout=10.0
+            )
+            
+            step2 = {
+                "step": 2,
+                "action": "GET /admin/auth/me",
+                "status_code": me_response.status_code,
+                "success": me_response.status_code == 200
+            }
+            
+            if me_response.status_code == 200:
+                step2["user_data"] = me_response.json()
+            else:
+                step2["error"] = me_response.text
+            
+            results["steps"].append(step2)
+            
+            # Step 3: Access /admin/system/monitor/health
+            health_response = await client.get(
+                f"{base_url}/admin/system/monitor/health",
+                headers={"Authorization": f"Bearer {access_token}"},
+                timeout=10.0
+            )
+            
+            step3 = {
+                "step": 3,
+                "action": "GET /admin/system/monitor/health",
+                "status_code": health_response.status_code,
+                "success": health_response.status_code == 200
+            }
+            
+            if health_response.status_code == 200:
+                step3["health_data"] = health_response.json()
+            else:
+                step3["error"] = health_response.text
+            
+            results["steps"].append(step3)
+            
+            # Overall result
+            all_success = all(step["success"] for step in results["steps"])
+            results["overall_result"] = "SUCCESS" if all_success else "FAILED"
+            results["summary"] = {
+                "total_steps": len(results["steps"]),
+                "successful_steps": sum(1 for step in results["steps"] if step["success"]),
+                "failed_steps": sum(1 for step in results["steps"] if not step["success"])
+            }
+            
+            return results
+            
+    except Exception as e:
+        results["overall_result"] = "ERROR"
+        results["error"] = str(e)
+        results["error_type"] = type(e).__name__
+        return results
