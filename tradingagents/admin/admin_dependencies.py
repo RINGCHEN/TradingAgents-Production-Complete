@@ -136,9 +136,10 @@ async def get_admin_from_db(email: str) -> Optional[dict]:
         Admin 用戶資料字典，如果不存在則返回 None
     """
     from sqlalchemy import text
-    from ..database.database import get_db_connection
+    from ...database.database import SessionLocal
 
-    db = get_db_connection()
+    # 創建資料庫連接
+    db = SessionLocal()
 
     try:
         query = text("""
