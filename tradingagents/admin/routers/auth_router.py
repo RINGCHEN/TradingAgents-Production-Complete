@@ -13,9 +13,10 @@ import bcrypt
 from sqlalchemy.orm import Session
 import os
 
-from ...auth.dependencies import require_admin_access, require_permission
-from ...auth.permissions import ResourceType, Action
-from ...utils.user_context import UserContext
+# 移除舊的認證系統導入 - 現在使用內部的 get_current_user 函數
+# from ...auth.dependencies import require_admin_access, require_permission
+# from ...auth.permissions import ResourceType, Action
+# from ...utils.user_context import UserContext
 
 # 創建路由器
 router = APIRouter(prefix="/auth", tags=["authentication"])
@@ -338,11 +339,12 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(secu
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
-    _: UserContext = Depends(require_permission(ResourceType.SYSTEM, Action.READ)),
     current_user: dict = Depends(get_current_user)
 ):
     """
     獲取當前用戶信息
+
+    使用內部的 get_current_user 函數進行認證
     """
     return UserResponse(
         id=current_user["id"],
@@ -356,11 +358,12 @@ async def get_current_user_info(
 
 @router.post("/logout")
 async def logout(
-    _: UserContext = Depends(require_permission(ResourceType.SYSTEM, Action.WRITE)),
     current_user: dict = Depends(get_current_user)
 ):
     """
     用戶登出
+
+    使用內部的 get_current_user 函數進行認證
     """
     # 在實際實現中，這裡應該將token加入黑名單
     # 目前只是返回成功響應
@@ -368,11 +371,12 @@ async def logout(
 
 @router.get("/verify")
 async def verify_token_endpoint(
-    _: UserContext = Depends(require_permission(ResourceType.SYSTEM, Action.READ)),
     current_user: dict = Depends(get_current_user)
 ):
     """
     驗證token有效性
+
+    使用內部的 get_current_user 函數進行認證
     """
     return {
         "valid": True,
