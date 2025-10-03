@@ -13,10 +13,8 @@ import bcrypt
 from sqlalchemy.orm import Session
 import os
 
-# 重新啟用認證系統導入 - 用於 RBAC 權限檢查
-from ...auth.dependencies import require_permission
-from ...auth.permissions import ResourceType, Action
-from ...utils.user_context import UserContext
+# 註：原企業級RBAC系統與admin auth_router使用不同的token格式
+# auth_router使用內部的get_current_user進行認證，不依賴企業級RBAC
 
 # 創建路由器
 router = APIRouter(prefix="/auth", tags=["authentication"])
@@ -347,13 +345,12 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(secu
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
-    _: UserContext = Depends(require_permission(ResourceType.SYSTEM, Action.READ)),
     current_user: dict = Depends(get_current_user)
 ):
     """
     獲取當前用戶信息
 
-    需要 SYSTEM READ 權限
+    使用內部的 get_current_user 函數進行認證
     """
     return UserResponse(
         id=current_user["id"],
