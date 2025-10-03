@@ -22,8 +22,10 @@ logger = logging.getLogger(__name__)
 # HTTP Bearer 安全方案
 security = HTTPBearer(auto_error=False)
 
-# JWT 配置 - 直接從 auth_router 導入以確保一致性
-from ..routers.auth_router import SECRET_KEY, ALGORITHM
+# JWT 配置 - 從環境變量讀取，確保與 auth_router.py 一致
+import os
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+ALGORITHM = "HS256"
 
 
 class AdminContext:

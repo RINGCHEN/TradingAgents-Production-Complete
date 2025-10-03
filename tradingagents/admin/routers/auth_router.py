@@ -11,6 +11,7 @@ from pydantic import BaseModel, EmailStr
 import jwt
 import bcrypt
 from sqlalchemy.orm import Session
+import os
 
 from ...auth.dependencies import require_admin_access, require_permission
 from ...auth.permissions import ResourceType, Action
@@ -20,8 +21,8 @@ from ...utils.user_context import UserContext
 router = APIRouter(prefix="/auth", tags=["authentication"])
 security = HTTPBearer()
 
-# JWT配置
-SECRET_KEY = "your-secret-key-change-in-production"  # 生產環境中應該從環境變數讀取
+# JWT配置 - 從環境變量讀取
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_DAYS = 7
