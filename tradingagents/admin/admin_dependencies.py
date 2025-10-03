@@ -137,7 +137,7 @@ def get_admin_from_db(email: str) -> Optional[dict]:
         Admin 用戶資料字典，如果不存在則返回 None
     """
     from sqlalchemy import text
-    from ...database.database import SessionLocal
+    from ..database.database import SessionLocal
 
     # 創建資料庫連接
     db = SessionLocal()
