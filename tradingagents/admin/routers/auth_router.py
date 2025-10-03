@@ -86,7 +86,7 @@ def get_user_from_db(email: str) -> Optional[dict]:
             return None
 
         # 從 admin_users 表構建管理員數據
-        admin_id = str(row[0])
+        admin_id = int(row[0])  # 確保 id 是整數類型，匹配 UserResponse 模型
         admin_email = row[1]
         admin_name = row[2] or admin_email.split('@')[0]
         admin_role = row[3] or 'admin'
@@ -97,7 +97,7 @@ def get_user_from_db(email: str) -> Optional[dict]:
         logger.info(f"Admin user found: {admin_email}, role: {admin_role}")
 
         return {
-            "id": admin_id,
+            "id": admin_id,  # int 類型，匹配 UserResponse 模型
             "username": admin_name,
             "email": admin_email,
             "password_hash": password_hash,  # 真實的密碼 hash
