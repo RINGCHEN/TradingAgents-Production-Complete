@@ -8,7 +8,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
-import jwt
+from jose import jwt, JWTError
 import bcrypt
 from sqlalchemy.orm import Session
 import os
@@ -141,7 +141,7 @@ def verify_token(token: str, token_type: str = "access"):
         if payload.get("type") != token_type:
             return None
         return payload
-    except jwt.PyJWTError:
+    except JWTError:
         return None
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
