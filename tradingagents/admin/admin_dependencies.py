@@ -79,7 +79,7 @@ async def get_current_admin_user(
             )
 
         # 從資料庫驗證 Admin 用戶
-        admin_user = await get_admin_from_db(email)
+        admin_user = get_admin_from_db(email)
 
         if not admin_user:
             logger.warning(f"Admin 用戶不存在: {email}")
@@ -125,7 +125,7 @@ async def get_current_admin_user(
         )
 
 
-async def get_admin_from_db(email: str) -> Optional[dict]:
+def get_admin_from_db(email: str) -> Optional[dict]:
     """
     從資料庫查詢 Admin 用戶（admin_users 表）
 
