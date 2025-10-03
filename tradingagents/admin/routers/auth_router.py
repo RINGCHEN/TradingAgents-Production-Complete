@@ -23,7 +23,15 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 security = HTTPBearer()
 
 # JWT配置 - 從環境變量讀取
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+_secret_key = os.getenv("SECRET_KEY")
+if not _secret_key:
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.critical("⚠️ SECRET_KEY environment variable is not set! Using insecure default for development only.")
+    logger.critical("⚠️ This is UNSAFE for production! Please set SECRET_KEY in your environment.")
+    _secret_key = "INSECURE-DEV-KEY-DO-NOT-USE-IN-PRODUCTION"
+
+SECRET_KEY = _secret_key
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_DAYS = 7
@@ -40,7 +48,7 @@ class TokenResponse(BaseModel):
     expires_in: int
 
 class UserResponse(BaseModel):
-    id: int
+    id: str  # UUID as string
     username: str
     email: str
     role: str
@@ -86,7 +94,7 @@ def get_user_from_db(email: str) -> Optional[dict]:
             return None
 
         # 從 admin_users 表構建管理員數據
-        admin_id = int(row[0])  # 確保 id 是整數類型，匹配 UserResponse 模型
+        admin_id = str(row[0])  # UUID as string, matching UserResponse model
         admin_email = row[1]
         admin_name = row[2] or admin_email.split('@')[0]
         admin_role = row[3] or 'admin'

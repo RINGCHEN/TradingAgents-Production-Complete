@@ -64,6 +64,12 @@ def needs_migration_001(db) -> bool:
 def run_migration_001(db):
     """Migration 001: Create admin_users table and add password_hash"""
 
+    # 0. 確保 pgcrypto 擴展存在（gen_random_uuid 需要）
+    db.execute(text("""
+        CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    """))
+    logger.info("✅ pgcrypto 擴展已啟用")
+
     # 1. 創建 admin_users 表（如果不存在）
     db.execute(text("""
         CREATE TABLE IF NOT EXISTS admin_users (
