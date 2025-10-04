@@ -46,7 +46,7 @@ class TokenResponse(BaseModel):
     expires_in: int
 
 class UserResponse(BaseModel):
-    id: int  # Database uses integer ID
+    id: str  # UUID as string (database uses UUID type)
     username: str
     email: str
     role: str
@@ -92,18 +92,18 @@ def get_user_from_db(email: str) -> Optional[dict]:
             return None
 
         # 從 admin_users 表構建管理員數據
-        admin_id = int(row[0])  # Convert to int, matching UserResponse model
+        admin_id = str(row[0])  # UUID as string
         admin_email = row[1]
         admin_name = row[2] or admin_email.split('@')[0]
         admin_role = row[3] or 'admin'
-        admin_permissions = row[4] if row[4] else ['user_management', 'analytics']
+        admin_permissions = row[4] if row[4] is not None else ['user_management', 'analytics']
         is_active = row[5] if row[5] is not None else True
         password_hash = row[6]  # 從 admin_users 表獲取密碼 hash
 
         logger.info(f"Admin user found: {admin_email}, role: {admin_role}")
 
         return {
-            "id": admin_id,  # int 類型，匹配 UserResponse 模型
+            "id": admin_id,  # UUID as string
             "username": admin_name,
             "email": admin_email,
             "password_hash": password_hash,  # 真實的密碼 hash
@@ -181,6 +181,19 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         )
 
     return user
+
+def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
+    """
+    需要管理員權限的依賴項
+
+    檢查用戶是否為管理員
+    """
+    if not current_user.get("is_admin", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="需要管理員權限"
+        )
+    return current_user
 
 @router.get("/debug/database-status")
 async def debug_database_status():
@@ -345,12 +358,12 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(secu
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_admin)
 ):
     """
     獲取當前用戶信息
 
-    使用內部的 get_current_user 函數進行認證
+    需要管理員權限
     """
     return UserResponse(
         id=current_user["id"],
@@ -364,12 +377,12 @@ async def get_current_user_info(
 
 @router.post("/logout")
 async def logout(
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_admin)
 ):
     """
     用戶登出
 
-    使用內部的 get_current_user 函數進行認證
+    需要管理員權限
     """
     # 在實際實現中，這裡應該將token加入黑名單
     # 目前只是返回成功響應
@@ -377,12 +390,12 @@ async def logout(
 
 @router.get("/verify")
 async def verify_token_endpoint(
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(require_admin)
 ):
     """
     驗證token有效性
 
-    使用內部的 get_current_user 函數進行認證
+    需要管理員權限
     """
     return {
         "valid": True,
