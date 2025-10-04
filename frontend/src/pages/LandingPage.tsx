@@ -89,27 +89,27 @@ const LandingPage: React.FC = () => {
             <span className="subtitle">台灣唯一專業台股國際化分析平台</span>
           </h1>
           <p className="hero-subtitle">
-            整合<strong>7位專業AI分析師</strong>，提供機構級投資分析服務，
+            整合<strong>9位頂級專業AI分析師</strong>，提供機構級投資分析服務，
             讓您的投資決策更精準、更專業。獲得華爾街級別的投資洞察力。
           </p>
 
-          {/* 統計數據 */}
+          {/* 統計數據 - 已更新為真實可驗證的數據 */}
           <div className="hero-stats">
             <div className="stat-item">
-              <span className="stat-number">10,000+</span>
-              <span className="stat-label">活躍用戶</span>
+              <span className="stat-number">專業</span>
+              <span className="stat-label">投資者信賴</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">7位</span>
-              <span className="stat-label">AI分析師</span>
+              <span className="stat-number">9位</span>
+              <span className="stat-label">頂級AI分析師</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">95%</span>
-              <span className="stat-label">用戶滿意度</span>
+              <span className="stat-number">多維度</span>
+              <span className="stat-label">智能分析</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">75%+</span>
-              <span className="stat-label">分析準確率</span>
+              <span className="stat-number">即時</span>
+              <span className="stat-label">市場洞察</span>
             </div>
           </div>
 
@@ -141,7 +141,7 @@ const LandingPage: React.FC = () => {
       {/* AI分析師團隊 */}
       <section id="analysts" className="analysts-section">
         <div className="container">
-          <h2>7位專業AI分析師團隊</h2>
+          <h2>9位頂級專業AI分析師團隊</h2>
           <p className="section-subtitle">各領域頂尖專家，為您提供全方位投資分析</p>
           
           <div className="analysts-grid">
@@ -219,6 +219,28 @@ const LandingPage: React.FC = () => {
                 <li>全球市場連動</li>
                 <li>匯率影響分析</li>
                 <li>資金流向追蹤</li>
+              </ul>
+            </div>
+
+            <div className="analyst-card">
+              <div className="analyst-icon">🧠</div>
+              <h3>市場情緒分析師</h3>
+              <p>恐慌貪婪指數、市場情緒監測、投資者行為分析</p>
+              <ul>
+                <li>恐慌貪婪指數</li>
+                <li>市場情緒追蹤</li>
+                <li>投資者行為解析</li>
+              </ul>
+            </div>
+
+            <div className="analyst-card">
+              <div className="analyst-icon">🌍</div>
+              <h3>總體經濟分析師</h3>
+              <p>央行政策分析、經濟週期判斷、地緣政治風險評估</p>
+              <ul>
+                <li>央行政策影響</li>
+                <li>經濟週期研判</li>
+                <li>地緣風險分析</li>
               </ul>
             </div>
           </div>
@@ -314,7 +336,7 @@ const LandingPage: React.FC = () => {
               </div>
               <ul className="features-list">
                 <li>✅ 每日20次分析</li>
-                <li>✅ 7位AI分析師服務</li>
+                <li>✅ 9位頂級AI分析師服務</li>
                 <li>✅ 即時股價報價</li>
                 <li>✅ 投資組合追蹤</li>
                 <li>✅ AI投資建議</li>
@@ -339,7 +361,7 @@ const LandingPage: React.FC = () => {
               </div>
               <ul className="features-list">
                 <li>✅ 無限次分析</li>
-                <li>✅ 所有AI分析師服務</li>
+                <li>✅ 全部9位頂級AI分析師</li>
                 <li>✅ 即時全市場數據</li>
                 <li>✅ 高級投資組合工具</li>
                 <li>✅ 量化策略建議</li>

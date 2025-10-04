@@ -30,10 +30,12 @@ import ABTestingDemo from './pages/ABTestingDemo';
 // PayUni支付相關頁面
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentCancelPage from './pages/PaymentCancelPage';
-import SimplePricingPage from './pages/SimplePricingPage';
-import SimplePricingPageSimple from './pages/SimplePricingPageSimple';
-import UltraSimplePage from './pages/UltraSimplePage';
-import TestSimplePage from './pages/TestSimplePage';
+import ProfessionalPricingPage from './pages/ProfessionalPricingPage';
+// 測試頁面僅保留在開發環境，不導入到生產環境
+// import SimplePricingPage from './pages/SimplePricingPage';
+// import SimplePricingPageSimple from './pages/SimplePricingPageSimple';
+// import UltraSimplePage from './pages/UltraSimplePage';
+// import TestSimplePage from './pages/TestSimplePage';
 
 // 管理後台頁面
 import OptimizedAdminDashboard from './pages/OptimizedAdminDashboard';
@@ -67,10 +69,11 @@ const AppRouter: React.FC = () => {
               <Route path="/auth" element={<AuthenticationPage />} />
               <Route path="/login" element={<AuthenticationPage />} />
               <Route path="/register" element={<AuthenticationPage />} />
-              <Route path="/pricing" element={<UltraSimplePage />} />
-              <Route path="/pricing-simple" element={<SimplePricingPageSimple />} />
-              <Route path="/pricing-full" element={<SimplePricingPage />} />
-              <Route path="/test" element={<TestSimplePage />} />
+              <Route path="/pricing" element={<ProfessionalPricingPage />} />
+              {/* 測試路由已移除 - 不應在生產環境暴露 */}
+              {/* <Route path="/pricing-simple" element={<SimplePricingPageSimple />} /> */}
+              {/* <Route path="/pricing-full" element={<SimplePricingPage />} /> */}
+              {/* <Route path="/test" element={<TestSimplePage />} /> */}
               
               {/* GEMINI 升級提示整合測試頁面 */}
               <Route path="/upgrade-prompt-test" element={<UpgradePromptTestPage />} />

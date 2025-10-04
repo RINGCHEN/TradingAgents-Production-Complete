@@ -22,80 +22,68 @@ const AboutPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState('story');
   const [isLoading, setIsLoading] = useState(true);
 
-  // 團隊成員數據
+  // 團隊專業領域（不使用具名個人，改為團隊能力展示）
   const teamMembers: TeamMember[] = [
     {
       id: '1',
-      name: '張志明',
-      role: '創始人 & CEO',
-      bio: '前華爾街量化分析師，擁有15年金融科技經驗。致力於將AI技術應用於投資分析領域。',
-      avatar: '/avatars/ceo.jpg',
-      linkedin: 'https://linkedin.com/in/zhiming-zhang',
-      twitter: 'https://twitter.com/zhiming_zhang'
+      name: 'AI 研發團隊',
+      role: '核心技術',
+      bio: '專精於機器學習、自然語言處理和量化分析，持續優化AI分析師的準確度和可靠性。',
+      avatar: '/avatars/ai-team.jpg',
+      linkedin: '',
+      twitter: ''
     },
     {
       id: '2',
-      name: '李美華',
-      role: 'CTO & 技術總監',
-      bio: '前Google機器學習工程師，專精於大數據分析和AI算法開發。MIT計算機科學博士。',
-      avatar: '/avatars/cto.jpg',
-      linkedin: 'https://linkedin.com/in/meihua-li'
+      name: '金融分析團隊',
+      role: '專業知識',
+      bio: '結合金融專業知識與技術實力，確保分析結果符合市場實務和投資邏輯。',
+      avatar: '/avatars/finance-team.jpg',
+      linkedin: ''
     },
     {
       id: '3',
-      name: '王建國',
-      role: '首席數據科學家',
-      bio: '金融數據分析專家，曾在摩根士丹利擔任量化研究主管。史丹佛大學統計學博士。',
-      avatar: '/avatars/data-scientist.jpg',
-      linkedin: 'https://linkedin.com/in/jianguo-wang'
+      name: '產品開發團隊',
+      role: '用戶體驗',
+      bio: '致力於打造直觀易用的投資工具，讓專業分析服務更貼近一般投資者需求。',
+      avatar: '/avatars/product-team.jpg',
+      linkedin: ''
     },
     {
       id: '4',
-      name: '陳雅婷',
-      role: '產品總監',
-      bio: '用戶體驗設計專家，曾在蘋果公司負責金融產品設計。專注於創造直觀易用的投資工具。',
-      avatar: '/avatars/product-director.jpg',
-      linkedin: 'https://linkedin.com/in/yating-chen'
+      name: '數據工程團隊',
+      role: '技術基礎',
+      bio: '負責數據收集、處理和系統架構，確保平台穩定可靠、數據準確即時。',
+      avatar: '/avatars/data-team.jpg',
+      linkedin: ''
     }
   ];
 
-  // 發展里程碑
+  // 技術發展重點（改為技術里程碑而非時間線）
   const milestones: Milestone[] = [
     {
-      year: '2020',
-      title: '公司成立',
-      description: 'TradingAgents 在台北成立，開始研發AI投資分析技術',
-      icon: '🚀'
-    },
-    {
-      year: '2021',
-      title: '技術突破',
-      description: '成功開發第一代AI分析師，準確率達到75%',
+      year: '階段一',
+      title: 'AI 核心技術',
+      description: '整合先進的機器學習模型，開發多維度AI分析師系統',
       icon: '🧠'
     },
     {
-      year: '2022',
-      title: '產品上線',
-      description: 'Beta版本發布，獲得1000+早期用戶積極反饋',
-      icon: '📱'
+      year: '階段二',
+      title: '數據基礎建設',
+      description: '建立完整的台股數據收集和處理系統，確保數據準確即時',
+      icon: '📊'
     },
     {
-      year: '2023',
-      title: '快速成長',
-      description: '用戶突破10萬，完成A輪融資，團隊擴展至50人',
-      icon: '📈'
-    },
-    {
-      year: '2024',
-      title: '國際擴展',
-      description: '進軍東南亞市場，支援多國股市分析',
-      icon: '🌏'
-    },
-    {
-      year: '2025',
-      title: '持續創新',
-      description: '推出社群功能和個性化推薦，邁向智能投資生態系統',
+      year: '階段三',
+      title: '產品優化',
+      description: '持續改善用戶體驗，打造專業且易用的投資分析平台',
       icon: '✨'
+    },
+    {
+      year: '當前',
+      title: '9位AI分析師',
+      description: '提供技術面、基本面、總體經濟等全方位專業分析服務',
+      icon: '🚀'
     }
   ];
 
@@ -188,8 +176,8 @@ const AboutPage: React.FC = () => {
                   <div className="story-paragraph">
                     <h3>起源</h3>
                     <p>
-                      TradingAgents 的故事始於2020年，當時我們的創始人張志明在華爾街工作時發現，
-                      儘管有豐富的金融數據和先進的分析工具，但大多數個人投資者仍然難以做出明智的投資決策。
+                      不老傳說（TradingAgents）致力於將專業投資分析工具帶給每一位投資者。
+                      我們發現，儘管有豐富的金融數據和先進的分析工具，但大多數個人投資者仍然難以做出明智的投資決策。
                       傳統的投資分析需要大量的專業知識和時間，這讓普通投資者處於劣勢。
                     </p>
                   </div>
@@ -215,20 +203,20 @@ const AboutPage: React.FC = () => {
 
                 <div className="story-stats">
                   <div className="stat-item">
-                    <div className="stat-number">100K+</div>
-                    <div className="stat-label">活躍用戶</div>
+                    <div className="stat-number">9位</div>
+                    <div className="stat-label">AI分析師</div>
                   </div>
                   <div className="stat-item">
-                    <div className="stat-number">1M+</div>
-                    <div className="stat-label">分析報告</div>
+                    <div className="stat-number">多維度</div>
+                    <div className="stat-label">專業分析</div>
                   </div>
                   <div className="stat-item">
-                    <div className="stat-number">85%</div>
-                    <div className="stat-label">準確率</div>
+                    <div className="stat-number">即時</div>
+                    <div className="stat-label">市場數據</div>
                   </div>
                   <div className="stat-item">
                     <div className="stat-number">24/7</div>
-                    <div className="stat-label">服務時間</div>
+                    <div className="stat-label">全天候服務</div>
                   </div>
                 </div>
               </div>
