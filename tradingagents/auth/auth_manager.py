@@ -295,24 +295,51 @@ class JWTManager:
                 detail="無效的令牌"
             )
     
-    def refresh_token(self, refresh_token: str) -> str:
-        """刷新令牌"""
-        payload = self.decode_token(refresh_token)
+    def refresh_token(
+        self,
+        refresh_token: str,
+        payload: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Wheel refresh token and mint a new token pair."""
+        payload = payload or self.decode_token(refresh_token)
         
         if payload.get('token_type') != 'refresh':
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="無效的刷新令牌"
+                detail="Invalid refresh token"
             )
         
-        # 生成新的訪問令牌
-        new_token = self.generate_token(
-            user_id=payload['user_id'],
-            permissions=payload['permissions'],
-            token_type='access'
+        # Revoke old refresh token by JTI
+        jti = payload.get('jti')
+        if jti:
+            self.revoked_jtis.add(jti)
+        
+        preserved_claims: Dict[str, Any] = {}
+        if 'session_id' in payload:
+            preserved_claims['session_id'] = payload['session_id']
+        
+        permissions = payload.get('permissions', [])
+        user_id = payload.get('user_id')
+        
+        new_access_token = self.generate_token(
+            user_id=user_id,
+            permissions=permissions,
+            token_type='access',
+            custom_claims=preserved_claims or None
         )
         
-        return new_token
+        new_refresh_token = self.generate_token(
+            user_id=user_id,
+            permissions=permissions,
+            token_type='refresh',
+            custom_claims=preserved_claims or None
+        )
+        
+        return {
+            'access_token': new_access_token,
+            'refresh_token': new_refresh_token,
+            'payload': payload
+        }
 
 class AuthenticationManager:
     """認證管理器"""
@@ -394,25 +421,28 @@ class AuthenticationManager:
                 permissions=UserPermissions()
             )
             
-            # 生成令牌
+            # 生成權限與會話
             permissions = self._get_user_permissions(user_context)
+            session = await self._create_session(
+                user_context=user_context,
+                auth_method=AuthMethod.JWT_TOKEN,
+                client_info=client_info or {}
+            )
+            
+            token_claims = {'session_id': session.session_id}
+            
             access_token = self.jwt_manager.generate_token(
                 user_id=user_context.user_id,
                 permissions=permissions,
-                token_type='access'
+                token_type='access',
+                custom_claims=token_claims
             )
             
             refresh_token = self.jwt_manager.generate_token(
                 user_id=user_context.user_id,
                 permissions=permissions,
-                token_type='refresh'
-            )
-            
-            # 創建會話
-            session = await self._create_session(
-                user_context=user_context,
-                auth_method=AuthMethod.JWT_TOKEN,
-                client_info=client_info or {}
+                token_type='refresh',
+                custom_claims=token_claims
             )
             
             # 創建認證令牌
@@ -454,6 +484,45 @@ class AuthenticationManager:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="認證服務暫時不可用"
             )
+    
+    def rotate_refresh_token(self, refresh_token: str) -> Dict[str, Any]:
+        """Rotate refresh token and mint a new token pair."""
+        payload = self.jwt_manager.decode_token(refresh_token)
+        
+        if payload.get('token_type') != 'refresh':
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token"
+            )
+        
+        session_id = payload.get('session_id')
+        jti = payload.get('jti')
+        
+        if session_id:
+            session = self.active_sessions.get(session_id)
+            if not session or not session.is_valid():
+                if jti:
+                    self.jwt_manager.revoked_jtis.add(jti)
+                security_logger.warning("Refresh token used for invalid session", extra={
+                    'user_id': payload.get('user_id'),
+                    'session_id': session_id,
+                    'security_event': 'refresh_token_invalid_session'
+                })
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Session expired or invalid"
+                )
+            session.refresh()
+        
+        rotation = self.jwt_manager.refresh_token(refresh_token, payload=payload)
+        
+        security_logger.info("Refresh token rotated", extra={
+            'user_id': payload.get('user_id'),
+            'session_id': session_id,
+            'security_event': 'refresh_token_rotated'
+        })
+        
+        return rotation
     
     async def verify_token(self, token: str) -> UserContext:
         """驗證令牌"""

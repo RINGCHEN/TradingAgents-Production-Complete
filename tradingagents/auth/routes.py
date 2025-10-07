@@ -59,6 +59,7 @@ class RefreshTokenRequest(BaseModel):
 class TokenResponse(BaseModel):
     """令牌回應"""
     access_token: str = Field(..., description="新的訪問令牌")
+    refresh_token: str = Field(..., description="新的刷新令牌")
     token_type: str = Field("Bearer", description="令牌類型")
     expires_in: int = Field(..., description="過期時間(秒)")
 
@@ -225,18 +226,22 @@ async def refresh_token(
     auth_manager = get_auth_manager()
     
     try:
-        new_token = auth_manager.jwt_manager.refresh_token(request.refresh_token)
+        rotation = auth_manager.rotate_refresh_token(request.refresh_token)
+        access_token = rotation['access_token']
+        refresh_token = rotation['refresh_token']
         
-        # 解碼新令牌獲取過期時間
-        payload = auth_manager.jwt_manager.decode_token(new_token)
+        # 解碼新訪問令牌以取得過期時間
+        payload = auth_manager.jwt_manager.decode_token(access_token)
         expires_in = int(payload['exp'] - datetime.now().timestamp())
         
         api_logger.info("令牌刷新成功", extra={
-            'user_id': payload.get('user_id')
+            'user_id': payload.get('user_id'),
+            'session_id': payload.get('session_id')
         })
         
         return TokenResponse(
-            access_token=new_token,
+            access_token=access_token,
+            refresh_token=refresh_token,
             expires_in=expires_in
         )
         
