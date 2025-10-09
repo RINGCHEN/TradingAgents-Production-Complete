@@ -18,7 +18,7 @@ import os
 
 # 創建路由器
 router = APIRouter(prefix="/auth", tags=["authentication"])
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 # JWT配置 - 從環境變量讀取
 _secret_key = os.getenv("SECRET_KEY")
@@ -151,8 +151,17 @@ def verify_token(token: str, token_type: str = "access"):
     except JWTError:
         return None
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """獲取當前用戶（從資料庫查詢）"""
+def get_current_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+):
+    """Get current admin user from database."""
+    if credentials is None or not getattr(credentials, "credentials", None):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication credentials required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     token = credentials.credentials
     payload = verify_token(token)
 
@@ -171,7 +180,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # 從資料庫查詢用戶
+    # Query database for the admin user
     user = get_user_from_db(email)
     if user is None:
         raise HTTPException(
