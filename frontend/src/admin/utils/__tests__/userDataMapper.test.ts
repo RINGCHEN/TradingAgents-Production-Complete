@@ -1,5 +1,5 @@
 import { mapBackendUserToFrontend, mapFrontendUserToBackend } from '../userDataMapper';
-import { UserRole } from '../../types/AdminTypes';
+import { UserRole, MembershipTier, AuthProvider, UserStatus } from '../../types/AdminTypes';
 
 describe('userDataMapper', () => {
   describe('mapBackendUserToFrontend', () => {
@@ -81,6 +81,58 @@ describe('userDataMapper', () => {
       expect(result.createdAt).toBe('2025-01-01T10:30:00.000Z');
       expect(result.updatedAt).toBe('2025-01-15T14:45:00.000Z');
     });
+
+    it('應該處理 null/undefined 時間戳', () => {
+      const backendUser = {
+        id: 4,
+        email: 'nulltime@example.com',
+        created_at: null,
+        updated_at: undefined,
+        last_login: null,
+        status: 'active'
+      };
+
+      const result = mapBackendUserToFrontend(backendUser);
+
+      // 應該提供默認值或當前時間
+      expect(result.createdAt).toBeDefined();
+      expect(result.updatedAt).toBeDefined();
+      expect(result.lastLoginAt).toBeUndefined();
+    });
+
+    it('應該處理無效時間戳', () => {
+      const backendUser = {
+        id: 5,
+        email: 'invalidtime@example.com',
+        created_at: 'invalid-date',
+        updated_at: 'not-a-timestamp',
+        status: 'active'
+      };
+
+      const result = mapBackendUserToFrontend(backendUser);
+
+      // 應該優雅地處理無效日期
+      expect(result.createdAt).toBeDefined();
+      expect(result.updatedAt).toBeDefined();
+    });
+
+    it('應該處理空的 tier 值並提供默認值', () => {
+      const backendUser = {
+        id: 6,
+        email: 'notier@example.com',
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T00:00:00Z',
+        status: 'active'
+        // membership_tier, auth_provider, status 都未提供
+      };
+
+      const result = mapBackendUserToFrontend(backendUser);
+
+      // 應該提供默認值
+      expect(result.membershipTier).toBe(MembershipTier.FREE);
+      expect(result.authProvider).toBe(AuthProvider.EMAIL);
+      expect(result.status).toBe(UserStatus.ACTIVE);
+    });
   });
 
   describe('mapFrontendUserToBackend', () => {
@@ -91,8 +143,9 @@ describe('userDataMapper', () => {
         firstName: '測試',
         lastName: '用戶',
         displayName: '測試 用戶',
-        membershipTier: 'gold' as any,
-        authProvider: 'email' as any,
+        membershipTier: MembershipTier.GOLD,
+        authProvider: AuthProvider.EMAIL,
+        status: UserStatus.ACTIVE,
         emailVerified: true,
         phone: '+886912345678',
         country: 'TW',
@@ -105,21 +158,22 @@ describe('userDataMapper', () => {
       expect(result.email).toBe('test@example.com');
       expect(result.username).toBe('testuser');
       expect(result.display_name).toBe('測試 用戶');
-      expect(result.membership_tier).toBe('gold');
-      expect(result.auth_provider).toBe('email');
+      expect(result.membership_tier).toBe(MembershipTier.GOLD);
+      expect(result.auth_provider).toBe(AuthProvider.EMAIL);
+      expect(result.status).toBe(UserStatus.ACTIVE);
       expect(result.phone).toBe('+886912345678');
     });
 
-    it('應該使用預設值', () => {
+    it('應該使用預設枚舉值', () => {
       const minimalUser = {
         email: 'minimal@example.com'
       };
 
       const result = mapFrontendUserToBackend(minimalUser);
 
-      expect(result.membership_tier).toBe('free');
-      expect(result.status).toBe('active');
-      expect(result.auth_provider).toBe('email');
+      expect(result.membership_tier).toBe(MembershipTier.FREE);
+      expect(result.status).toBe(UserStatus.ACTIVE);
+      expect(result.auth_provider).toBe(AuthProvider.EMAIL);
       expect(result.email_verified).toBe(false);
       expect(result.timezone).toBe('Asia/Taipei');
       expect(result.language).toBe('zh-TW');

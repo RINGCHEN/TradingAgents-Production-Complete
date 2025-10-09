@@ -1,6 +1,23 @@
 import { User, UserRole, UserStatus, MembershipTier, AuthProvider } from '../types/AdminTypes';
 
 /**
+ * 安全地轉換時間戳為 ISO 字符串
+ * @param timestamp - 可能為 null/undefined 的時間戳
+ * @returns ISO 字符串或 undefined
+ */
+function safeToISOString(timestamp: any): string | undefined {
+  if (!timestamp) return undefined;
+  try {
+    const date = new Date(timestamp);
+    // 檢查是否為有效日期
+    if (isNaN(date.getTime())) return undefined;
+    return date.toISOString();
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * 將後端 UserResponse 映射為前端 User
  *
  * ⚠️ 重要：role 欄位處理說明
@@ -40,12 +57,12 @@ export function mapBackendUserToFrontend(backendUser: any): User {
     // ⚠️ 角色：固定為 USER（Phase 1 臨時方案）
     role: UserRole.USER,
 
-    // 會員與認證
-    membershipTier: backendUser.membership_tier as MembershipTier,
-    authProvider: backendUser.auth_provider as AuthProvider,
+    // 會員與認證（使用枚舉或提供默認值）
+    membershipTier: backendUser.membership_tier as MembershipTier || MembershipTier.FREE,
+    authProvider: backendUser.auth_provider as AuthProvider || AuthProvider.EMAIL,
 
-    // 狀態
-    status: backendUser.status as UserStatus,
+    // 狀態（使用枚舉或提供默認值）
+    status: backendUser.status as UserStatus || UserStatus.ACTIVE,
     emailVerified: backendUser.email_verified,
 
     // 配額
@@ -59,10 +76,10 @@ export function mapBackendUserToFrontend(backendUser: any): User {
     loginCount: backendUser.login_count,
     isPremium: backendUser.is_premium,
 
-    // 時間戳
-    createdAt: new Date(backendUser.created_at).toISOString(),
-    updatedAt: new Date(backendUser.updated_at).toISOString(),
-    lastLoginAt: backendUser.last_login ? new Date(backendUser.last_login).toISOString() : undefined,
+    // 時間戳（使用安全轉換）
+    createdAt: safeToISOString(backendUser.created_at) || new Date().toISOString(),
+    updatedAt: safeToISOString(backendUser.updated_at) || new Date().toISOString(),
+    lastLoginAt: safeToISOString(backendUser.last_login),
 
     // 個人資料
     phone: backendUser.phone,
@@ -86,9 +103,9 @@ export function mapFrontendUserToBackend(frontendUser: Partial<User>): any {
     username: frontendUser.username,
     display_name,
     avatar_url: frontendUser.avatar === '/default-avatar.png' ? null : frontendUser.avatar,
-    membership_tier: frontendUser.membershipTier || 'free',
-    status: frontendUser.status || 'active',
-    auth_provider: frontendUser.authProvider || 'email',
+    membership_tier: frontendUser.membershipTier || MembershipTier.FREE,
+    status: frontendUser.status || UserStatus.ACTIVE,
+    auth_provider: frontendUser.authProvider || AuthProvider.EMAIL,
     email_verified: frontendUser.emailVerified || false,
     daily_api_quota: frontendUser.dailyApiQuota,
     monthly_api_quota: frontendUser.monthlyApiQuota,
