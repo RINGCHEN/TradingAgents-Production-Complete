@@ -132,8 +132,7 @@ describe('userDataMapper', () => {
 
       // 應該記錄無效格式警告
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('無效的時間戳格式'),
-        expect.anything()
+        expect.stringContaining('無效的時間戳格式')
       );
 
       warnSpy.mockRestore();
