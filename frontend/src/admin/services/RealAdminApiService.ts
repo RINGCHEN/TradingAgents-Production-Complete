@@ -508,13 +508,13 @@ export class RealAdminApiService {
 
   /**
    * 獲取會員等級列表
-   * 對應API: GET /metadata/membership-tiers
+   * 對應API: GET /admin/users/metadata/membership-tiers
    */
   async getMembershipTiers(): Promise<MembershipTier[]> {
-    this.logApiCall('/metadata/membership-tiers', 'GET');
-    
+    this.logApiCall('/admin/users/metadata/membership-tiers', 'GET');
+
     try {
-      const response = await this.apiClient.get<MembershipTier[]>('/metadata/membership-tiers');
+      const response = await this.apiClient.get<MembershipTier[]>('/admin/users/metadata/membership-tiers');
       return response.data;
     } catch (error) {
       console.error('獲取會員等級失敗:', error);
@@ -524,7 +524,7 @@ export class RealAdminApiService {
 
   /**
    * 獲取認證提供者列表
-   * 對應API: GET /metadata/auth-providers
+   * 對應API: GET /admin/users/metadata/auth-providers
    */
   async getAuthProviders(): Promise<Array<{
     id: string;
@@ -532,10 +532,10 @@ export class RealAdminApiService {
     type: string;
     enabled: boolean;
   }>> {
-    this.logApiCall('/metadata/auth-providers', 'GET');
-    
+    this.logApiCall('/admin/users/metadata/auth-providers', 'GET');
+
     try {
-      const response = await this.apiClient.get('/metadata/auth-providers');
+      const response = await this.apiClient.get('/admin/users/metadata/auth-providers');
       return response.data;
     } catch (error) {
       console.error('獲取認證提供者失敗:', error);
@@ -573,7 +573,7 @@ export class RealAdminApiService {
 
   /**
    * 獲取訂閱列表
-   * 對應API: GET /subscription/list
+   * 對應API: GET /admin/subscription/list
    */
   async getSubscriptionList(): Promise<{
     subscriptions: Array<{
@@ -589,10 +589,10 @@ export class RealAdminApiService {
     total_revenue: number;
     active_subscriptions: number;
   }> {
-    this.logApiCall('/subscription/list', 'GET');
-    
+    this.logApiCall('/admin/subscription/list', 'GET');
+
     try {
-      const response = await this.apiClient.get('/subscription/list');
+      const response = await this.apiClient.get('/admin/subscription/list');
       return response.data;
     } catch (error) {
       console.error('獲取訂閱列表失敗:', error);
@@ -780,10 +780,10 @@ export class RealAdminApiService {
     active_connections: number;
     database_connections: number;
   }> {
-    this.logApiCall('/system/metrics', 'GET');
-    
+    this.logApiCall('/admin/system/metrics/system', 'GET');
+
     try {
-      const response = await this.apiClient.get('/system/metrics');
+      const response = await this.apiClient.get('/admin/system/metrics/system');
       return response.data;
     } catch (error) {
       console.error('獲取系統指標失敗:', error);
