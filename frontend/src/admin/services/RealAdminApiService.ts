@@ -4,6 +4,8 @@
  */
 
 import { ApiClient } from '../../services/ApiClient';
+import { User } from '../types/AdminTypes';
+import { mapBackendUserToFrontend, mapFrontendUserToBackend } from '../utils/userDataMapper';
 
 // 基礎API響應類型
 interface ApiResponse<T = any> {
@@ -257,13 +259,13 @@ export class RealAdminApiService {
     role?: string;
     status?: string;
   }): Promise<{
-    users: RealUser[];
+    users: User[];
     total: number;
     page: number;
     limit: number;
   }> {
     this.logApiCall('/admin/users/', 'GET');
-    
+
     try {
       const queryParams = new URLSearchParams();
       if (params?.page) queryParams.append('page', params.page.toString());
@@ -273,14 +275,22 @@ export class RealAdminApiService {
       if (params?.status) queryParams.append('status', params.status);
 
       const url = `/admin/users/${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+
+      // 後端返回格式: { items, page_size, total, page }
       const response = await this.apiClient.get<{
-        users: RealUser[];
+        items: any[];
         total: number;
         page: number;
-        limit: number;
+        page_size: number;
       }>(url);
-      
-      return response.data;
+
+      // 使用 mapper 轉換並統一字段名稱
+      return {
+        users: (response.data.items || []).map(mapBackendUserToFrontend),
+        total: response.data.total || 0,
+        page: response.data.page || 1,
+        limit: response.data.page_size || 10
+      };
     } catch (error) {
       console.error('獲取用戶列表失敗:', error);
       // 提供合理的降級響應
@@ -297,24 +307,24 @@ export class RealAdminApiService {
    * 創建用戶
    * 對應API: POST /admin/users/
    */
-  async createUser(userData: {
-    username: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    role?: string;
-    phoneNumber?: string;
-    membershipTier?: string;
-  }): Promise<{
+  async createUser(userData: Partial<User>): Promise<{
     success: boolean;
-    data: RealUser;
+    data: User;
     message: string;
   }> {
     this.logApiCall('/admin/users/', 'POST');
-    
+
     try {
-      const response = await this.apiClient.post('/admin/users/', userData);
-      return response;
+      // 使用 mapper 轉換為後端格式
+      const backendData = mapFrontendUserToBackend(userData);
+      const response = await this.apiClient.post('/admin/users/', backendData);
+
+      // 使用 mapper 轉換響應
+      return {
+        success: response.success !== undefined ? response.success : true,
+        data: mapBackendUserToFrontend(response.data),
+        message: response.message || '用戶創建成功'
+      };
     } catch (error) {
       console.error('創建用戶失敗:', error);
       throw new Error('無法創建用戶');
@@ -325,25 +335,24 @@ export class RealAdminApiService {
    * 更新用戶
    * 對應API: PUT /admin/users/{user_id}
    */
-  async updateUser(userId: string, userData: {
-    username?: string;
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    role?: string;
-    status?: string;
-    phoneNumber?: string;
-    membershipTier?: string;
-  }): Promise<{
+  async updateUser(userId: string, userData: Partial<User>): Promise<{
     success: boolean;
-    data: RealUser;
+    data: User;
     message: string;
   }> {
     this.logApiCall(`/admin/users/${userId}`, 'PUT');
-    
+
     try {
-      const response = await this.apiClient.put(`/admin/users/${userId}`, userData);
-      return response;
+      // 使用 mapper 轉換為後端格式
+      const backendData = mapFrontendUserToBackend(userData);
+      const response = await this.apiClient.put(`/admin/users/${userId}`, backendData);
+
+      // 使用 mapper 轉換響應
+      return {
+        success: response.success !== undefined ? response.success : true,
+        data: mapBackendUserToFrontend(response.data),
+        message: response.message || '用戶更新成功'
+      };
     } catch (error) {
       console.error('更新用戶失敗:', error);
       throw new Error('無法更新用戶');
@@ -377,12 +386,13 @@ export class RealAdminApiService {
    * 獲取單個用戶詳情
    * 對應API: GET /admin/users/{user_id}
    */
-  async getUser(userId: string): Promise<RealUser> {
+  async getUser(userId: string): Promise<User> {
     this.logApiCall(`/admin/users/${userId}`, 'GET');
-    
+
     try {
       const response = await this.apiClient.get(`/admin/users/${userId}`);
-      return response.data;
+      // 使用 mapper 轉換後端響應
+      return mapBackendUserToFrontend(response.data);
     } catch (error) {
       console.error('獲取用戶詳情失敗:', error);
       throw new Error('無法獲取用戶詳情');
