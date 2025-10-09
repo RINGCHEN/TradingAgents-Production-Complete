@@ -295,28 +295,30 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
           )}
         </form>
 
-        {/* 示範帳戶 */}
-        <div className="demo-accounts">
-          <h3>示範帳戶</h3>
-          <div className="demo-buttons">
-            <button 
-              onClick={() => handleDemoLogin('admin')} 
-              className="demo-btn admin-demo"
-              disabled={isLoading}
-            >
-              👑 超級管理員
-              <small>admin / admin123 (admin@example.com)</small>
-            </button>
-            <button 
-              onClick={() => handleDemoLogin('manager')} 
-              className="demo-btn manager-demo"
-              disabled={isLoading}
-            >
-              🎯 經理
-              <small>manager / manager123</small>
-            </button>
+        {/* 示範帳戶 - 僅開發環境顯示 */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="demo-accounts">
+            <h3>示範帳戶 (僅開發環境)</h3>
+            <div className="demo-buttons">
+              <button
+                onClick={() => handleDemoLogin('admin')}
+                className="demo-btn admin-demo"
+                disabled={isLoading}
+              >
+                👑 超級管理員
+                <small>admin / admin123 (admin@example.com)</small>
+              </button>
+              <button
+                onClick={() => handleDemoLogin('manager')}
+                className="demo-btn manager-demo"
+                disabled={isLoading}
+              >
+                🎯 經理
+                <small>manager / manager123</small>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="login-footer">
           <div className="security-features">
