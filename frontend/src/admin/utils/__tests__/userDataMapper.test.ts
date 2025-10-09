@@ -82,7 +82,10 @@ describe('userDataMapper', () => {
       expect(result.updatedAt).toBe('2025-01-15T14:45:00.000Z');
     });
 
-    it('應該處理 null/undefined 時間戳', () => {
+    it('應該處理 null/undefined 時間戳並記錄警告', () => {
+      // 監聽 console.warn
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
       const backendUser = {
         id: 4,
         email: 'nulltime@example.com',
@@ -94,13 +97,25 @@ describe('userDataMapper', () => {
 
       const result = mapBackendUserToFrontend(backendUser);
 
-      // 應該提供默認值或當前時間
+      // 應該提供默認值（當前時間）
       expect(result.createdAt).toBeDefined();
       expect(result.updatedAt).toBeDefined();
       expect(result.lastLoginAt).toBeUndefined();
+
+      // 應該記錄警告（因為 created_at/updated_at 是必填）
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('缺少必填時間戳欄位: created_at')
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('缺少必填時間戳欄位: updated_at')
+      );
+
+      warnSpy.mockRestore();
     });
 
-    it('應該處理無效時間戳', () => {
+    it('應該處理無效時間戳並記錄警告', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
       const backendUser = {
         id: 5,
         email: 'invalidtime@example.com',
@@ -111,9 +126,17 @@ describe('userDataMapper', () => {
 
       const result = mapBackendUserToFrontend(backendUser);
 
-      // 應該優雅地處理無效日期
+      // 應該優雅地處理無效日期（提供回退值）
       expect(result.createdAt).toBeDefined();
       expect(result.updatedAt).toBeDefined();
+
+      // 應該記錄無效格式警告
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('無效的時間戳格式'),
+        expect.anything()
+      );
+
+      warnSpy.mockRestore();
     });
 
     it('應該處理空的 tier 值並提供默認值', () => {

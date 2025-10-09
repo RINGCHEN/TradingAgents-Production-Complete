@@ -3,16 +3,36 @@ import { User, UserRole, UserStatus, MembershipTier, AuthProvider } from '../typ
 /**
  * 安全地轉換時間戳為 ISO 字符串
  * @param timestamp - 可能為 null/undefined 的時間戳
+ * @param fieldName - 欄位名稱（用於日誌）
+ * @param warnOnMissing - 是否在缺失時警告（對於必填欄位）
  * @returns ISO 字符串或 undefined
  */
-function safeToISOString(timestamp: any): string | undefined {
-  if (!timestamp) return undefined;
+function safeToISOString(
+  timestamp: any,
+  fieldName?: string,
+  warnOnMissing: boolean = false
+): string | undefined {
+  if (!timestamp) {
+    if (warnOnMissing && fieldName) {
+      console.warn(`[userDataMapper] 缺少必填時間戳欄位: ${fieldName}，使用當前時間作為回退值`);
+    }
+    return undefined;
+  }
+
   try {
     const date = new Date(timestamp);
     // 檢查是否為有效日期
-    if (isNaN(date.getTime())) return undefined;
+    if (isNaN(date.getTime())) {
+      if (fieldName) {
+        console.warn(`[userDataMapper] 無效的時間戳格式 (${fieldName}): ${timestamp}`);
+      }
+      return undefined;
+    }
     return date.toISOString();
-  } catch {
+  } catch (error) {
+    if (fieldName) {
+      console.warn(`[userDataMapper] 時間戳轉換失敗 (${fieldName}):`, error);
+    }
     return undefined;
   }
 }
@@ -76,10 +96,10 @@ export function mapBackendUserToFrontend(backendUser: any): User {
     loginCount: backendUser.login_count,
     isPremium: backendUser.is_premium,
 
-    // 時間戳（使用安全轉換）
-    createdAt: safeToISOString(backendUser.created_at) || new Date().toISOString(),
-    updatedAt: safeToISOString(backendUser.updated_at) || new Date().toISOString(),
-    lastLoginAt: safeToISOString(backendUser.last_login),
+    // 時間戳（使用安全轉換，必填欄位缺失時警告並使用當前時間）
+    createdAt: safeToISOString(backendUser.created_at, 'created_at', true) || new Date().toISOString(),
+    updatedAt: safeToISOString(backendUser.updated_at, 'updated_at', true) || new Date().toISOString(),
+    lastLoginAt: safeToISOString(backendUser.last_login, 'last_login', false),
 
     // 個人資料
     phone: backendUser.phone,
