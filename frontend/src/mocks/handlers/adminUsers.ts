@@ -6,7 +6,7 @@
  * DO NOT call mapBackendUserToFrontend in handlers or data gets mapped twice!
  */
 
-import { http, HttpResponse } from 'msw';
+import { rest } from 'msw';
 import { mapFrontendUserToBackend } from '../../admin/utils/userDataMapper';
 import { User } from '../../admin/types/AdminTypes';
 
@@ -101,13 +101,12 @@ let nextId = 5;
 export const adminUsersHandlers = [
   // GET /admin/users - List users with pagination and filters
   // Returns backend format: { items, total, page, page_size } with snake_case records
-  http.get('/admin/users', ({ request }) => {
-    const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') || '1');
-    const limit = parseInt(url.searchParams.get('limit') || '25');
-    const keyword = url.searchParams.get('keyword'); // ⚠️ Backend uses 'keyword' not 'search'
-    const role = url.searchParams.get('role');
-    const status = url.searchParams.get('status');
+  rest.get('/admin/users', (req, res, ctx) => {
+    const page = parseInt(req.url.searchParams.get('page') || '1');
+    const limit = parseInt(req.url.searchParams.get('limit') || '25');
+    const keyword = req.url.searchParams.get('keyword'); // ⚠️ Backend uses 'keyword' not 'search'
+    const role = req.url.searchParams.get('role');
+    const status = req.url.searchParams.get('status');
 
     // Filter users
     let filtered = [...users];
@@ -133,39 +132,45 @@ export const adminUsersHandlers = [
 
     // ⚠️ Return raw backend objects (snake_case) - RealAdminApiService will map them
     // DO NOT call mapBackendUserToFrontend here, or users get mapped twice!
-    return HttpResponse.json({
-      items: paginatedUsers,  // Backend uses 'items' not 'users'
-      total,
-      page,
-      page_size: limit  // Backend uses 'page_size' not 'limit'
-    });
+    return res(
+      ctx.status(200),
+      ctx.json({
+        items: paginatedUsers,  // Backend uses 'items' not 'users'
+        total,
+        page,
+        page_size: limit  // Backend uses 'page_size' not 'limit'
+      })
+    );
   }),
 
   // GET /admin/users/:id - Get single user
   // Returns backend format with snake_case - RealAdminApiService will map it
-  http.get('/admin/users/:id', ({ params }) => {
-    const { id } = params;
+  rest.get('/admin/users/:id', (req, res, ctx) => {
+    const { id } = req.params;
     const user = users.find(u => u.id === parseInt(id as string));
 
     if (!user) {
-      return HttpResponse.json(
-        { success: false, message: '用戶不存在' },
-        { status: 404 }
+      return res(
+        ctx.status(404),
+        ctx.json({ success: false, message: '用戶不存在' })
       );
     }
 
     // ⚠️ Return raw backend object (snake_case) - DO NOT map here
-    return HttpResponse.json({
-      success: true,
-      data: user,  // Raw backend format
-      message: '獲取用戶成功'
-    });
+    return res(
+      ctx.status(200),
+      ctx.json({
+        success: true,
+        data: user,  // Raw backend format
+        message: '獲取用戶成功'
+      })
+    );
   }),
 
   // POST /admin/users - Create user
   // Receives frontend format, stores backend format, returns backend format
-  http.post('/admin/users/', async ({ request }) => {
-    const frontendUserData = await request.json() as Partial<User>;
+  rest.post('/admin/users/', async (req, res, ctx) => {
+    const frontendUserData = await req.json() as Partial<User>;
 
     // Transform to backend format using mapper (for storage)
     const backendUserData = mapFrontendUserToBackend(frontendUserData);
@@ -186,25 +191,28 @@ export const adminUsersHandlers = [
     users.push(newBackendUser);
 
     // ⚠️ Return raw backend object (snake_case) - RealAdminApiService will map it
-    return HttpResponse.json({
-      success: true,
-      data: newBackendUser,  // Raw backend format
-      message: '用戶創建成功'
-    }, { status: 201 });
+    return res(
+      ctx.status(201),
+      ctx.json({
+        success: true,
+        data: newBackendUser,  // Raw backend format
+        message: '用戶創建成功'
+      })
+    );
   }),
 
   // PUT /admin/users/:id - Update user
   // Receives frontend format, stores backend format, returns backend format
-  http.put('/admin/users/:id', async ({ params, request }) => {
-    const { id } = params;
-    const frontendUserData = await request.json() as Partial<User>;
+  rest.put('/admin/users/:id', async (req, res, ctx) => {
+    const { id } = req.params;
+    const frontendUserData = await req.json() as Partial<User>;
 
     const userIndex = users.findIndex(u => u.id === parseInt(id as string));
 
     if (userIndex === -1) {
-      return HttpResponse.json(
-        { success: false, message: '用戶不存在' },
-        { status: 404 }
+      return res(
+        ctx.status(404),
+        ctx.json({ success: false, message: '用戶不存在' })
       );
     }
 
@@ -219,35 +227,41 @@ export const adminUsersHandlers = [
     };
 
     // ⚠️ Return raw backend object (snake_case) - RealAdminApiService will map it
-    return HttpResponse.json({
-      success: true,
-      data: users[userIndex],  // Raw backend format
-      message: '用戶更新成功'
-    });
+    return res(
+      ctx.status(200),
+      ctx.json({
+        success: true,
+        data: users[userIndex],  // Raw backend format
+        message: '用戶更新成功'
+      })
+    );
   }),
 
   // DELETE /admin/users/:id - Delete user
-  http.delete('/admin/users/:id', ({ params }) => {
-    const { id } = params;
+  rest.delete('/admin/users/:id', (req, res, ctx) => {
+    const { id } = req.params;
     const userIndex = users.findIndex(u => u.id === parseInt(id as string));
 
     if (userIndex === -1) {
-      return HttpResponse.json(
-        { success: false, message: '用戶不存在' },
-        { status: 404 }
+      return res(
+        ctx.status(404),
+        ctx.json({ success: false, message: '用戶不存在' })
       );
     }
 
     users.splice(userIndex, 1);
 
-    return HttpResponse.json({
-      success: true,
-      message: '用戶刪除成功',
-      data: {
-        deleted_user_id: id,
-        deleted_at: new Date().toISOString()
-      }
-    });
+    return res(
+      ctx.status(200),
+      ctx.json({
+        success: true,
+        message: '用戶刪除成功',
+        data: {
+          deleted_user_id: id,
+          deleted_at: new Date().toISOString()
+        }
+      })
+    );
   })
 ];
 
