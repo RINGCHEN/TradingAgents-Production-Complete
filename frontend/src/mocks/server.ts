@@ -1,8 +1,7 @@
 /**
  * MSW Server Setup
  * For use in Node.js test environment (Jest)
- *
- * Note: Polyfills are handled in ../jest.polyfills.ts (loaded via setupTests.ts)
+ * Using MSW v1.3.2 for Jest 29 compatibility
  */
 
 import { setupServer } from 'msw/node';
