@@ -7,7 +7,7 @@ import { realAdminApiService } from '../services/RealAdminApiService';
 import { notificationService } from '../services/NotificationService';
 import { ApiResponse } from '../../services/ApiClient';
 
-// 通用API調用Hook
+// 通用API調用Hook (用於 ApiClient 返回的 ApiResponse)
 export function useApiCall<T>(
   apiCall: () => Promise<ApiResponse<T>>,
   dependencies: any[] = []
@@ -19,14 +19,45 @@ export function useApiCall<T>(
   const execute = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await apiCall();
-      if (response.success) {
+      if (response.success && response.data) {
         setData(response.data);
       } else {
-        setError(response.message || '請求失敗');
+        // ApiResponse uses response.error?.message, not response.message
+        setError(response.error?.message || '請求失敗');
       }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '未知錯誤');
+    } finally {
+      setLoading(false);
+    }
+  }, dependencies);
+
+  useEffect(() => {
+    execute();
+  }, [execute]);
+
+  return { data, loading, error, refetch: execute };
+}
+
+// Admin-specific API Hook (用於返回 plain object 的 admin APIs)
+export function useAdminApiCall<T>(
+  apiCall: () => Promise<T>,
+  dependencies: any[] = []
+) {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const execute = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await apiCall();
+      setData(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : '未知錯誤');
     } finally {
@@ -43,7 +74,7 @@ export function useApiCall<T>(
 
 // 系統狀態Hook
 export function useSystemStatus() {
-  return useApiCall(() => realAdminApiService.getSystemStatus() as any, []);
+  return useAdminApiCall(() => realAdminApiService.getAdminSystemStatus(), []);
 }
 
 // 用戶管理Hook
