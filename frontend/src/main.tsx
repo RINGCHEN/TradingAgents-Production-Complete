@@ -3,28 +3,48 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// 導入全域 fetch 封裝器 - 修復 API 路徑問題
+// 撠?典? fetch 撠???- 靽桀儔 API 頝臬???
 import './utils/globalFetch'
 
-// 確保DOM元素存在
-const rootElement = document.getElementById('root')
-
-if (!rootElement) {
-  throw new Error('Root element not found')
+async function enableMocking() {
+  if (import.meta.env.DEV) {
+    try {
+      const { worker } = await import('./mocks/browser')
+      await worker.start({
+        onUnhandledRequest: 'warn'
+      })
+      console.info('[MSW] Browser worker started (dev mode)')
+    } catch (error) {
+      console.warn('[MSW] Failed to start browser worker:', error)
+    }
+  }
 }
 
-// 隱藏載入動畫
-const loadingElement = document.getElementById('loading')
-if (loadingElement) {
-  loadingElement.style.display = 'none'
+async function startApp() {
+  await enableMocking()
+
+  // 蝣箔?DOM??摮
+  const rootElement = document.getElementById('root')
+
+  if (!rootElement) {
+    throw new Error('Root element not found')
+  }
+
+  // ?梯?頛?
+  const loadingElement = document.getElementById('loading')
+  if (loadingElement) {
+    loadingElement.style.display = 'none'
+  }
+
+  // 皜脫?React?
+  ReactDOM.createRoot(rootElement).render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>,
+  )
+
+  // ?頛摰?敺???
+  console.log('?? TradingAgents React?撌脰???)
 }
 
-// 渲染React應用
-ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
-
-// 應用載入完成後的處理
-console.log('🚀 TradingAgents React應用已載入')
+startApp()
