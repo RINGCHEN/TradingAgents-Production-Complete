@@ -1,11 +1,14 @@
 /**
  * MSW Handlers for Admin User Management APIs
- * Phase 1: Uses mapBackendUserToFrontend for proper data transformation
+ *
+ * IMPORTANT: These handlers return raw backend format (snake_case)
+ * RealAdminApiService handles the mapping to frontend format
+ * DO NOT call mapBackendUserToFrontend in handlers or data gets mapped twice!
  */
 
 import { http, HttpResponse } from 'msw';
-import { mapBackendUserToFrontend, mapFrontendUserToBackend } from '../../admin/utils/userDataMapper';
-import { User, UserRole, UserStatus, MembershipTier, AuthProvider } from '../../admin/types/AdminTypes';
+import { mapFrontendUserToBackend } from '../../admin/utils/userDataMapper';
+import { User } from '../../admin/types/AdminTypes';
 
 // Mock backend user data (snake_case format from API)
 const mockBackendUsers = [
@@ -97,23 +100,24 @@ let nextId = 5;
 
 export const adminUsersHandlers = [
   // GET /admin/users - List users with pagination and filters
+  // Returns backend format: { items, total, page, page_size } with snake_case records
   http.get('/admin/users', ({ request }) => {
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '25');
-    const search = url.searchParams.get('search');
+    const keyword = url.searchParams.get('keyword'); // ⚠️ Backend uses 'keyword' not 'search'
     const role = url.searchParams.get('role');
     const status = url.searchParams.get('status');
 
     // Filter users
     let filtered = [...users];
 
-    if (search) {
-      const searchLower = search.toLowerCase();
+    if (keyword) {
+      const keywordLower = keyword.toLowerCase();
       filtered = filtered.filter(u =>
-        u.email.toLowerCase().includes(searchLower) ||
-        u.username.toLowerCase().includes(searchLower) ||
-        u.display_name?.toLowerCase().includes(searchLower)
+        u.email.toLowerCase().includes(keywordLower) ||
+        u.username.toLowerCase().includes(keywordLower) ||
+        u.display_name?.toLowerCase().includes(keywordLower)
       );
     }
 
@@ -127,18 +131,18 @@ export const adminUsersHandlers = [
     const end = start + limit;
     const paginatedUsers = filtered.slice(start, end);
 
-    // Transform to frontend format using mapper
-    const transformedUsers = paginatedUsers.map(mapBackendUserToFrontend);
-
+    // ⚠️ Return raw backend objects (snake_case) - RealAdminApiService will map them
+    // DO NOT call mapBackendUserToFrontend here, or users get mapped twice!
     return HttpResponse.json({
-      users: transformedUsers,
+      items: paginatedUsers,  // Backend uses 'items' not 'users'
       total,
       page,
-      limit
+      page_size: limit  // Backend uses 'page_size' not 'limit'
     });
   }),
 
   // GET /admin/users/:id - Get single user
+  // Returns backend format with snake_case - RealAdminApiService will map it
   http.get('/admin/users/:id', ({ params }) => {
     const { id } = params;
     const user = users.find(u => u.id === parseInt(id as string));
@@ -150,20 +154,20 @@ export const adminUsersHandlers = [
       );
     }
 
-    const transformedUser = mapBackendUserToFrontend(user);
-
+    // ⚠️ Return raw backend object (snake_case) - DO NOT map here
     return HttpResponse.json({
       success: true,
-      data: transformedUser,
+      data: user,  // Raw backend format
       message: '獲取用戶成功'
     });
   }),
 
   // POST /admin/users - Create user
+  // Receives frontend format, stores backend format, returns backend format
   http.post('/admin/users/', async ({ request }) => {
     const frontendUserData = await request.json() as Partial<User>;
 
-    // Transform to backend format using mapper
+    // Transform to backend format using mapper (for storage)
     const backendUserData = mapFrontendUserToBackend(frontendUserData);
 
     // Create new user with backend format
@@ -181,17 +185,16 @@ export const adminUsersHandlers = [
 
     users.push(newBackendUser);
 
-    // Transform back to frontend format
-    const transformedUser = mapBackendUserToFrontend(newBackendUser);
-
+    // ⚠️ Return raw backend object (snake_case) - RealAdminApiService will map it
     return HttpResponse.json({
       success: true,
-      data: transformedUser,
+      data: newBackendUser,  // Raw backend format
       message: '用戶創建成功'
     }, { status: 201 });
   }),
 
   // PUT /admin/users/:id - Update user
+  // Receives frontend format, stores backend format, returns backend format
   http.put('/admin/users/:id', async ({ params, request }) => {
     const { id } = params;
     const frontendUserData = await request.json() as Partial<User>;
@@ -205,7 +208,7 @@ export const adminUsersHandlers = [
       );
     }
 
-    // Transform to backend format
+    // Transform to backend format (for storage)
     const backendUpdateData = mapFrontendUserToBackend(frontendUserData);
 
     // Update user
@@ -215,12 +218,10 @@ export const adminUsersHandlers = [
       updated_at: new Date().toISOString()
     };
 
-    // Transform back to frontend format
-    const transformedUser = mapBackendUserToFrontend(users[userIndex]);
-
+    // ⚠️ Return raw backend object (snake_case) - RealAdminApiService will map it
     return HttpResponse.json({
       success: true,
-      data: transformedUser,
+      data: users[userIndex],  // Raw backend format
       message: '用戶更新成功'
     });
   }),
