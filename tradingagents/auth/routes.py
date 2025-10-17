@@ -210,7 +210,7 @@ async def register(
                 "email": request.email,
                 "username": request.username,
                 "password_hash": password_hash,
-                "membership_tier": membership_tier.value.lower()
+                "membership_tier": membership_tier.name  # 使用 .name 得到大寫的 'FREE', 'GOLD', 'DIAMOND'
             })
             db.commit()
 
