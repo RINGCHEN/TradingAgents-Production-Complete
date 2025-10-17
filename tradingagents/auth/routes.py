@@ -15,7 +15,7 @@
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Response, BackgroundTasks
 from pydantic import BaseModel, Field, EmailStr
 
 from .auth_manager import get_auth_manager, AuthToken
