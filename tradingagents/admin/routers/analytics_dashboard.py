@@ -810,7 +810,7 @@ async def create_custom_widget(
             summary="生成自定義報表")
 async def generate_custom_report(
     report_config: Dict[str, Any] = Body(...),
-    background_tasks: BackgroundTasks,
+    # background_tasks parameter removed for compatibility
     db: Session = Depends(get_db),
     current_user: UserContext = Depends(require_admin_access)
 ):

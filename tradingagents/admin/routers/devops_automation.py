@@ -493,7 +493,7 @@ async def get_deployment_jobs(
             summary="創建部署任務")
 async def create_deployment_job(
     deployment_config: Dict[str, Any] = Body(...),
-    background_tasks: BackgroundTasks,
+    # background_tasks parameter removed for compatibility
     db: Session = Depends(get_db),
     current_user: UserContext = Depends(require_admin_access)
 ):

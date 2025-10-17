@@ -583,7 +583,7 @@ async def get_user_lifecycle(
             summary="執行批量用戶操作")
 async def execute_bulk_operation(
     operation: BulkOperationRequest,
-    background_tasks: BackgroundTasks,
+    # background_tasks parameter removed for compatibility
     db: Session = Depends(get_db),
     current_user: UserContext = Depends(require_admin_access)
 ):

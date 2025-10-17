@@ -151,10 +151,11 @@ class DialogueManager:
         # ART 系統整合
         self.art_integration: Optional['ARTIntegration'] = None
         self._art_initialized = False
-        
-        # 異步初始化 ART 系統
-        if ART_AVAILABLE:
-            asyncio.create_task(self._initialize_art_system())
+
+        # 延遲初始化 ART 系統（避免在module導入時創建async task）
+        # ART系統將在首次使用時自動初始化
+        # if ART_AVAILABLE:
+        #     asyncio.create_task(self._initialize_art_system())
     
     async def _initialize_art_system(self):
         """初始化 ART 系統"""

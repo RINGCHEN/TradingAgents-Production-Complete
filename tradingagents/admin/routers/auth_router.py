@@ -5,7 +5,7 @@
 
 from datetime import datetime, timedelta
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 from jose import jwt, JWTError
@@ -325,8 +325,7 @@ async def login(login_data: LoginRequest):
 
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    background_tasks: Optional[BackgroundTasks] = None
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
     """
     刷新訪問token（優化版本）
@@ -382,19 +381,8 @@ async def refresh_token(
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # 異步緩存用戶數據（不阻塞響應）
-        if redis_service.is_connected and background_tasks:
-            async def cache_user_data():
-                try:
-                    await redis_service.set(
-                        user_cache_key,
-                        json.dumps(user),
-                        ex=300  # 緩存5分鐘
-                    )
-                except Exception:
-                    pass
-
-            background_tasks.add_task(cache_user_data)
+        # 異步緩存用戶數據（background_tasks optimization removed for compatibility）
+        # Caching logic disabled to fix deployment issues
 
     if not user["is_active"]:
         raise HTTPException(

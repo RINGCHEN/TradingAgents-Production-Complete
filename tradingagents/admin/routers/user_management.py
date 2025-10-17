@@ -597,7 +597,7 @@ async def bulk_action_users(
 @router.post("/export", response_model=UserExportResult, summary="導出用戶數據")
 async def export_users(
     export_request: UserExportRequest,
-    background_tasks: BackgroundTasks,
+    # background_tasks parameter removed for compatibility
     db: Session = Depends(get_db),
     current_user: UserContext = Depends(require_admin_access())
 ):

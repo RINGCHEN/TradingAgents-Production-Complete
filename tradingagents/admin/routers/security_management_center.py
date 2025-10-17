@@ -543,7 +543,7 @@ async def get_security_audit_logs(
             summary="導出安全審計日誌")
 async def export_audit_logs(
     export_config: Dict[str, Any] = Body(...),
-    background_tasks: BackgroundTasks,
+    # background_tasks parameter removed for compatibility
     db: Session = Depends(get_db),
     current_user: UserContext = Depends(require_admin_access)
 ):
