@@ -151,17 +151,6 @@ async def register(
                 detail=f"密碼強度不足: {', '.join(password_check['feedback'])}"
             )
 
-        # 檢查郵箱是否已存在
-        # 注意：這裡應該查詢資料庫，暫時使用簡化實現
-        existing_users = [u for u in auth_manager.active_sessions.values()
-                         if hasattr(u, 'user_id') and request.email in u.user_id]
-
-        if existing_users:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="郵箱已被註冊"
-            )
-
         # 生成用戶ID
         import uuid
         user_id = str(uuid.uuid4())
@@ -180,6 +169,67 @@ async def register(
             membership_tier=membership_tier,
             permissions=None  # 將自動根據等級分配權限
         )
+
+        # 哈希密碼
+        password_hash = auth_manager.password_manager.hash_password(request.password)
+
+        # 將用戶數據保存到資料庫
+        from ..database.database import SessionLocal
+        from sqlalchemy import text
+
+        db = SessionLocal()
+        try:
+            # 檢查郵箱是否已存在（資料庫級別）
+            check_query = text("SELECT id FROM users WHERE email = :email LIMIT 1")
+            existing = db.execute(check_query, {"email": request.email}).fetchone()
+
+            if existing:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="郵箱已被註冊"
+                )
+
+            # 插入用戶到資料庫
+            insert_query = text("""
+                INSERT INTO users (
+                    id, uuid, email, username, password_hash,
+                    membership_tier, status, email_verified,
+                    tier_type, created_at
+                )
+                VALUES (
+                    :id, :uuid, :email, :username, :password_hash,
+                    :membership_tier, 'active', false,
+                    :tier_type, CURRENT_TIMESTAMP
+                )
+                RETURNING id
+            """)
+
+            db.execute(insert_query, {
+                "id": user_id,
+                "uuid": user_id,  # 使用相同的 UUID
+                "email": request.email,
+                "username": request.username,
+                "password_hash": password_hash,
+                "membership_tier": membership_tier.value.lower(),
+                "tier_type": membership_tier.value.upper()
+            })
+            db.commit()
+
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            api_logger.error(f"資料庫插入用戶失敗: {str(e)}", extra={
+                'email': request.email,
+                'error': str(e)
+            })
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="用戶註冊失敗，請稍後再試"
+            )
+        finally:
+            db.close()
 
         # 創建初始 session（用於後續登入）
         session_id = str(uuid.uuid4())

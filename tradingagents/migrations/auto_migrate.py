@@ -27,6 +27,14 @@ def run_migrations():
         else:
             logger.info("⏭️  Migration 001 已執行過，跳過")
 
+        # Migration 002: Add authentication fields to users table
+        if needs_migration_002(db):
+            logger.info("📋 執行 Migration 002: Add authentication fields to users")
+            run_migration_002(db)
+            logger.info("✅ Migration 002 完成")
+        else:
+            logger.info("⏭️  Migration 002 已執行過，跳過")
+
         logger.info("✅ 所有遷移檢查完成")
 
     except Exception as e:
@@ -129,3 +137,124 @@ def run_migration_001(db):
     logger.info("✅ 測試管理員帳號已創建:")
     logger.info("   - admin@example.com / admin123")
     logger.info("   - manager@example.com / manager123")
+
+def needs_migration_002(db) -> bool:
+    """檢查是否需要執行 migration 002 - 添加用戶認證欄位"""
+    try:
+        # 檢查 users 表是否存在
+        result = db.execute(text("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_name = 'users'
+            );
+        """))
+        table_exists = result.fetchone()[0]
+
+        if not table_exists:
+            logger.warning("⚠️  users 表不存在，跳過 Migration 002")
+            return False  # 用戶表不存在，不執行遷移
+
+        # 檢查必需的認證欄位是否存在
+        result = db.execute(text("""
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'users'
+            AND column_name IN ('username', 'password_hash', 'uuid', 'membership_tier', 'status', 'email_verified')
+        """))
+        existing_columns = {row[0] for row in result.fetchall()}
+        required_columns = {'username', 'password_hash', 'uuid', 'membership_tier', 'status', 'email_verified'}
+
+        missing_columns = required_columns - existing_columns
+        if missing_columns:
+            logger.info(f"📋 發現缺失欄位: {', '.join(missing_columns)}")
+            return True
+
+        return False
+    except Exception as e:
+        logger.error(f"檢查 Migration 002 時出錯: {e}")
+        return True  # 出錯時保守處理，執行遷移
+
+def run_migration_002(db):
+    """Migration 002: Add authentication fields to users table"""
+
+    logger.info("開始執行 Migration 002: 添加用戶認證欄位")
+
+    # 1. 添加缺失的欄位
+    db.execute(text("""
+        ALTER TABLE users
+        ADD COLUMN IF NOT EXISTS username VARCHAR(100),
+        ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS uuid UUID DEFAULT gen_random_uuid(),
+        ADD COLUMN IF NOT EXISTS membership_tier VARCHAR(20) DEFAULT 'free',
+        ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active',
+        ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT FALSE;
+    """))
+    logger.info("✅ 認證欄位已添加")
+
+    # 2. 創建索引（如果不存在）
+    try:
+        db.execute(text("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
+        """))
+        logger.info("✅ username 唯一索引已創建")
+    except Exception as e:
+        if "already exists" not in str(e).lower():
+            logger.warning(f"創建 username 索引失敗: {e}")
+
+    try:
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_users_uuid ON users(uuid);
+        """))
+        logger.info("✅ uuid 索引已創建")
+    except Exception as e:
+        if "already exists" not in str(e).lower():
+            logger.warning(f"創建 uuid 索引失敗: {e}")
+
+    # 3. 更新現有用戶的數據
+    db.execute(text("""
+        UPDATE users
+        SET uuid = id
+        WHERE uuid IS NULL;
+    """))
+    logger.info("✅ 現有用戶的 UUID 已更新")
+
+    db.execute(text("""
+        UPDATE users
+        SET membership_tier = LOWER(tier_type)
+        WHERE membership_tier IS NULL OR membership_tier = 'free';
+    """))
+    logger.info("✅ 現有用戶的 membership_tier 已更新")
+
+    db.execute(text("""
+        UPDATE users
+        SET status = 'active'
+        WHERE status IS NULL;
+    """))
+    logger.info("✅ 現有用戶的 status 已更新")
+
+    # 4. 添加列註釋
+    try:
+        db.execute(text("""
+            COMMENT ON COLUMN users.username IS 'User login username (3-50 characters)';
+        """))
+        db.execute(text("""
+            COMMENT ON COLUMN users.password_hash IS 'Bcrypt hashed password';
+        """))
+        db.execute(text("""
+            COMMENT ON COLUMN users.uuid IS 'User UUID for API identification';
+        """))
+        db.execute(text("""
+            COMMENT ON COLUMN users.membership_tier IS 'User membership level: free, gold, diamond';
+        """))
+        db.execute(text("""
+            COMMENT ON COLUMN users.status IS 'Account status: active, suspended, deleted';
+        """))
+        db.execute(text("""
+            COMMENT ON COLUMN users.email_verified IS 'Email verification status';
+        """))
+        logger.info("✅ 列註釋已添加")
+    except Exception as e:
+        logger.warning(f"添加列註釋失敗（非關鍵）: {e}")
+
+    db.commit()
+    logger.info("✅ Migration 002 執行完成")
