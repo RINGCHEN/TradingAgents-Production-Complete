@@ -83,6 +83,8 @@ from .admin.routers.system_monitor import router as system_monitor_router
 from .admin.routers.service_coordinator import router as service_coordinator_router
 from .admin.routers.analyst_management import router as analyst_management_router
 from .admin.routers.content_management import router as content_management_router
+from .admin.routers.security_management_center import router as security_management_router
+from .admin.routers.devops_automation import router as devops_automation_router
 # from .admin.routers.tts_management import router as tts_management_router
 # from .admin.routers.complete_admin_endpoints import admin_router as complete_admin_router
 
@@ -389,6 +391,8 @@ app.include_router(system_monitor_router, prefix="/admin")
 app.include_router(service_coordinator_router, prefix="/admin")
 app.include_router(analyst_management_router, prefix="/admin")
 app.include_router(content_management_router, prefix="/admin")
+app.include_router(security_management_router, prefix="/admin")  # 安全管理中心
+app.include_router(devops_automation_router, prefix="/admin")  # 運維自動化中心
 # app.include_router(tts_management_router)  # TTS管理路由器已包含 /admin/tts 前綴
 # app.include_router(complete_admin_router)  # 完整管理後台路由器已包含 /admin 前綴
 
@@ -510,18 +514,20 @@ async def health_check():
     """健康檢查"""
     error_handler = get_error_handler()
     system_health = error_handler.get_system_health()
-    
+
     services_status = {
         "trading_graph": trading_graph is not None,
         "active_sessions": len(trading_graph.active_sessions) if trading_graph else 0,
         "error_handler": True,
-        "logging_system": True
+        "logging_system": True,
+        "redis_cache": redis_service.is_connected,
+        "prometheus_metrics": True
     }
-    
+
     overall_status = "healthy"
     if system_health['status'] in ['degraded', 'unhealthy']:
         overall_status = system_health['status']
-    
+
     return {
         "status": overall_status,
         "timestamp": datetime.now().isoformat(),
@@ -529,6 +535,26 @@ async def health_check():
         "system_health": system_health,
         "uptime_seconds": (datetime.now() - datetime.now()).total_seconds()  # 簡化實現
     }
+
+@app.get("/metrics", tags=["系統監控"])
+async def prometheus_metrics():
+    """
+    Prometheus 指標端點
+
+    提供系統性能指標供 Prometheus 抓取，包括：
+    - Token 刷新性能指標
+    - Redis 緩存命中率
+    - API 請求統計
+    - JWT 操作統計
+    - 系統健康指標
+    """
+    from .monitoring.prometheus_metrics import get_metrics, get_metrics_content_type
+    from fastapi.responses import Response
+
+    return Response(
+        content=get_metrics(),
+        media_type=get_metrics_content_type()
+    )
 
 
 @app.get("/system/error-stats", tags=["系統監控"])

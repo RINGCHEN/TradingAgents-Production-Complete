@@ -3,7 +3,6 @@
  * 用於 twstock-admin-466914.web.app 和 admin.03king.com
  */
 
-import React from 'react';
 import { createRoot } from 'react-dom/client';
 import AdminOnly from './AdminOnly';
 

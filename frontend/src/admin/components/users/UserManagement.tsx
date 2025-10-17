@@ -127,6 +127,17 @@ export const UserManagement: React.FC<UserManagementProps> = ({
     { value: UserStatus.DELETED, label: '已刪除', color: 'danger', count: statistics?.deletedUsers || 0 }
   ], [statistics]);
 
+  /**
+   * ⚠️ Phase 1 限制說明：
+   * - role 欄位目前固定為 UserRole.USER（在 userDataMapper 中）
+   * - 不可用於權限判斷或 RBAC 控制
+   * - 僅用於 UI 標籤顯示（向後兼容）
+   *
+   * TODO Phase 2:
+   * - 後端實現真正的 role 欄位或 is_admin/is_manager 標記
+   * - 前端啟用基於 role 的權限控制
+   * - 啟用批量修改角色功能
+   */
   const roleOptions = useMemo(() => [
     { value: UserRole.ADMIN, label: '管理員', color: 'danger', icon: 'fas fa-crown' },
     { value: UserRole.MANAGER, label: '經理', color: 'warning', icon: 'fas fa-user-tie' },
@@ -134,7 +145,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
   ], []);
 
   // Table columns configuration
-  const columns: TableColumn<User>[] = useMemo(() => [
+  const columns = useMemo(() => [
     {
       key: 'select',
       title: (
@@ -216,6 +227,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
       filterable: true,
       width: '150px',
       render: (value: UserRole, record: User) => {
+        // ⚠️ Phase 1: role 固定為 USER，僅用於 UI 顯示（不可用於權限判斷）
         const roleConfig = roleOptions.find(r => r.value === value);
         return (
           <div className="role-cell">
@@ -722,7 +734,8 @@ export const UserManagement: React.FC<UserManagementProps> = ({
             actions={[
               { key: 'activate', label: '批量激活', icon: 'fas fa-check' },
               { key: 'suspend', label: '批量暫停', icon: 'fas fa-pause' },
-              { key: 'updateRole', label: '批量修改角色', icon: 'fas fa-user-tag' },
+              // TODO Phase 2: 啟用批量修改角色功能（需要後端實現真正的 role 欄位）
+              // { key: 'updateRole', label: '批量修改角色', icon: 'fas fa-user-tag' },
               { key: 'export', label: '導出選中', icon: 'fas fa-download' },
               { key: 'delete', label: '批量刪除', icon: 'fas fa-trash', variant: 'danger' }
             ]}

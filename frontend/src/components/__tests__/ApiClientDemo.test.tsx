@@ -3,7 +3,6 @@
  * 測試API客戶端演示組件的基本功能
  */
 
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import ApiClientDemo from '../ApiClientDemo';
 

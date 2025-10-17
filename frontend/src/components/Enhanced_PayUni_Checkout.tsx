@@ -12,7 +12,7 @@ interface PricingPlan {
   period: string;
   features: string[];
   badge?: string;
-  icon: React.ComponentType;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
   analysts: number;
   popular?: boolean;
@@ -235,34 +235,34 @@ export const EnhancedPayUniCheckout: React.FC = () => {
   };
 
   return (
-    <div className=\"min-h-screen bg-gradient-to-b from-blue-50 to-white p-6\">
-      <div className=\"max-w-7xl mx-auto\">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-6">
+      <div className="max-w-7xl mx-auto">
         
         {/* Header Section */}
-        <div className=\"text-center mb-12\">
-          <h1 className=\"text-4xl md:text-5xl font-bold text-gray-900 mb-4\">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             🚀 選擇您的AI投資分析方案
           </h1>
-          <p className=\"text-xl text-gray-600 mb-6\">
+          <p className="text-xl text-gray-600 mb-6">
             加入台灣首個 100% 系統驗證的AI投資分析平台
           </p>
-          <div className=\"flex justify-center space-x-4 mb-8\">
-            <Badge className=\"px-4 py-2 bg-green-100 text-green-800\">💎 17/17 系統驗證完成</Badge>
-            <Badge className=\"px-4 py-2 bg-blue-100 text-blue-800\">🤖 6位專業AI分析師</Badge>
-            <Badge className=\"px-4 py-2 bg-purple-100 text-purple-800\">📈 即時台股數據</Badge>
+          <div className="flex justify-center space-x-4 mb-8">
+            <Badge className="px-4 py-2 bg-green-100 text-green-800">💎 17/17 系統驗證完成</Badge>
+            <Badge className="px-4 py-2 bg-blue-100 text-blue-800">🤖 6位專業AI分析師</Badge>
+            <Badge className="px-4 py-2 bg-purple-100 text-purple-800">📈 即時台股數據</Badge>
           </div>
         </div>
 
         {/* Benefits Overview */}
-        <div className=\"grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12\">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {membershipBenefits.map((benefit, index) => {
             const IconComponent = benefit.icon;
             return (
-              <Card key={index} className=\"text-center hover:shadow-lg transition-shadow\">
-                <CardContent className=\"p-6\">
-                  <IconComponent className=\"w-12 h-12 mx-auto mb-4 text-blue-600\" />
-                  <h3 className=\"font-semibold mb-2\">{benefit.title}</h3>
-                  <p className=\"text-sm text-gray-600\">{benefit.description}</p>
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <IconComponent className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+                  <h3 className="font-semibold mb-2">{benefit.title}</h3>
+                  <p className="text-sm text-gray-600">{benefit.description}</p>
                 </CardContent>
               </Card>
             );
@@ -270,7 +270,7 @@ export const EnhancedPayUniCheckout: React.FC = () => {
         </div>
 
         {/* Pricing Plans */}
-        <div className=\"grid lg:grid-cols-3 gap-8 mb-12\">
+        <div className="grid lg:grid-cols-3 gap-8 mb-12">
           {pricingPlans.map((plan) => {
             const IconComponent = plan.icon;
             const isSelected = selectedPlan === plan.id;
@@ -284,47 +284,47 @@ export const EnhancedPayUniCheckout: React.FC = () => {
                 onClick={() => handlePlanSelect(plan.id)}
               >
                 {plan.badge && (
-                  <div className=\"absolute -top-3 left-1/2 transform -translate-x-1/2\">
-                    <Badge className=\"bg-blue-600 text-white px-4 py-1\">{plan.badge}</Badge>
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-blue-600 text-white px-4 py-1">{plan.badge}</Badge>
                   </div>
                 )}
                 
-                <CardHeader className=\"text-center pb-4\">
-                  <div className=\"flex justify-center items-center mb-4\">
-                    <IconComponent className=\"w-8 h-8 mr-2 text-blue-600\" />
+                <CardHeader className="text-center pb-4">
+                  <div className="flex justify-center items-center mb-4">
+                    <IconComponent className="w-8 h-8 mr-2 text-blue-600" />
                     <Badge className={plan.color}>{plan.analysts}位分析師</Badge>
                   </div>
                   
-                  <CardTitle className=\"text-2xl font-bold\">{plan.name}</CardTitle>
+                  <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                   
-                  <div className=\"text-center mb-4\">
+                  <div className="text-center mb-4">
                     {plan.price === 0 ? (
-                      <div className=\"text-3xl font-bold text-green-600\">免費</div>
+                      <div className="text-3xl font-bold text-green-600">免費</div>
                     ) : (
                       <div>
-                        <span className=\"text-3xl font-bold text-gray-900\">NT$ {plan.price.toLocaleString()}</span>
-                        <span className=\"text-gray-600\"> / {plan.period}</span>
+                        <span className="text-3xl font-bold text-gray-900">NT$ {plan.price.toLocaleString()}</span>
+                        <span className="text-gray-600"> / {plan.period}</span>
                       </div>
                     )}
                     {plan.savings && (
-                      <div className=\"text-sm text-green-600 font-medium mt-1\">{plan.savings}</div>
+                      <div className="text-sm text-green-600 font-medium mt-1">{plan.savings}</div>
                     )}
                   </div>
                 </CardHeader>
                 
                 <CardContent>
-                  <ul className=\"space-y-3 mb-6\">
+                  <ul className="space-y-3 mb-6">
                     {plan.features.map((feature, index) => (
-                      <li key={index} className=\"flex items-center text-sm\">
-                        <CheckCircle className=\"w-4 h-4 text-green-500 mr-2 flex-shrink-0\" />
+                      <li key={index} className="flex items-center text-sm">
+                        <CheckCircle className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
                         {feature}
                       </li>
                     ))}
                   </ul>
                   
                   {isSelected && (
-                    <div className=\"bg-blue-50 p-4 rounded-lg mb-4\">
-                      <div className=\"text-center text-blue-800 font-medium\">
+                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                      <div className="text-center text-blue-800 font-medium">
                         ✨ 您選擇了 {plan.name}
                       </div>
                     </div>
@@ -336,47 +336,47 @@ export const EnhancedPayUniCheckout: React.FC = () => {
         </div>
 
         {/* Payment Form */}
-        <Card className=\"max-w-2xl mx-auto\">
+        <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle className=\"text-center text-2xl\">
+            <CardTitle className="text-center text-2xl">
               🔥 立即開始您的AI投資分析之旅
             </CardTitle>
           </CardHeader>
           <CardContent>
             {selectedPlan !== 'free' && (
-              <div className=\"mb-6\">
-                <label htmlFor=\"email\" className=\"block text-sm font-medium mb-2\">
+              <div className="mb-6">
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
                   電子信箱 (可選，用於接收訂閱確認)
                 </label>
                 <input
-                  type=\"email\"
-                  id=\"email\"
+                  type="email"
+                  id="email"
                   value={userEmail}
                   onChange={(e) => setUserEmail(e.target.value)}
-                  placeholder=\"your.email@example.com\"
-                  className=\"w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500\"
+                  placeholder="your.email@example.com"
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             )}
             
             {/* Selected Plan Summary */}
-            <div className=\"bg-gray-50 p-4 rounded-lg mb-6\">
-              <div className=\"flex justify-between items-center\">
-                <span className=\"font-medium\">
+            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">
                   選定方案: {pricingPlans.find(p => p.id === selectedPlan)?.name}
                 </span>
-                <span className=\"text-lg font-bold\">
+                <span className="text-lg font-bold">
                   {selectedPlan === 'free' ? '免費' : `NT$ ${pricingPlans.find(p => p.id === selectedPlan)?.price?.toLocaleString()}`}
                 </span>
               </div>
-              <div className=\"text-sm text-gray-600 mt-1\">
+              <div className="text-sm text-gray-600 mt-1">
                 解鎖 {pricingPlans.find(p => p.id === selectedPlan)?.analysts} 位專業AI分析師
               </div>
             </div>
 
             {paymentResponse && !paymentResponse.success && (
-              <Alert className=\"mb-6 border-red-200 bg-red-50\">
-                <AlertDescription className=\"text-red-800\">
+              <Alert className="mb-6 border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800">
                   ❌ {paymentResponse.message}
                 </AlertDescription>
               </Alert>
@@ -385,11 +385,11 @@ export const EnhancedPayUniCheckout: React.FC = () => {
             <Button
               onClick={handlePayment}
               disabled={isProcessing}
-              className=\"w-full py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700\"
+              className="w-full py-4 text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
             >
               {isProcessing ? (
-                <div className=\"flex items-center justify-center\">
-                  <div className=\"animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2\"></div>
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   處理中...
                 </div>
               ) : selectedPlan === 'free' ? (
@@ -399,11 +399,11 @@ export const EnhancedPayUniCheckout: React.FC = () => {
               )}
             </Button>
             
-            <div className=\"text-center mt-4 space-y-2\">
-              <div className=\"text-sm text-gray-600\">
+            <div className="text-center mt-4 space-y-2">
+              <div className="text-sm text-gray-600">
                 🔒 採用PayUni金融級安全支付系統
               </div>
-              <div className=\"text-xs text-gray-500\">
+              <div className="text-xs text-gray-500">
                 ✅ 支援信用卡、ATM轉帳、超商付款
               </div>
             </div>
@@ -435,14 +435,14 @@ export const EnhancedPayUniCheckout: React.FC = () => {
         </div>
 
         {/* Success Guarantee */}
-        <div className=\"text-center mt-12 p-8 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl\">
-          <h3 className=\"text-2xl font-bold text-gray-900 mb-4\">
+        <div className="text-center mt-12 p-8 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
+          <h3 className="text-2xl font-bold text-gray-900 mb-4">
             🎯 30天滿意保證
           </h3>
-          <p className=\"text-lg text-gray-700 mb-4\">
+          <p className="text-lg text-gray-700 mb-4">
             如果您對我們的AI投資分析服務不滿意，我們提供30天無條件退款保證
           </p>
-          <div className=\"flex justify-center space-x-8 text-sm text-gray-600\">
+          <div className="flex justify-center space-x-8 text-sm text-gray-600">
             <div>✅ 零風險試用</div>
             <div>✅ 隨時可取消</div>
             <div>✅ 即時客服支援</div>

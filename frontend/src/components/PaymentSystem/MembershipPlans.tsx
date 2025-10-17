@@ -130,7 +130,20 @@ const featureMatrix = {
   "客服支援": { free: "社群", gold: "優先", diamond: "專屬" }
 };
 
-export const MembershipPlans: React.FC = () => {
+// Props 接口定義 (所有屬性為可選，因為組件內部有完整的獨立邏輯)
+interface MembershipPlansProps {
+  apiBaseUrl?: string;
+  userId?: number;
+  sessionId?: string;
+  onPlanSelected?: (planId: string, price: number) => void;
+}
+
+export const MembershipPlans: React.FC<MembershipPlansProps> = ({
+  apiBaseUrl,
+  userId,
+  sessionId,
+  onPlanSelected
+}) => {
   console.log('🎯 MembershipPlans 組件已載入');
   
   const [selectedTier, setSelectedTier] = useState<string | null>(null);

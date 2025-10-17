@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Progress = ({ children, ...props }: any) => {
   return <div {...props}>{children}</div>;
 };

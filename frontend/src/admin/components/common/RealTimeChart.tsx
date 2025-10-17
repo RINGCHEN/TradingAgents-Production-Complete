@@ -23,7 +23,6 @@ import {
   ChartOptions
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
-import { adminApiService } from '../../services/AdminApiService_Fixed';
 
 // 註冊 Chart.js 組件
 ChartJS.register(
@@ -334,8 +333,8 @@ export const RealTimeChart: React.FC<RealTimeChartProps> = ({
 
       <div style={{ width: '100%', height: '100%', position: 'relative' }}>
         <Chart
-          ref={chartRef}
-          type={chartType === 'mixed' ? 'line' : chartType}
+          ref={chartRef as any}
+          type={(chartType === 'mixed' || chartType === 'area') ? 'line' : chartType as 'line' | 'bar'}
           data={chartData}
           options={chartOptions}
           style={{ width: '100%', height: '100%' }}

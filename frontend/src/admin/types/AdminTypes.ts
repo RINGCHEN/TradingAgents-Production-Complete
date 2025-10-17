@@ -30,6 +30,54 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// 表格相關類型
+export interface TableColumn<T = any> {
+  key: string;
+  title: string;
+  dataIndex: string;
+  width?: number;
+  sortable?: boolean;
+  filterable?: boolean;
+  searchable?: boolean;
+  align?: 'left' | 'center' | 'right';
+  render?: (value: any, record: T, index: number) => React.ReactNode;
+  filterOptions?: Array<{ label: string; value: any }>;
+  sorter?: (a: any, b: any) => number;
+  fixed?: 'left' | 'right';
+}
+
+export interface TableFilter {
+  [key: string]: any;
+}
+
+export interface TableSort {
+  field: string;
+  direction: 'asc' | 'desc';
+}
+
+export interface TablePagination {
+  current: number;
+  pageSize: number;
+  total: number;
+  showSizeChanger?: boolean;
+  showQuickJumper?: boolean;
+  pageSizeOptions?: number[];
+}
+
+export interface TableProps<T = any> {
+  columns: TableColumn<T>[];
+  dataSource: T[];
+  loading?: boolean;
+  pagination?: PaginationParams | false;
+  onPaginationChange?: (pagination: PaginationParams) => void;
+  rowKey?: string | ((record: T) => string);
+  selection?: {
+    selectedRowKeys: string[];
+    onChange: (selectedRowKeys: string[]) => void;
+  };
+  className?: string;
+}
+
 // 用戶管理類型
 export interface User {
   id: string;

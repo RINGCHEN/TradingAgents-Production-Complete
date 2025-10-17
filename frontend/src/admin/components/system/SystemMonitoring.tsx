@@ -513,10 +513,10 @@ generateMockMetrics = (): SystemMetrics => ({
                       },
                       plugins: {
                         legend: {
-                          position: 'top'
+                          position: 'top' as const
                         }
                       }
-                    }}
+                    } as any}
                     height={300}
                   />
                 </div>

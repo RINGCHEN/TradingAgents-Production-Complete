@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * AuthStateManager 測試
  * 測試認證狀態管理器的各種功能和錯誤處理

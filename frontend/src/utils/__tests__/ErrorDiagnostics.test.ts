@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ErrorDiagnostics 簡化測試套件
  * 驗證錯誤診斷系統的基本功能

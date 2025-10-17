@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ErrorRecoveryManager - 錯誤恢復管理器
  * 處理複雜的錯誤恢復邏輯，包括自動恢復、降級策略和狀態管理

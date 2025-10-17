@@ -5,7 +5,6 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { adminApiService } from '../../services/AdminApiService_Fixed';
 
 export interface Notification {
   id: string;

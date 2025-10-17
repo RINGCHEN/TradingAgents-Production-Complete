@@ -303,7 +303,7 @@ export const ContentManagement: React.FC = () => {
     {
       key: 'actions',
       title: '操作',
-      width: '150px',
+      width: 150,
       render: (_, record: ContentItem) => (
         <div className="btn-group btn-group-sm">
           <button

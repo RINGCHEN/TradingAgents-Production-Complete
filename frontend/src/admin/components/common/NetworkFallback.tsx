@@ -19,7 +19,7 @@ export const NetworkFallback: React.FC<NetworkFallbackProps> = ({
   retryInterval = 5000,
   maxRetries = 10,
   fallbackContent
-}) => {
+}): React.ReactElement => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [connectionFailed, setConnectionFailed] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -87,9 +87,9 @@ export const NetworkFallback: React.FC<NetworkFallbackProps> = ({
     }
   };
 
-  const renderOfflineMode = () => {
+  const renderOfflineMode = (): React.ReactElement => {
     if (fallbackContent) {
-      return fallbackContent;
+      return <>{fallbackContent}</>;
     }
 
     return (

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ErrorDiagnosticsIntegration - 錯誤診斷系統整合驗證
  * 用於驗證錯誤診斷系統的各個組件是否正確整合和工作

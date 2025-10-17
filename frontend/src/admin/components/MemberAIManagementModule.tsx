@@ -448,6 +448,7 @@ const MemberAIManagementModule: React.FC = () => {
               會員權限通過雲端系統驗證。完整雲端部署預計2-4週內完成。
             </AlertDescription>
           </Alert>
+          </div>
         )}
 
         {/* 演示會話管理 */}
@@ -500,6 +501,7 @@ const MemberAIManagementModule: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
         )}
 
         {/* 等級管理 */}
@@ -569,6 +571,7 @@ const MemberAIManagementModule: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+          </div>
         )}
       </div>
     </div>

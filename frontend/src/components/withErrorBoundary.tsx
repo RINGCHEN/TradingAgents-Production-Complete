@@ -60,6 +60,9 @@ export function withErrorBoundary<P extends object>(
       }
     };
 
+    const recommendedMode = getRecommendedFallbackMode(componentName);
+    const validFallbackMode = recommendedMode !== 'none' ? recommendedMode : fallbackMode;
+
     const errorBoundaryProps: ErrorBoundaryProps = {
       fallbackComponent,
       onError: handleError,
@@ -68,7 +71,7 @@ export function withErrorBoundary<P extends object>(
       retryDelay,
       enableAutoRecovery,
       autoRecoveryDelay,
-      fallbackMode: getRecommendedFallbackMode(componentName) || fallbackMode,
+      fallbackMode: validFallbackMode,
       componentName,
       enableDegradation,
       showErrorDetails
@@ -76,7 +79,7 @@ export function withErrorBoundary<P extends object>(
 
     return (
       <ErrorBoundary {...errorBoundaryProps}>
-        <WrappedComponent {...props} ref={ref} />
+        <WrappedComponent {...(props as any)} ref={ref} />
       </ErrorBoundary>
     );
   });
