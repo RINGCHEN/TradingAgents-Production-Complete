@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// 撠?典? fetch 撠???- 靽桀儔 API 頝臬???
+// Global fetch wrapper for API monitoring
 import './utils/globalFetch'
 
 async function enableMocking() {
@@ -23,28 +23,28 @@ async function enableMocking() {
 async function startApp() {
   await enableMocking()
 
-  // 蝣箔?DOM??摮
+  // Find root DOM element
   const rootElement = document.getElementById('root')
 
   if (!rootElement) {
     throw new Error('Root element not found')
   }
 
-  // ?梯?頛?
+  // Hide loading screen
   const loadingElement = document.getElementById('loading')
   if (loadingElement) {
     loadingElement.style.display = 'none'
   }
 
-  // 皜脫?React?
+  // Mount React app
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
       <App />
     </React.StrictMode>,
   )
 
-  // ?頛摰?敺???
-  console.log('?? TradingAgents React?撌脰???)
+  // Log successful startup
+  console.log('[TradingAgents] React application started successfully')
 }
 
 startApp()

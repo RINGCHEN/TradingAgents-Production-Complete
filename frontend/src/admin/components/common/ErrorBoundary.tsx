@@ -3,7 +3,7 @@
  * 提供生產環境錯誤恢復和用戶友好的錯誤顯示
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;

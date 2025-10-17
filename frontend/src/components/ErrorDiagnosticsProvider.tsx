@@ -251,7 +251,7 @@ export const withErrorDiagnostics = <P extends object>(
     // 使用錯誤邊界包裝組件
     return (
       <ErrorBoundaryWrapper onError={reportComponentError}>
-        <WrappedComponent {...props} ref={ref} />
+        <WrappedComponent {...(props as any)} ref={ref} />
       </ErrorBoundaryWrapper>
     );
   });

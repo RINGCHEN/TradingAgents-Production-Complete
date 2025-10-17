@@ -116,11 +116,12 @@ async def get_current_user(
 ) -> UserContext:
     """
     獲取當前認證用戶
-    
+
     支持多種認證方式：
     1. JWT Bearer Token
     2. API Key (X-API-Key header)
     """
+    # ✅ 修复已在 auth_manager.py 中实现，get_auth_manager() 现在会自动读取配置
     auth_manager = get_auth_manager()
     
     try:
@@ -366,6 +367,7 @@ def require_data_export():
 def require_admin_access():
     """需要管理員權限"""
     async def dependency(user: UserContext = Depends(get_current_user)) -> UserContext:
+        print(f"DEBUG: require_admin_access received user tier: {user.membership_tier.value}") # DEBUG LINE
         # 檢查用戶是否是管理員
         if user.membership_tier != TierType.DIAMOND:
             security_logger.warning("非管理員嘗試訪問管理功能", extra={

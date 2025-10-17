@@ -574,7 +574,7 @@ class TTSApiService {
       voice_model_id: parseInt(voiceId),
       speaking_rate: options?.speaking_rate || 1.0,
       pitch: options?.pitch || 0.0,
-      audio_format: options?.audio_format || 'mp3',
+      audio_format: (options?.audio_format || 'mp3') as AudioFormat,
       priority: 10 // 高優先級用於快速合成
     };
 

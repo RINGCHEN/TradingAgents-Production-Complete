@@ -3,8 +3,8 @@
  * 支援排序、篩選、分頁等功能
  */
 
-import React, { useState, useMemo } from 'react';
-import { TableProps, TableColumn, PaginationParams } from '../types/AdminTypes';
+import { useState, useMemo } from 'react';
+import { TableProps } from '../../types/AdminTypes';
 
 export function DataTable<T = any>({
   columns,

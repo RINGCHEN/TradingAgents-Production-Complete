@@ -5,7 +5,6 @@
  */
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { adminApiService } from '../../services/AdminApiService_Fixed';
 
 export interface TableColumn<T = any> {
   key: string;

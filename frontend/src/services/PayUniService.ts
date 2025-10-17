@@ -225,7 +225,7 @@ class PayUniService {
         // 防止瀏覽器阻擋跳轉，使用短暫延遲
         setTimeout(() => {
           console.log(`🔄 執行頁面跳轉: ${result.payment_url}`);
-          window.location.href = result.payment_url;
+          window.location.href = result.payment_url!;
         }, 100);
         
         return true;

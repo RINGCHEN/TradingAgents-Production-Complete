@@ -42,27 +42,10 @@ SyntaxError: Cannot use 'import.meta' outside a module
 
 **Priority**: Medium
 
-**Proposed Solutions**:
-- **Option A**: Mock `import.meta` in Jest config
-  ```javascript
-  // jest.config.cjs
-  globals: {
-    'import.meta': {
-      env: {
-        DEV: false,
-        VITE_API_BASE_URL: 'http://localhost:8000'
-      }
-    }
-  }
-  ```
-- **Option B**: Refactor `ApiClient.ts` to use `process.env` instead
-  ```typescript
-  // Replace import.meta.env with process.env
-  if (process.env.NODE_ENV === 'development') {
-    // ...
-  }
-  ```
-- **Option C**: Use `vite-jest` or `vitest` instead of `react-scripts test`
+**Status (2025-10-10)**: ? Resolved via env helper (`src/utils/env.ts`) and ApiClient refactor.
+- Jest suites still blocked by JSX syntax issues; re-run after cleanup.
+
+**Next Steps**: None for env handling. Leave suites disabled until JSX fixes land.
 
 **Assignee**: TBD
 **Target Phase**: Phase 2 or dedicated cleanup sprint
@@ -145,22 +128,10 @@ Error: Authentication context must be used within AuthProvider
 
 ### Issue 2.2: import.meta.env TypeScript Errors
 
-**Affected File**: `src/services/ApiClient.ts`
+**Status (2025-10-10)**: ? Resolved (handled alongside Issue 1.1). TypeScript now consumes `env` helper.
 
-**Error Locations**: Lines 522, 572, 577, 581, 590, 601
+**Next Steps**: Re-run `npm run type-check` once JSX syntax errors are fixed to confirm clean build.
 
-**Error Messages**:
-```
-TS1343: The 'import.meta' meta-property is only allowed when the '--module' option is
-'es2020', 'es2022', 'esnext', 'system', 'node16', or 'nodenext'.
-
-TS2339: Property 'env' does not exist on type 'ImportMeta'.
-```
-
-**Priority**: High (related to Jest failures)
-
-**Proposed Solutions**:
-- Same as Issue 1.1 (refactor to `process.env` or update TypeScript config)
 
 **Assignee**: TBD
 **Target Phase**: Phase 2
@@ -171,67 +142,32 @@ TS2339: Property 'env' does not exist on type 'ImportMeta'.
 
 **Affected File**: `src/admin/services/RealAdminApiService.ts`
 
-**Error Details**:
+**Status (2025-10-10)**: ?? *Partially resolved*
+- ? Response message handling now uses shared helper functions
+- ? Duplicate `getSystemMetrics` definition removed
+- ? Subscription & payment DTOs expose optional fields with safe fallbacks
+- ?? Still pending: consolidate remaining duplicate endpoints (analytics/config) and review large analytics DTOs for unused properties
 
-1. **Lines 326, 354**: `ApiResponse.message` property doesn't exist
-   ```typescript
-   // ApiResponse interface only has error?.message, not message
-   setError(response.message || '請求失敗'); // ❌ Wrong
-   setError(response.error?.message || '請求失敗'); // ✅ Correct
-   ```
-
-2. **Line 378**: Missing `message` in return type
-   ```typescript
-   // Return type expects { success, message, data } but only returns { success, data }
-   ```
-
-3. **Lines 782, 2300**: Duplicate function implementations
-   ```typescript
-   // Two functions with same name defined
-   ```
-
-4. **Lines 2796-2804**: Property mismatches in analytics data
-   ```typescript
-   // Line 2796: Property 'new_subscriptions' does not exist
-   // Line 2801: Property 'successful_payments' does not exist
-   // Line 2802: Property 'failed_payments' does not exist
-   // Line 2804: Property 'average_payment_amount' does not exist
-   ```
-
-5. **Lines 3134, 3322**: Invalid `data` property in request config
-   ```typescript
-   // ApiRequestConfig doesn't have 'data' property
-   // Should use 'body' instead
-   ```
-
-**Priority**: Medium
-
-**Proposed Solution**:
-- Align type definitions with actual API contracts
-- Remove duplicate function definitions
-- Update analytics data interface to match backend
-
-**Assignee**: TBD
-**Target Phase**: Phase 2 or dedicated service layer cleanup
+**Next Steps**:
+1. Audit remaining duplicate methods and remove or merge them
+2. Update analytics response interfaces if additional mismatches are discovered during clean-up
+3. Re-run TypeScript compiler once JSX fixes land to confirm RealAdmin service is warning-free
 
 ---
 
 ## 3. Test Results Summary
 
-### Passing Tests ✅
-
+### Passing Tests ??
 - **5 test suites passing** (including Phase 1 userDataMapper)
 - **85 individual tests passing**
 
-### Failing Tests ❌
-
+### Failing Tests ??
 - **9 test suites failing** (all pre-existing)
 - **4 individual tests failing** (all pre-existing)
 
 ### Phase 1 Impact
 
-**Zero new failures introduced by Phase 1 work** ✅
-
+**Zero new failures introduced by Phase 1 work** ??
 ---
 
 ## 4. Recommended Cleanup Priority
@@ -267,12 +203,12 @@ TS2339: Property 'env' does not exist on type 'ImportMeta'.
 
 | Issue ID | Description | Priority | Assignee | Target Phase | Status |
 |----------|-------------|----------|----------|--------------|--------|
-| 1.1 | import.meta.env Jest failures (7 suites) | Medium | TBD | Phase 2 | 📋 Documented |
-| 1.2 | Auth context test failure | Low | TBD | Phase 2 | 📋 Documented |
-| 1.3 | Unknown test suite failure | Low | TBD | Phase 2 | 📋 Documented |
-| 2.1 | JSX syntax errors (4 files) | Medium | TBD | Phase 2 | 📋 Documented |
-| 2.2 | import.meta.env TypeScript errors | High | TBD | Phase 2 | 📋 Documented |
-| 2.3 | RealAdminApiService type mismatches | Medium | TBD | Phase 2 | 📋 Documented |
+| 1.1 | import.meta.env Jest failures (7 suites) | Medium | TBD | Phase 2 | ?? Documented |
+| 1.2 | Auth context test failure | Low | TBD | Phase 2 | ?? Documented |
+| 1.3 | Unknown test suite failure | Low | TBD | Phase 2 | ?? Documented |
+| 2.1 | JSX syntax errors (4 files) | Medium | TBD | Phase 2 | ?? Documented |
+| 2.2 | import.meta.env TypeScript errors | High | TBD | Phase 2 | ?? Documented |
+| 2.3 | RealAdminApiService type mismatches | Medium | TBD | Phase 2 | ?? Documented |
 
 ---
 
@@ -294,3 +230,5 @@ TS2339: Property 'env' does not exist on type 'ImportMeta'.
 
 **Document Owner**: TradingAgents Frontend Team
 **Review Cycle**: Monthly or per phase completion
+
+

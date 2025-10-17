@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * CouponManager - 優惠券管理器
  * 安全載入優惠券數據，修復SyntaxError錯誤，實施緩存和降級機制

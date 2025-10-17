@@ -83,6 +83,8 @@ from .admin.routers.system_monitor import router as system_monitor_router
 from .admin.routers.service_coordinator import router as service_coordinator_router
 from .admin.routers.analyst_management import router as analyst_management_router
 from .admin.routers.content_management import router as content_management_router
+from .admin.routers.security_management_center import router as security_management_router
+from .admin.routers.devops_automation import router as devops_automation_router
 # from .admin.routers.tts_management import router as tts_management_router
 # from .admin.routers.complete_admin_endpoints import admin_router as complete_admin_router
 
@@ -389,6 +391,8 @@ app.include_router(system_monitor_router, prefix="/admin")
 app.include_router(service_coordinator_router, prefix="/admin")
 app.include_router(analyst_management_router, prefix="/admin")
 app.include_router(content_management_router, prefix="/admin")
+app.include_router(security_management_router, prefix="/admin")  # 安全管理中心
+app.include_router(devops_automation_router, prefix="/admin")  # 運維自動化中心
 # app.include_router(tts_management_router)  # TTS管理路由器已包含 /admin/tts 前綴
 # app.include_router(complete_admin_router)  # 完整管理後台路由器已包含 /admin 前綴
 

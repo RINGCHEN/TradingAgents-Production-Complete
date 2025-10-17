@@ -106,7 +106,7 @@ export function mapBackendUserToFrontend(backendUser: any): User {
     country: backendUser.country,
     timezone: backendUser.timezone,
     language: backendUser.language
-  };
+  } as User;
 }
 
 /**

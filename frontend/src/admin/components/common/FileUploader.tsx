@@ -5,7 +5,6 @@
  */
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { adminApiService } from '../../services/AdminApiService_Fixed';
 
 export interface UploadFile {
   id: string;

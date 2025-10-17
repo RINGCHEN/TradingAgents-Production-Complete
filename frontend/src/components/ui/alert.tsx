@@ -1,5 +1,3 @@
-import React from 'react';
-
 export const Alert = ({ children, ...props }: any) => {
   return <div {...props}>{children}</div>;
 };

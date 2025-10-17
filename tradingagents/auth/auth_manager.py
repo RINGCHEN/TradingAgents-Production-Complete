@@ -816,13 +816,13 @@ class AuthenticationManager:
                 # 查詢用戶（使用 UUID）
                 query = text("""
                     SELECT
-                        uuid,
+                        user_id,
                         email,
                         username,
                         membership_tier,
                         status
                     FROM users
-                    WHERE uuid = :user_id
+                    WHERE user_id = :user_id
                     LIMIT 1
                 """)
 
@@ -840,19 +840,24 @@ class AuthenticationManager:
 
                 # 從資料庫構建用戶上下文
                 membership_tier_str = row[3]  # membership_tier column
+                print(f"DEBUG: _get_user_context - DB membership_tier_str: {membership_tier_str}")
 
                 # 轉換會員等級（處理大小寫）
                 try:
                     membership_tier = TierType(membership_tier_str.lower())
+                    print(f"DEBUG: _get_user_context - Converted membership_tier: {membership_tier.value}")
                 except (ValueError, AttributeError):
                     security_logger.warning(f"無效的會員等級 '{membership_tier_str}'，使用 FREE")
                     membership_tier = TierType.FREE
+                    print(f"DEBUG: _get_user_context - Fallback to FREE tier due to invalid value.")
 
-                return UserContext(
-                    user_id=str(row[0]),  # uuid
+                user_context = UserContext(
+                    user_id=str(row[0]),  # user_id
                     membership_tier=membership_tier,
                     permissions=UserPermissions()
                 )
+                print(f"DEBUG: _get_user_context - UserContext created with tier: {user_context.membership_tier.value}")
+                return user_context
 
             finally:
                 db.close()
@@ -886,10 +891,28 @@ _global_auth_manager: Optional[AuthenticationManager] = None
 def get_auth_manager(config: Optional[Dict[str, Any]] = None) -> AuthenticationManager:
     """獲取全局認證管理器實例"""
     global _global_auth_manager
-    
+
     if _global_auth_manager is None:
+        # ✅ 修复：如果未传入config，从环境变量和默认配置中读取
+        if config is None:
+            import os
+            from ..default_config import DEFAULT_CONFIG
+
+            # 从环境变量或default_config中获取JWT密钥
+            jwt_secret = os.getenv('JWT_SECRET_KEY')
+            if not jwt_secret:
+                # 从default_config中尝试获取
+                jwt_secret = DEFAULT_CONFIG.get('security', {}).get('jwt', {}).get('secret_key')
+
+            if jwt_secret:
+                config = {'jwt_secret_key': jwt_secret}
+            else:
+                # 如果仍然没有，生成一个并警告
+                import warnings
+                warnings.warn("JWT_SECRET_KEY not set in environment or config. Using randomly generated key. This will cause token validation issues!", RuntimeWarning)
+
         _global_auth_manager = AuthenticationManager(config)
-    
+
     return _global_auth_manager
 
 if __name__ == "__main__":

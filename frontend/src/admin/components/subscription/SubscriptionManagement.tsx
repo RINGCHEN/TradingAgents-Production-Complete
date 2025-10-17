@@ -303,7 +303,7 @@ export const SubscriptionManagement: React.FC = () => {
     {
       key: 'actions',
       title: '操作',
-      width: '150px',
+      width: 150,
       render: (_, record: Subscription) => (
         <div className="btn-group btn-group-sm">
           {record.status === 'active' && (

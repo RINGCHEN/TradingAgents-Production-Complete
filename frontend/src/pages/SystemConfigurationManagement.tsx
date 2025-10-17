@@ -270,7 +270,7 @@ const SystemConfigurationManagement: React.FC = () => {
         (sectionConfig as any)[key] = value;
       }
 
-      newConfig[section] = sectionConfig;
+      (newConfig[section] as any) = sectionConfig;
       return newConfig;
     });
 

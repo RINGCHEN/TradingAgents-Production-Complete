@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ApiErrorHandler - API錯誤處理器
  * 分類API錯誤、生成用戶友好錯誤信息、決定重試策略

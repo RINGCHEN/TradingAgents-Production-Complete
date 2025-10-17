@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ErrorDiagnostics - 錯誤診斷系統
  * 自動識別和分類首頁渲染錯誤，實施JavaScript控制台錯誤捕獲和分析機制

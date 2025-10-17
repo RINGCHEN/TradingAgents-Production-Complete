@@ -1,7 +1,9 @@
+import { env } from '../utils/env';
+
 /**
- * ApiClient - 通用API客戶端
- * 專門處理API請求和響應驗證，確保返回JSON而非HTML
- * 實施API錯誤分類和處理機制
+ * ApiClient - ?�用API客戶�?
+ * 專�??��?API請�??�響?��?證�?確�?返�?JSON?��?HTML
+ * 實施API?�誤?��??��??��???
  */
 
 export interface ApiResponse<T = any> {
@@ -55,7 +57,7 @@ export class ApiClient {
   }
 
   /**
-   * 發送API請求並驗證響應格式
+   * ?�送API請�?並�?證響?�格�?
    */
   async request<T = any>(endpoint: string, config: ApiRequestConfig = {}): Promise<ApiResponse<T>> {
     const {
@@ -72,19 +74,19 @@ export class ApiClient {
     const url = this.buildUrl(endpoint);
     const requestHeaders = { ...this.defaultHeaders, ...headers };
     
-    // 準備請求配置
+    // 準�?請�??�置
     const requestConfig: RequestInit = {
       method,
       headers: requestHeaders,
-      mode: 'cors', // 明確設置CORS模式
-      credentials: 'include' // 包含認證信息
+      mode: 'cors', // ?�確設置CORS模�?
+      credentials: 'include' // ?�含認�?信息
     };
 
     if (body && method !== 'GET') {
       requestConfig.body = typeof body === 'string' ? body : JSON.stringify(body);
     }
 
-    // 執行請求（帶重試機制）
+    // ?��?請�?（帶?�試機制�?
     for (let attempt = 1; attempt <= retryAttempts; attempt++) {
       try {
         const response = await this.executeRequestWithTimeout(url, requestConfig, timeout);
@@ -110,10 +112,10 @@ export class ApiClient {
             isCorsError: apiError.type === 'cors'
           };
         } else if (this.shouldRetry(error)) {
-          // 等待後重試
+          // 等�?後�?�?
           await this.delay(retryDelay * attempt);
         } else {
-          // 不可重試的錯誤，直接返回
+          // 不可?�試?�錯誤�??�接返�?
           const apiError = this.categorizeError(error, endpoint, method);
           return {
             success: false,
@@ -126,12 +128,12 @@ export class ApiClient {
       }
     }
 
-    // 這裡不應該到達
+    // ?�裡不�?該到??
     throw new Error('Unexpected error in request execution');
   }
 
   /**
-   * 執行帶超時的HTTP請求
+   * ?��?帶�??��?HTTP請�?
    */
   private async executeRequestWithTimeout(
     url: string, 
@@ -162,7 +164,7 @@ export class ApiClient {
   }
 
   /**
-   * 處理和驗證響應
+   * ?��??��?證響??
    */
   private async processAndValidateResponse<T>(
     response: Response,
@@ -173,14 +175,14 @@ export class ApiClient {
     const contentType = response.headers.get('content-type') || '';
     const responseHeaders = this.extractHeaders(response.headers);
     
-    // 檢查是否返回了HTML而不是JSON
+    // 檢查?�否返�?了HTML?��??�JSON
     const isHtmlResponse = contentType.includes('text/html');
     
     if (validateJsonResponse && expectJson && isHtmlResponse) {
       const apiError: ApiError = {
         type: 'format',
         status: response.status,
-        message: `API端點返回HTML而非JSON: ${endpoint}`,
+        message: `API端�?返�?HTML?��?JSON: ${endpoint}`,
         endpoint,
         timestamp: new Date(),
         details: {
@@ -201,12 +203,12 @@ export class ApiClient {
       };
     }
 
-    // 處理404錯誤
+    // ?��?404?�誤
     if (response.status === 404) {
       const apiError: ApiError = {
         type: 'not_found',
         status: 404,
-        message: `API端點不存在: ${endpoint}`,
+        message: `API端�?不�??? ${endpoint}`,
         endpoint,
         timestamp: new Date(),
         details: {
@@ -224,13 +226,13 @@ export class ApiClient {
       };
     }
 
-    // 處理服務器錯誤（5xx）
+    // ?��??��??�錯誤�?5xx�?
     if (response.status >= 500) {
       const errorText = await this.safeGetResponseText(response);
       const apiError: ApiError = {
         type: 'server',
         status: response.status,
-        message: `服務器錯誤 ${response.status}: ${response.statusText}`,
+        message: `?��??�錯�?${response.status}: ${response.statusText}`,
         endpoint,
         timestamp: new Date(),
         details: {
@@ -249,13 +251,13 @@ export class ApiClient {
       };
     }
 
-    // 處理客戶端錯誤（4xx，除了404）
+    // ?��?客戶端錯誤�?4xx，除�?04�?
     if (response.status >= 400 && response.status < 500) {
       const errorText = await this.safeGetResponseText(response);
       const apiError: ApiError = {
         type: 'client',
         status: response.status,
-        message: `客戶端錯誤 ${response.status}: ${response.statusText}`,
+        message: `客戶端錯�?${response.status}: ${response.statusText}`,
         endpoint,
         timestamp: new Date(),
         details: {
@@ -274,7 +276,7 @@ export class ApiClient {
       };
     }
 
-    // 解析成功響應
+    // �???��??��?
     try {
       let data: T;
       
@@ -290,7 +292,7 @@ export class ApiClient {
             const apiError: ApiError = {
               type: 'format',
               status: response.status,
-              message: `JSON解析失敗: ${endpoint}`,
+              message: `JSON�??失�?: ${endpoint}`,
               endpoint,
               timestamp: new Date(),
               details: {
@@ -309,11 +311,11 @@ export class ApiClient {
           }
         }
       } else if (expectJson) {
-        // 期望JSON但收到其他格式
+        // ?��?JSON但收?�其他格�?
         const apiError: ApiError = {
           type: 'format',
           status: response.status,
-          message: `期望JSON響應但收到 ${contentType}: ${endpoint}`,
+          message: `?��?JSON?��?但收??${contentType}: ${endpoint}`,
           endpoint,
           timestamp: new Date(),
           details: {
@@ -330,7 +332,7 @@ export class ApiClient {
           headers: responseHeaders
         };
       } else {
-        // 非JSON響應，直接返回文本
+        // ?�JSON?��?，直?��??��???
         data = await response.text() as T;
       }
 
@@ -346,7 +348,7 @@ export class ApiClient {
       const apiError: ApiError = {
         type: 'format',
         status: response.status,
-        message: `響應處理失敗: ${endpoint}`,
+        message: `?��??��?失�?: ${endpoint}`,
         endpoint,
         timestamp: new Date(),
         details: {
@@ -365,15 +367,15 @@ export class ApiClient {
   }
 
   /**
-   * 分類錯誤類型
+   * ?��??�誤類�?
    */
   private categorizeError(error: any, endpoint: string, method: string): ApiError {
     if (error instanceof Error) {
-      // 超時錯誤
+      // 超�??�誤
       if (error.message.includes('timeout') || error.message.includes('Request timeout')) {
         return {
           type: 'timeout',
-          message: `請求超時: ${method} ${endpoint}`,
+          message: `請�?超�?: ${method} ${endpoint}`,
           endpoint,
           timestamp: new Date(),
           details: { originalError: error.message },
@@ -381,14 +383,14 @@ export class ApiClient {
         };
       }
       
-      // 網路錯誤
+      // 網路?�誤
       if (error.message.includes('Failed to fetch') || 
           error.message.includes('NetworkError') ||
           error.message.includes('ERR_NETWORK') ||
           error.message.includes('fetch')) {
         return {
           type: 'network',
-          message: `網路錯誤: ${method} ${endpoint}`,
+          message: `網路?�誤: ${method} ${endpoint}`,
           endpoint,
           timestamp: new Date(),
           details: { originalError: error.message },
@@ -396,13 +398,13 @@ export class ApiClient {
         };
       }
 
-      // CORS錯誤
+      // CORS?�誤
       if (error.message.includes('CORS') || 
           error.message.includes('Cross-Origin') ||
           error.message.includes('blocked by CORS policy')) {
         return {
           type: 'cors',
-          message: `CORS錯誤: ${method} ${endpoint}`,
+          message: `CORS?�誤: ${method} ${endpoint}`,
           endpoint,
           timestamp: new Date(),
           details: { originalError: error.message },
@@ -413,7 +415,7 @@ export class ApiClient {
 
     return {
       type: 'client',
-      message: `請求失敗: ${method} ${endpoint}: ${error?.message || error}`,
+      message: `請�?失�?: ${method} ${endpoint}: ${error?.message || error}`,
       endpoint,
       timestamp: new Date(),
       details: { originalError: error },
@@ -422,18 +424,18 @@ export class ApiClient {
   }
 
   /**
-   * 判斷是否應該重試
+   * ?�斷?�否?�該?�試
    */
   private shouldRetry(error: any): boolean {
     if (error instanceof Error) {
-      // 不重試CORS錯誤和解析錯誤
+      // 不�?試CORS?�誤?�解?�錯�?
       if (error.message.includes('CORS') || 
           error.message.includes('JSON') ||
           error.message.includes('SyntaxError')) {
         return false;
       }
       
-      // 重試網路和超時錯誤
+      // ?�試網路?��??�錯�?
       if (error.message.includes('timeout') || 
           error.message.includes('Failed to fetch') ||
           error.message.includes('NetworkError')) {
@@ -445,7 +447,7 @@ export class ApiClient {
   }
 
   /**
-   * 安全獲取響應文本
+   * 安全?��??��??�本
    */
   private async safeGetResponseText(response: Response): Promise<string | null> {
     try {
@@ -456,7 +458,7 @@ export class ApiClient {
   }
 
   /**
-   * 提取響應頭
+   * ?��??��???
    */
   private extractHeaders(headers: Headers): Record<string, string> {
     const result: Record<string, string> = {};
@@ -479,55 +481,55 @@ export class ApiClient {
   }
 
   /**
-   * 延遲函數
+   * 延遲?�數
    */
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  // 便捷方法
+  // 便捷?��?
 
   /**
-   * GET請求
+   * GET請�?
    */
   async get<T = any>(endpoint: string, config: Omit<ApiRequestConfig, 'method'> = {}): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...config, method: 'GET' });
   }
 
   /**
-   * POST請求
+   * POST請�?
    */
   async post<T = any>(endpoint: string, data?: any, config: Omit<ApiRequestConfig, 'method' | 'body'> = {}): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...config, method: 'POST', body: data });
   }
 
   /**
-   * PUT請求
+   * PUT請�?
    */
   async put<T = any>(endpoint: string, data?: any, config: Omit<ApiRequestConfig, 'method' | 'body'> = {}): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...config, method: 'PUT', body: data });
   }
 
   /**
-   * DELETE請求
+   * DELETE請�?
    */
   async delete<T = any>(endpoint: string, config: Omit<ApiRequestConfig, 'method'> = {}): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...config, method: 'DELETE' });
   }
 
   /**
-   * PATCH請求
+   * PATCH請�?
    */
   async patch<T = any>(endpoint: string, data?: any, config: Omit<ApiRequestConfig, 'method' | 'body'> = {}): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, { ...config, method: 'PATCH', body: data });
   }
 
   /**
-   * 健康檢查 - 為前端應用優化
+   * ?�康檢查 - ?��?端�??�優??
    */
   async healthCheck(): Promise<boolean> {
     try {
-      // 對於純前端應用，我們檢查基本功能而不是API端點
+      // 對於純�?端�??��??�們檢?�基?��??�而�??�API端�?
       return navigator.onLine && 
              document.readyState === 'complete' && 
              !!document.getElementById('root');
@@ -537,7 +539,7 @@ export class ApiClient {
   }
 
   /**
-   * 檢查CORS配置
+   * 檢查CORS?�置
    */
   async checkCorsConfiguration(): Promise<{ success: boolean; details?: any }> {
     try {
@@ -566,39 +568,39 @@ export class ApiClient {
   }
 }
 
-// 環境配置
+// 配置
 const getApiBaseUrl = (): string => {
-  // 在開發環境中，如果有Vite代理，使用空字符串（相對路徑）
-  if (import.meta.env.DEV) {
-    return ''; // Vite代理會處理/api路徑
+  // 開發環境中，使用 Vite 代理，使用空字符串相對路徑
+  if (env.isDev) {
+    return ''; // Vite 會代理 api 路徑
   }
-  
+
   // 生產環境使用環境變量或默認值
-  return import.meta.env.VITE_API_BASE_URL || '';
+  return env.apiBaseUrl;
 };
 
 const getApiTimeout = (): number => {
-  return parseInt(import.meta.env.VITE_API_TIMEOUT || '10000', 10);
+  return env.apiTimeout;
 };
 
-// 創建默認實例
+// ?�建默�?實�?
 export const apiClient = new ApiClient(
   getApiBaseUrl(),
   getApiTimeout(),
   {
     'X-Client-Version': '2.0.0',
-    'X-Environment': import.meta.env.VITE_ENVIRONMENT || 'development'
+    'X-Environment': env.environment
   }
 );
 
-// 創建專門用於API測試的實例
+// ?�建專�??�於API測試?�實�?
 export const testApiClient = new ApiClient(
   getApiBaseUrl(), 
   5000, 
   {
     'X-Test-Client': 'true',
     'X-Client-Version': '2.0.0',
-    'X-Environment': import.meta.env.VITE_ENVIRONMENT || 'development'
+    'X-Environment': env.environment
   }
 );
 

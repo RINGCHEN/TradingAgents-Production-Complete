@@ -145,7 +145,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
   ], []);
 
   // Table columns configuration
-  const columns: TableColumn<User>[] = useMemo(() => [
+  const columns = useMemo(() => [
     {
       key: 'select',
       title: (

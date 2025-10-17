@@ -5,7 +5,6 @@
  */
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { adminApiService } from '../../services/AdminApiService_Fixed';
 
 export interface Permission {
   id: string;
@@ -716,9 +715,9 @@ export const PermissionMatrix: React.FC<PermissionMatrixProps> = ({
                     borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                     minWidth: '100px',
                     backgroundColor: role.color ? `${role.color}20` : 'rgba(0, 0, 0, 0.1)',
-                    writing: 'vertical-rl',
+                    writingMode: 'vertical-rl',
                     textOrientation: 'mixed'
-                  }}
+                  } as React.CSSProperties}
                   title={role.description}
                 >
                   <div style={{

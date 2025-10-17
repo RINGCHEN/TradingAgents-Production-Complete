@@ -30,48 +30,67 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// 表格相關類型
+export interface TableColumn<T = any> {
+  key: string;
+  title: string;
+  dataIndex: string;
+  width?: number;
+  sortable?: boolean;
+  filterable?: boolean;
+  searchable?: boolean;
+  align?: 'left' | 'center' | 'right';
+  render?: (value: any, record: T, index: number) => React.ReactNode;
+  filterOptions?: Array<{ label: string; value: any }>;
+  sorter?: (a: any, b: any) => number;
+  fixed?: 'left' | 'right';
+}
+
+export interface TableFilter {
+  [key: string]: any;
+}
+
+export interface TableSort {
+  field: string;
+  direction: 'asc' | 'desc';
+}
+
+export interface TablePagination {
+  current: number;
+  pageSize: number;
+  total: number;
+  showSizeChanger?: boolean;
+  showQuickJumper?: boolean;
+  pageSizeOptions?: number[];
+}
+
+export interface TableProps<T = any> {
+  columns: TableColumn<T>[];
+  dataSource: T[];
+  loading?: boolean;
+  pagination?: PaginationParams | false;
+  onPaginationChange?: (pagination: PaginationParams) => void;
+  rowKey?: string | ((record: T) => string);
+  selection?: {
+    selectedRowKeys: string[];
+    onChange: (selectedRowKeys: string[]) => void;
+  };
+  className?: string;
+}
+
 // 用戶管理類型
 export interface User {
-  // ===== 現有欄位（保留）=====
   id: string;
   email: string;
   username: string;
   firstName?: string;
   lastName?: string;
   avatar?: string;
-  role: UserRole;  // ⚠️ Phase 1 固定為 USER，不可用於權限判斷
+  role: UserRole;
   status: UserStatus;
   createdAt: string;
   updatedAt: string;
   lastLoginAt?: string;
-
-  // ===== 新增欄位 =====
-  uuid?: string;                    // 後端識別
-  displayName?: string;             // 完整顯示名稱
-
-  // 會員與認證
-  membershipTier?: MembershipTier;  // 付費等級
-  authProvider?: AuthProvider;       // 認證方式
-
-  // 狀態與驗證
-  emailVerified?: boolean;
-
-  // 配額
-  dailyApiQuota?: number;
-  monthlyApiQuota?: number;
-  apiCallsToday?: number;
-  apiCallsMonth?: number;
-
-  // 統計
-  totalAnalyses?: number;
-  loginCount?: number;
-  isPremium?: boolean;
-
-  // 個人資料
-  phone?: string;
-  country?: string;
-  timezone?: string;
-  language?: string;
 }
 
 export enum UserRole {
@@ -84,17 +103,6 @@ export enum UserStatus {
   ACTIVE = 'active',
   INACTIVE = 'inactive',
   SUSPENDED = 'suspended'
-}
-
-export enum MembershipTier {
-  FREE = 'free',
-  GOLD = 'gold',
-  DIAMOND = 'diamond'
-}
-
-export enum AuthProvider {
-  EMAIL = 'email',
-  GOOGLE = 'google'
 }
 
 // 系統管理類型

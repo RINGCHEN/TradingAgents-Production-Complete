@@ -5,7 +5,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { realAdminApiService } from '../services/RealAdminApiService';
 import { notificationService } from '../services/NotificationService';
-import { ApiResponse } from '../../services/ApiClient';
+import type { ApiResponse, ApiError } from '../../services/ApiClient';
+
+const isAuthApiError = (error: unknown): error is ApiError =>
+  !!error &&
+  typeof error === 'object' &&
+  'status' in error &&
+  typeof (error as ApiError).status === 'number';
 
 // 通用API調用Hook (用於 ApiClient 返回的 ApiResponse)
 export function useApiCall<T>(
@@ -116,6 +122,9 @@ export function useUsers(pagination?: any, searchFilters?: any) {
       };
       setStatistics(stats);
     } catch (err) {
+      if (isAuthApiError(err) && err.status === 401) {
+        throw err;
+      }
       const message = err instanceof Error ? err.message : '獲取用戶列表失敗';
       setError(message);
       notificationService.error('錯誤', message);
@@ -141,6 +150,9 @@ export function useUsers(pagination?: any, searchFilters?: any) {
         throw new Error(errorMsg);
       }
     } catch (err) {
+      if (isAuthApiError(err) && err.status === 401) {
+        throw err;
+      }
       const message = err instanceof Error ? err.message : '創建用戶失敗';
       notificationService.error('錯誤', message);
       throw err;
@@ -160,6 +172,9 @@ export function useUsers(pagination?: any, searchFilters?: any) {
         throw new Error(errorMsg);
       }
     } catch (err) {
+      if (isAuthApiError(err) && err.status === 401) {
+        throw err;
+      }
       const message = err instanceof Error ? err.message : '更新用戶失敗';
       notificationService.error('錯誤', message);
       throw err;
@@ -178,6 +193,9 @@ export function useUsers(pagination?: any, searchFilters?: any) {
         throw new Error(errorMsg);
       }
     } catch (err) {
+      if (isAuthApiError(err) && err.status === 401) {
+        throw err;
+      }
       const message = err instanceof Error ? err.message : '刪除用戶失敗';
       notificationService.error('錯誤', message);
       throw err;
