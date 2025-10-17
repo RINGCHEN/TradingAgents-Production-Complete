@@ -38,12 +38,27 @@ router = APIRouter(tags=["認證"])
 
 # ==================== 請求/回應模型 ====================
 
+class RegisterRequest(BaseModel):
+    """註冊請求"""
+    email: EmailStr = Field(..., description="用戶郵箱")
+    password: str = Field(..., min_length=8, description="密碼（至少8位）")
+    username: str = Field(..., min_length=3, max_length=50, description="用戶名")
+    tier: Optional[str] = Field("free", description="會員等級")
+
+class RegisterResponse(BaseModel):
+    """註冊回應"""
+    user_id: str = Field(..., description="用戶ID")
+    email: str = Field(..., description="郵箱")
+    username: str = Field(..., description="用戶名")
+    membership_tier: str = Field(..., description="會員等級")
+    created_at: str = Field(..., description="註冊時間")
+
 class LoginRequest(BaseModel):
     """登入請求"""
     email: EmailStr = Field(..., description="用戶郵箱")
     password: str = Field(..., min_length=6, description="密碼")
     remember_me: bool = Field(False, description="記住我")
-    
+
 class LoginResponse(BaseModel):
     """登入回應"""
     access_token: str = Field(..., description="訪問令牌")
@@ -102,6 +117,111 @@ class SecurityEvent(BaseModel):
     details: Dict[str, Any] = Field(..., description="事件詳情")
 
 # ==================== 認證端點 ====================
+
+@router.post("/register", response_model=RegisterResponse, summary="用戶註冊")
+async def register(
+    request: RegisterRequest,
+    http_request: Request,
+    _rate_check = Depends(rate_limit('login')),  # 使用相同的速率限制
+    _security_check = Depends(security_headers_check)
+):
+    """
+    用戶註冊
+
+    創建新用戶賬戶，支持郵箱註冊。
+    """
+    auth_manager = get_auth_manager()
+
+    try:
+        # 獲取客戶端資訊
+        client_info = {
+            'ip': http_request.client.host if http_request.client else 'unknown',
+            'user_agent': http_request.headers.get('user-agent', ''),
+            'timestamp': datetime.now().isoformat()
+        }
+
+        # 驗證密碼強度
+        password_check = auth_manager.password_manager.validate_password_strength(
+            request.password
+        )
+
+        if not password_check['is_valid']:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"密碼強度不足: {', '.join(password_check['feedback'])}"
+            )
+
+        # 檢查郵箱是否已存在
+        # 注意：這裡應該查詢資料庫，暫時使用簡化實現
+        existing_users = [u for u in auth_manager.active_sessions.values()
+                         if hasattr(u, 'user_id') and request.email in u.user_id]
+
+        if existing_users:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="郵箱已被註冊"
+            )
+
+        # 生成用戶ID
+        import uuid
+        user_id = str(uuid.uuid4())
+
+        # 確定會員等級
+        tier_map = {
+            'free': TierType.FREE,
+            'gold': TierType.GOLD,
+            'diamond': TierType.DIAMOND
+        }
+        membership_tier = tier_map.get(request.tier.lower(), TierType.FREE)
+
+        # 創建用戶上下文（實際應該存儲到資料庫）
+        user_context = UserContext(
+            user_id=user_id,
+            membership_tier=membership_tier,
+            permissions=None  # 將自動根據等級分配權限
+        )
+
+        # 創建初始 session（用於後續登入）
+        session_id = str(uuid.uuid4())
+        auth_manager.active_sessions[session_id] = user_context
+
+        # 記錄註冊事件
+        security_logger.info("用戶註冊成功", extra={
+            'user_id': user_id,
+            'email': request.email,
+            'username': request.username,
+            'membership_tier': membership_tier.value,
+            'client_info': client_info
+        })
+
+        # 構建回應
+        response = RegisterResponse(
+            user_id=user_id,
+            email=request.email,
+            username=request.username,
+            membership_tier=membership_tier.value,
+            created_at=datetime.now().isoformat()
+        )
+
+        return response
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        error_info = await handle_error(e, {
+            'endpoint': '/auth/register',
+            'email': request.email
+        })
+
+        api_logger.error("註冊過程發生錯誤", extra={
+            'error_id': error_info.error_id,
+            'email': request.email
+        })
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="註冊服務暫時不可用"
+        )
 
 @router.post("/login", response_model=LoginResponse, summary="用戶登入")
 async def login(
