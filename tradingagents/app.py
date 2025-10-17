@@ -514,18 +514,20 @@ async def health_check():
     """健康檢查"""
     error_handler = get_error_handler()
     system_health = error_handler.get_system_health()
-    
+
     services_status = {
         "trading_graph": trading_graph is not None,
         "active_sessions": len(trading_graph.active_sessions) if trading_graph else 0,
         "error_handler": True,
-        "logging_system": True
+        "logging_system": True,
+        "redis_cache": redis_service.is_connected,
+        "prometheus_metrics": True
     }
-    
+
     overall_status = "healthy"
     if system_health['status'] in ['degraded', 'unhealthy']:
         overall_status = system_health['status']
-    
+
     return {
         "status": overall_status,
         "timestamp": datetime.now().isoformat(),
@@ -533,6 +535,26 @@ async def health_check():
         "system_health": system_health,
         "uptime_seconds": (datetime.now() - datetime.now()).total_seconds()  # 簡化實現
     }
+
+@app.get("/metrics", tags=["系統監控"])
+async def prometheus_metrics():
+    """
+    Prometheus 指標端點
+
+    提供系統性能指標供 Prometheus 抓取，包括：
+    - Token 刷新性能指標
+    - Redis 緩存命中率
+    - API 請求統計
+    - JWT 操作統計
+    - 系統健康指標
+    """
+    from .monitoring.prometheus_metrics import get_metrics, get_metrics_content_type
+    from fastapi.responses import Response
+
+    return Response(
+        content=get_metrics(),
+        media_type=get_metrics_content_type()
+    )
 
 
 @app.get("/system/error-stats", tags=["系統監控"])

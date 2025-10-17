@@ -16,9 +16,18 @@ from fastapi import HTTPException, status, BackgroundTasks
 import asyncio
 import hashlib
 import json
+import time
 
 from ..utils.logging_config import get_security_logger, get_api_logger
 from ..cache.redis_service import redis_service
+
+# Prometheus 指標（延遲導入以避免循環依賴）
+try:
+    from ..monitoring.prometheus_metrics import MetricsCollector
+    METRICS_ENABLED = True
+except ImportError:
+    METRICS_ENABLED = False
+    MetricsCollector = None
 
 # 配置日誌
 security_logger = get_security_logger(__name__)
@@ -58,7 +67,8 @@ class OptimizedRefreshManager:
         self,
         auth_manager,
         refresh_token: str,
-        background_tasks: BackgroundTasks
+        background_tasks: BackgroundTasks,
+        endpoint: str = 'user'
     ) -> Dict[str, Any]:
         """
         優化的Token刷新（帶緩存）
@@ -68,8 +78,12 @@ class OptimizedRefreshManager:
         2. 減少JWT解碼次數（payload只解碼一次）
         3. 異步化日誌記錄（不阻塞響應）
         4. 批量處理session更新
+        5. 記錄Prometheus指標
         """
+        start_time = time.time()
         cache_key = self._get_cache_key(refresh_token)
+        cache_status = 'disabled'
+        success = False
 
         # 策略1: 檢查緩存（僅在Redis可用時）
         if redis_service.is_connected:
@@ -78,6 +92,23 @@ class OptimizedRefreshManager:
                 if cached_result:
                     # 緩存命中，直接返回
                     result = json.loads(cached_result)
+                    cache_status = 'hit'
+                    success = True
+
+                    # 記錄 Prometheus 指標
+                    if METRICS_ENABLED and MetricsCollector:
+                        duration = time.time() - start_time
+                        MetricsCollector.record_token_refresh(
+                            endpoint=endpoint,
+                            duration_seconds=duration,
+                            cache_status=cache_status,
+                            success=True
+                        )
+                        MetricsCollector.record_cache_operation(
+                            operation='get',
+                            cache_key_prefix='refresh_token',
+                            hit=True
+                        )
 
                     # 異步記錄緩存命中
                     background_tasks.add_task(
@@ -92,6 +123,15 @@ class OptimizedRefreshManager:
                     )
 
                     return result
+                else:
+                    # 緩存未命中
+                    cache_status = 'miss'
+                    if METRICS_ENABLED and MetricsCollector:
+                        MetricsCollector.record_cache_operation(
+                            operation='get',
+                            cache_key_prefix='refresh_token',
+                            hit=False
+                        )
             except Exception as e:
                 # 緩存失敗不影響主流程
                 api_logger.warning(f"Cache read error: {str(e)}")
@@ -176,9 +216,29 @@ class OptimizedRefreshManager:
                 }
             )
 
+            # 記錄 Prometheus 指標（成功刷新）
+            success = True
+            if METRICS_ENABLED and MetricsCollector:
+                duration = time.time() - start_time
+                MetricsCollector.record_token_refresh(
+                    endpoint=endpoint,
+                    duration_seconds=duration,
+                    cache_status=cache_status,
+                    success=True
+                )
+
             return result
 
-        except HTTPException:
+        except HTTPException as http_exc:
+            # 記錄 Prometheus 指標（失敗）
+            if METRICS_ENABLED and MetricsCollector:
+                duration = time.time() - start_time
+                MetricsCollector.record_token_refresh(
+                    endpoint=endpoint,
+                    duration_seconds=duration,
+                    cache_status=cache_status,
+                    success=False
+                )
             raise
         except Exception as e:
             # 異步記錄錯誤（不阻塞）
@@ -188,6 +248,16 @@ class OptimizedRefreshManager:
                 f"Token refresh error: {str(e)}",
                 {'error': str(e)}
             )
+
+            # 記錄 Prometheus 指標（錯誤）
+            if METRICS_ENABLED and MetricsCollector:
+                duration = time.time() - start_time
+                MetricsCollector.record_token_refresh(
+                    endpoint=endpoint,
+                    duration_seconds=duration,
+                    cache_status=cache_status,
+                    success=False
+                )
 
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
