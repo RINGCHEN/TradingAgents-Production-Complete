@@ -194,12 +194,12 @@ async def register(
                 INSERT INTO users (
                     id, uuid, email, username, password_hash,
                     membership_tier, status, email_verified,
-                    tier_type, created_at
+                    created_at
                 )
                 VALUES (
                     :id, :uuid, :email, :username, :password_hash,
                     :membership_tier, 'active', false,
-                    :tier_type, CURRENT_TIMESTAMP
+                    CURRENT_TIMESTAMP
                 )
                 RETURNING id
             """)
@@ -210,8 +210,7 @@ async def register(
                 "email": request.email,
                 "username": request.username,
                 "password_hash": password_hash,
-                "membership_tier": membership_tier.value.lower(),
-                "tier_type": membership_tier.value.upper()
+                "membership_tier": membership_tier.value.lower()
             })
             db.commit()
 
