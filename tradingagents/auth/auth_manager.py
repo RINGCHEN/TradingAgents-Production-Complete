@@ -816,13 +816,13 @@ class AuthenticationManager:
                 # 查詢用戶（使用 UUID）
                 query = text("""
                     SELECT
-                        user_id,
+                        uuid,
                         email,
                         username,
                         membership_tier,
                         status
                     FROM users
-                    WHERE user_id = :user_id
+                    WHERE uuid = :user_id
                     LIMIT 1
                 """)
 
