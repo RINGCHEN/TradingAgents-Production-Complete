@@ -198,7 +198,7 @@ async def register(
                 )
                 VALUES (
                     :id, :uuid, :email, :username, :password_hash,
-                    :membership_tier, 'active', false,
+                    :membership_tier, 'ACTIVE', false,
                     CURRENT_TIMESTAMP
                 )
                 RETURNING id
