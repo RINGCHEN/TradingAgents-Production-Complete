@@ -189,29 +189,30 @@ async def register(
                     detail="郵箱已被註冊"
                 )
 
-            # 插入用戶到資料庫
+            # 插入用戶到資料庫（id 自動生成，uuid 手動設置）
             insert_query = text("""
                 INSERT INTO users (
-                    id, uuid, email, username, password_hash,
+                    uuid, email, username, password_hash,
                     membership_tier, status, email_verified,
-                    created_at
+                    created_at, updated_at, auth_provider
                 )
                 VALUES (
-                    :id, :uuid, :email, :username, :password_hash,
+                    :uuid, :email, :username, :password_hash,
                     :membership_tier, 'ACTIVE', false,
-                    CURRENT_TIMESTAMP
+                    CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'EMAIL'
                 )
-                RETURNING id
+                RETURNING id, uuid
             """)
 
-            db.execute(insert_query, {
-                "id": user_id,
-                "uuid": user_id,  # 使用相同的 UUID
+            result = db.execute(insert_query, {
+                "uuid": user_id,  # UUID 作為字符串
                 "email": request.email,
                 "username": request.username,
                 "password_hash": password_hash,
                 "membership_tier": membership_tier.name  # 使用 .name 得到大寫的 'FREE', 'GOLD', 'DIAMOND'
             })
+            db_user = result.fetchone()
+            user_id = str(db_user.id)  # 使用資料庫生成的 integer ID
             db.commit()
 
         except HTTPException:
